@@ -1,0 +1,602 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model assessments {
+  id                                           Int                       @id @default(autoincrement())
+  employee_id                                  Int
+  assessment_type                              String                    @db.VarChar(50)
+  assessment_date                              DateTime                  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  overall_score                                Decimal?                  @db.Decimal(5, 2)
+  technical_score                              Decimal?                  @db.Decimal(5, 2)
+  soft_skills_score                            Decimal?                  @db.Decimal(5, 2)
+  notes                                        String?
+  assessed_by                                  Int?
+  status                                       String?                   @default("DRAFT") @db.VarChar(50)
+  created_at                                   DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_at                                   DateTime?                 @default(now()) @db.Timestamp(6)
+  tenant_id                                    String                    @db.Uuid
+  employees_assessments_assessed_byToemployees employees?                @relation("assessments_assessed_byToemployees", fields: [assessed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees_assessments_employee_idToemployees employees                 @relation("assessments_employee_idToemployees", fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants                                      tenants                   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_assessments_tenant")
+  soft_skills_assessments                      soft_skills_assessments[]
+
+  @@index([employee_id], map: "idx_assessments_employee")
+  @@index([tenant_id], map: "idx_assessments_tenant")
+}
+
+model career_aspirations {
+  id              Int       @id @default(autoincrement())
+  employee_id     Int
+  target_role_id  Int?
+  target_position String?   @db.VarChar(200)
+  target_date     DateTime? @db.Date
+  notes           String?
+  is_active       Boolean?  @default(true)
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id       String    @db.Uuid
+  employees       employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  roles           roles?    @relation(fields: [target_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction) @ignore
+  tenants         tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_career_aspirations_tenant")
+
+  @@index([tenant_id], map: "idx_career_aspirations_tenant")
+}
+
+model departments {
+  id                                             Int           @id @default(autoincrement())
+  department_name                                String        @unique @db.VarChar(100)
+  department_code                                String?       @unique @db.VarChar(20)
+  manager_id                                     Int?
+  parent_department_id                           Int?
+  is_active                                      Boolean?      @default(true)
+  created_at                                     DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at                                     DateTime?     @default(now()) @db.Timestamp(6)
+  tenant_id                                      String        @db.Uuid
+  departments                                    departments?  @relation("departmentsTodepartments", fields: [parent_department_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_departments                              departments[] @relation("departmentsTodepartments")
+  employees_departments_manager_idToemployees    employees?    @relation("departments_manager_idToemployees", fields: [manager_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_department_manager")
+  tenants                                        tenants       @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_departments_tenant")
+  employees_employees_department_idTodepartments employees[]   @relation("employees_department_idTodepartments")
+
+  @@index([tenant_id], map: "idx_departments_tenant")
+  @@index([tenant_id, department_name], map: "idx_departments_tenant_name")
+}
+
+model employee_roles {
+  id          Int        @id @default(autoincrement())
+  employee_id Int
+  role_id     Int
+  sub_role_id Int?
+  start_date  DateTime   @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date    DateTime?  @db.Date
+  is_current  Boolean?   @default(true)
+  created_at  DateTime?  @default(now()) @db.Timestamp(6)
+  tenant_id   String     @db.Uuid
+  employees   employees  @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  roles       roles      @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction) @ignore
+  sub_roles   sub_roles? @relation(fields: [sub_role_id], references: [id], onDelete: NoAction, onUpdate: NoAction) @ignore
+  tenants     tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_roles_tenant")
+
+  @@unique([employee_id, role_id, start_date])
+  @@index([employee_id], map: "idx_employee_roles_employee")
+  @@index([tenant_id], map: "idx_employee_roles_tenant")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model employee_skills {
+  id                      Int       @id @default(autoincrement())
+  employee_id             Int
+  skill_id                Int
+  proficiency_level       Int?
+  years_experience        Decimal?  @db.Decimal(3, 1)
+  last_used_date          DateTime? @db.Date
+  is_certified            Boolean?  @default(false)
+  certification_date      DateTime? @db.Date
+  certification_authority String?   @db.VarChar(200)
+  notes                   String?
+  created_at              DateTime? @default(now()) @db.Timestamp(6)
+  updated_at              DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id               String    @db.Uuid
+  employees               employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  skills                  skills    @relation(fields: [skill_id], references: [id], onDelete: Cascade, onUpdate: NoAction) @ignore
+  tenants                 tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_skills_tenant")
+
+  @@unique([employee_id, skill_id])
+  @@index([employee_id], map: "idx_employee_skills_employee")
+  @@index([skill_id], map: "idx_employee_skills_skill")
+  @@index([tenant_id], map: "idx_employee_skills_tenant")
+}
+
+model employees {
+  id                                               Int                       @id @default(autoincrement())
+  employee_code                                    String?                   @unique @db.VarChar(50)
+  first_name                                       String                    @db.VarChar(100)
+  last_name                                        String                    @db.VarChar(100)
+  email                                            String                    @unique @db.VarChar(255)
+  phone                                            String?                   @db.VarChar(20)
+  hire_date                                        DateTime                  @db.Date
+  department_id                                    Int?
+  position                                         String?                   @db.VarChar(100)
+  manager_id                                       Int?
+  is_active                                        Boolean?                  @default(true)
+  created_at                                       DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_at                                       DateTime?                 @default(now()) @db.Timestamp(6)
+  tenant_id                                        String                    @db.Uuid
+  assessments_assessments_assessed_byToemployees   assessments[]             @relation("assessments_assessed_byToemployees")
+  assessments_assessments_employee_idToemployees   assessments[]             @relation("assessments_employee_idToemployees")
+  career_aspirations                               career_aspirations[]
+  departments_departments_manager_idToemployees    departments[]             @relation("departments_manager_idToemployees")
+  employee_roles                                   employee_roles[]
+  employee_skills                                  employee_skills[]
+  departments_employees_department_idTodepartments departments?              @relation("employees_department_idTodepartments", fields: [department_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees                                        employees?                @relation("employeesToemployees", fields: [manager_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_manager")
+  other_employees                                  employees[]               @relation("employeesToemployees")
+  tenants                                          tenants                   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employees_tenant")
+  engagement_surveys                               engagement_surveys[]
+  notifications                                    notifications[]
+  project_assignments                              project_assignments[]
+  projects                                         projects[]
+  skill_gaps                                       skill_gaps[]
+  soft_skills_assessments                          soft_skills_assessments[]
+  training_plans                                   training_plans[]
+
+  @@index([is_active], map: "idx_employees_active")
+  @@index([department_id], map: "idx_employees_department")
+  @@index([email], map: "idx_employees_email")
+  @@index([tenant_id], map: "idx_employees_tenant")
+  @@index([tenant_id, employee_code], map: "idx_employees_tenant_code")
+  @@index([tenant_id, email], map: "idx_employees_tenant_email")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model engagement_surveys {
+  id                 Int       @id @default(autoincrement())
+  employee_id        Int
+  survey_month       DateTime  @db.Date
+  job_satisfaction   Int?
+  work_life_balance  Int?
+  career_development Int?
+  team_collaboration Int?
+  manager_support    Int?
+  overall_score      Decimal?  @db.Decimal(3, 1)
+  achieved_goals     String[]
+  challenges_faced   String[]
+  support_needed     String[]
+  comments           String?
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id          String    @db.Uuid
+  employees          employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants            tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_engagement_surveys_tenant")
+
+  @@unique([employee_id, survey_month])
+  @@index([employee_id], map: "idx_engagement_employee")
+  @@index([survey_month], map: "idx_engagement_month")
+  @@index([tenant_id], map: "idx_engagement_surveys_tenant")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model extended_descriptions_roles {
+  id                        Int?
+  Extended_Description_Role String?
+  Role                      String?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model extended_descriptions_skills {
+  id                   Int?
+  Extended_Description String?
+  Skill                String?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model extended_tech_skills_roles_descriptions_full {
+  id                        Int?
+  Skill                     String?
+  Role                      String?
+  Description_Code          Int?
+  Description               String?
+  Hot_Technology            String?
+  In_Demand                 String?
+  NameKnown_Skill           String?
+  Synonyms_Skill            String[]
+  NameKnown_Role            String?
+  Synonyms_Role             String[]
+  Extended_Description      String?
+  Extended_Description_Role String?
+
+  @@ignore
+}
+
+model notifications {
+  id          Int       @id @default(autoincrement())
+  employee_id Int
+  type        String    @db.VarChar(50)
+  title       String    @db.VarChar(200)
+  message     String?
+  is_read     Boolean?  @default(false)
+  read_at     DateTime? @db.Timestamp(6)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  employees   employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_notifications_employee")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model project_assignments {
+  id                    Int       @id @default(autoincrement())
+  project_id            Int
+  employee_id           Int
+  role_in_project       String?   @db.VarChar(100)
+  allocation_percentage Int?
+  start_date            DateTime  @db.Date
+  end_date              DateTime? @db.Date
+  is_active             Boolean?  @default(true)
+  created_at            DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id             String    @db.Uuid
+  tenants               tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_project_assignments_tenant")
+  employees             employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  projects              projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([project_id, employee_id, start_date])
+  @@index([employee_id], map: "idx_project_assignments_employee")
+  @@index([project_id], map: "idx_project_assignments_project")
+  @@index([tenant_id], map: "idx_project_assignments_tenant")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model project_skills_required {
+  id             Int      @id @default(autoincrement())
+  project_id     Int
+  skill_id       Int
+  required_level Int?
+  is_mandatory   Boolean? @default(false)
+  projects       projects @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  skills         skills   @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction) @ignore
+
+  @@unique([project_id, skill_id])
+}
+
+model projects {
+  id                      Int                       @id @default(autoincrement())
+  project_name            String                    @db.VarChar(200)
+  project_code            String?                   @unique @db.VarChar(50)
+  description             String?
+  client_name             String?                   @db.VarChar(200)
+  start_date              DateTime?                 @db.Date
+  end_date                DateTime?                 @db.Date
+  budget                  Decimal?                  @db.Decimal(12, 2)
+  status                  String?                   @default("PLANNING") @db.VarChar(50)
+  project_manager_id      Int?
+  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  tenant_id               String                    @db.Uuid
+  project_assignments     project_assignments[]
+  project_skills_required project_skills_required[]
+  tenants                 tenants                   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_projects_tenant")
+  employees               employees?                @relation(fields: [project_manager_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([tenant_id], map: "idx_projects_tenant")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model role_sub_role {
+  id          Int        @id @default(autoincrement())
+  id_role     Int
+  id_sub_role Int?
+  created_at  DateTime?  @default(now()) @db.Timestamp(6)
+  tenant_id   String     @db.Uuid
+  roles       roles      @relation(fields: [id_role], references: [id], onDelete: Cascade, map: "fk_role_sub_role_role") @ignore
+  sub_roles   sub_roles? @relation(fields: [id_sub_role], references: [id], map: "fk_role_sub_role_sub_role") @ignore
+  tenants     tenants    @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_role_sub_role_tenant")
+
+  @@unique([id_role, id_sub_role], map: "uk_role_sub_role")
+  @@index([id_role], map: "idx_role_sub_role_id_role")
+  @@index([tenant_id], map: "idx_role_sub_role_tenant")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model role_sub_role_backup {
+  id          Int?
+  Role        String?
+  Sub_Role    String?
+  id_role     Int?
+  id_sub_role Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model role_sub_role_backup_final {
+  id_role     Int?
+  id_sub_role Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model roles {
+  id                                           Int?                 @unique(map: "uk_roles_id")
+  Role                                         String?              @unique(map: "uk_roles_role")
+  NameKnown_Role                               String?
+  Synonyms_Role                                String[]
+  tenant_id                                    String               @db.Uuid
+  career_aspirations                           career_aspirations[]
+  employee_roles                               employee_roles[]
+  role_mappings_role_mappings_role_idToroles   role_mappings?       @relation("role_mappings_role_idToroles")
+  role_mappings_role_mappings_role_nameToroles role_mappings?       @relation("role_mappings_role_nameToroles")
+  role_sub_role                                role_sub_role[]
+  tenants                                      tenants              @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_roles_tenant")
+  skill_gaps                                   skill_gaps[]
+
+  @@index([tenant_id], map: "idx_roles_tenant")
+  @@index([tenant_id, Role], map: "idx_roles_tenant_name")
+  @@ignore
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model skill_gaps {
+  id             Int       @id @default(autoincrement())
+  employee_id    Int
+  role_id        Int
+  skill_id       Int
+  current_level  Int?
+  required_level Int?
+  gap_size       Int?
+  gap_percentage Decimal?  @db.Decimal(5, 2)
+  priority       String?   @db.VarChar(20)
+  calculated_at  DateTime? @default(now()) @db.Timestamp(6)
+  employees      employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  roles          roles     @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction) @ignore
+  skills         skills    @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction) @ignore
+
+  @@unique([employee_id, role_id, skill_id])
+  @@index([employee_id], map: "idx_skill_gaps_employee")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model skills {
+  id                      Int?                      @unique(map: "uk_skills_id")
+  Skill                   String?                   @unique(map: "uk_skills_skill")
+  NameKnown_Skill         String?
+  Synonyms_Skill          String[]
+  tenant_id               String                    @db.Uuid
+  employee_skills         employee_skills[]
+  project_skills_required project_skills_required[]
+  skill_gaps              skill_gaps[]
+  tenants                 tenants                   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_skills_tenant")
+  training_plans          training_plans[]
+
+  @@index([tenant_id], map: "idx_skills_tenant")
+  @@ignore
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model soft_skills_assessments {
+  id                           Int          @id @default(autoincrement())
+  assessment_id                Int?
+  employee_id                  Int
+  communication_score          Int?
+  teamwork_score               Int?
+  problem_solving_score        Int?
+  emotional_intelligence_score Int?
+  leadership_score             Int?
+  total_score                  Int?
+  percentage_score             Decimal?     @db.Decimal(5, 2)
+  skill_level                  String?      @db.VarChar(50)
+  completed_at                 DateTime?    @db.Timestamp(6)
+  created_at                   DateTime?    @default(now()) @db.Timestamp(6)
+  tenant_id                    String       @db.Uuid
+  tenants                      tenants      @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_soft_skills_assessments_tenant")
+  assessments                  assessments? @relation(fields: [assessment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  employees                    employees    @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([tenant_id], map: "idx_soft_skills_assessments_tenant")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model sub_roles {
+  id                 Int?             @unique(map: "uk_sub_roles_id")
+  Sub_Role           String?          @unique(map: "uk_sub_roles_sub_role")
+  NameKnown_Sub_Role String?
+  Synonyms_Sub_Role  String[]
+  tenant_id          String           @db.Uuid
+  employee_roles     employee_roles[]
+  role_sub_role      role_sub_role[]
+  tenants            tenants          @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_sub_roles_tenant")
+
+  @@index([tenant_id], map: "idx_sub_roles_tenant")
+  @@ignore
+}
+
+model training_plans {
+  id            Int       @id @default(autoincrement())
+  employee_id   Int
+  skill_id      Int?
+  training_type String?   @db.VarChar(100)
+  provider      String?   @db.VarChar(200)
+  start_date    DateTime? @db.Date
+  end_date      DateTime? @db.Date
+  status        String?   @default("PLANNED") @db.VarChar(50)
+  cost          Decimal?  @db.Decimal(10, 2)
+  notes         String?
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  updated_at    DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id     String    @db.Uuid
+  tenants       tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_training_plans_tenant")
+  employees     employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  skills        skills?   @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction) @ignore
+
+  @@index([tenant_id], map: "idx_training_plans_tenant")
+}
+
+model extended_descriptions_sub_roles {
+  id                            Int     @id @default(autoincrement())
+  Extended_Description_Sub_Role String?
+  Sub_Role                      String?
+}
+
+model role_mappings {
+  role_id                              Int    @id
+  role_name                            String @unique
+  roles_role_mappings_role_idToroles   roles  @relation("role_mappings_role_idToroles", fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction) @ignore
+  roles_role_mappings_role_nameToroles roles  @relation("role_mappings_role_nameToroles", fields: [role_name], references: [Role], onDelete: NoAction, onUpdate: NoAction) @ignore
+}
+
+model tenant_api_keys {
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tenant_id    String    @db.Uuid
+  name         String    @db.VarChar(100)
+  key_hash     String    @unique @db.VarChar(255)
+  key_prefix   String    @db.VarChar(10)
+  permissions  Json?     @default("[\"read\"]")
+  rate_limit   Int?      @default(1000)
+  last_used_at DateTime? @db.Timestamp(6)
+  expires_at   DateTime? @db.Timestamp(6)
+  is_active    Boolean?  @default(true)
+  created_by   String?   @db.Uuid
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  tenants      tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model tenant_audit_log {
+  id           Int       @id @default(autoincrement())
+  tenant_id    String    @db.Uuid
+  action       String    @db.VarChar(50)
+  changes      Json?
+  performed_by String?   @db.Uuid
+  performed_at DateTime? @default(now()) @db.Timestamp(6)
+  ip_address   String?   @db.Inet
+  user_agent   String?
+  tenants      tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model tenant_billing {
+  id                Int       @id @default(autoincrement())
+  tenant_id         String    @db.Uuid
+  billing_email     String?   @db.VarChar(255)
+  billing_name      String?   @db.VarChar(200)
+  billing_vat       String?   @db.VarChar(50)
+  billing_address   String?
+  payment_method    String?   @db.VarChar(50)
+  payment_details   Json?
+  last_invoice_date DateTime? @db.Timestamp(6)
+  next_invoice_date DateTime? @db.Timestamp(6)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @db.Timestamp(6)
+  tenants           tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model tenant_features {
+  id          Int       @id @default(autoincrement())
+  tenant_id   String    @db.Uuid
+  feature_key String    @db.VarChar(100)
+  is_enabled  Boolean?  @default(true)
+  config      Json?
+  valid_from  DateTime? @default(now()) @db.Timestamp(6)
+  valid_until DateTime? @db.Timestamp(6)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  tenants     tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([tenant_id, feature_key])
+}
+
+model tenant_users {
+  id                        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tenant_id                 String    @db.Uuid
+  email                     String    @db.VarChar(255)
+  password_hash             String    @db.VarChar(255)
+  first_name                String?   @db.VarChar(100)
+  last_name                 String?   @db.VarChar(100)
+  role                      String    @default("admin") @db.VarChar(50)
+  last_login_at             DateTime? @db.Timestamp(6)
+  last_login_ip             String?   @db.Inet
+  login_count               Int?      @default(0)
+  failed_login_count        Int?      @default(0)
+  locked_until              DateTime? @db.Timestamp(6)
+  refresh_token             String?
+  refresh_token_expires_at  DateTime? @db.Timestamp(6)
+  password_reset_token      String?   @db.VarChar(255)
+  password_reset_expires_at DateTime? @db.Timestamp(6)
+  email_verification_token  String?   @db.VarChar(255)
+  email_verified_at         DateTime? @db.Timestamp(6)
+  two_factor_secret         String?   @db.VarChar(255)
+  two_factor_enabled        Boolean?  @default(false)
+  permissions               Json?     @default("{}")
+  is_active                 Boolean?  @default(true)
+  created_at                DateTime? @default(now()) @db.Timestamp(6)
+  updated_at                DateTime? @default(now()) @db.Timestamp(6)
+  tenants                   tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([email, tenant_id])
+}
+
+model tenants {
+  id                      String                    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  slug                    String                    @unique @db.VarChar(50)
+  name                    String                    @db.VarChar(200)
+  domain                  String?                   @unique @db.VarChar(100)
+  email                   String                    @db.VarChar(255)
+  phone                   String?                   @db.VarChar(50)
+  vat_number              String?                   @db.VarChar(50)
+  tax_code                String?                   @db.VarChar(50)
+  address_street          String?                   @db.VarChar(255)
+  address_city            String?                   @db.VarChar(100)
+  address_state           String?                   @db.VarChar(100)
+  address_zip             String?                   @db.VarChar(20)
+  address_country         String?                   @default("Italia") @db.VarChar(100)
+  subscription_plan       String?                   @default("trial") @db.VarChar(50)
+  subscription_status     String?                   @default("active") @db.VarChar(50)
+  subscription_started_at DateTime?                 @default(now()) @db.Timestamp(6)
+  subscription_expires_at DateTime?                 @db.Timestamp(6)
+  max_employees           Int?                      @default(10)
+  max_storage_gb          Int?                      @default(10)
+  logo_url                String?
+  favicon_url             String?
+  primary_color           String?                   @default("#007bff") @db.VarChar(7)
+  secondary_color         String?                   @default("#6c757d") @db.VarChar(7)
+  accent_color            String?                   @default("#28a745") @db.VarChar(7)
+  settings                Json?                     @default("{\"locale\": {\"currency\": \"EUR\", \"language\": \"it\", \"timezone\": \"Europe/Rome\", \"date_format\": \"DD/MM/YYYY\"}, \"features\": {\"projects\": true, \"analytics\": true, \"api_access\": false, \"assessments\": true, \"white_label\": false, \"custom_reports\": false}, \"notifications\": {\"sms_enabled\": false, \"webhook_url\": null, \"email_enabled\": true}}")
+  allowed_ip_ranges       String[]
+  two_factor_required     Boolean?                  @default(false)
+  sso_enabled             Boolean?                  @default(false)
+  sso_provider            String?                   @db.VarChar(50)
+  sso_config              Json?
+  is_active               Boolean?                  @default(true)
+  is_deleted              Boolean?                  @default(false)
+  created_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?                 @default(now()) @db.Timestamp(6)
+  deleted_at              DateTime?                 @db.Timestamp(6)
+  created_by              String?                   @db.Uuid
+  updated_by              String?                   @db.Uuid
+  logo                    String?
+  assessments             assessments[]
+  career_aspirations      career_aspirations[]
+  departments             departments[]
+  employee_roles          employee_roles[]
+  employee_skills         employee_skills[]
+  employees               employees[]
+  engagement_surveys      engagement_surveys[]
+  project_assignments     project_assignments[]
+  projects                projects[]
+  role_sub_role           role_sub_role[]
+  roles                   roles[] @ignore
+  skills                  skills[] @ignore
+  soft_skills_assessments soft_skills_assessments[]
+  sub_roles               sub_roles[] @ignore
+  tenant_api_keys         tenant_api_keys[]
+  tenant_audit_log        tenant_audit_log[]
+  tenant_billing          tenant_billing[]
+  tenant_features         tenant_features[]
+  tenant_users            tenant_users[]
+  training_plans          training_plans[]
+}
