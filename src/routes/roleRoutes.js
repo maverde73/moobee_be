@@ -118,6 +118,51 @@ router.get('/',
   }
 );
 
+// GET /api/sub-roles/:id/skills - Get skills for a specific sub-role
+router.get('/sub-roles/:id/skills',
+  authenticate,
+  [
+    param('id').isInt()
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const subRoleId = parseInt(req.params.id);
+
+      // Get skills using Prisma ORM with proper relations
+      const skillsSubRoles = await prisma.skills_sub_roles_value.findMany({
+        where: { id_sub_role: subRoleId },
+        include: {
+          skills: true
+        },
+        orderBy: { Grading: 'desc' }
+      });
+
+      // Format the response to match expected structure
+      const skills = skillsSubRoles.map(ssr => ({
+        id: String(ssr.id),
+        skill_id: String(ssr.id_skill),
+        name: ssr.skills?.Skill || ssr.skills?.NameKnown_Skill || 'Unknown',
+        display_name: ssr.skills?.NameKnown_Skill || ssr.skills?.Skill || 'Unknown',
+        value: ssr.Value || 0,
+        grading: ssr.Grading || 0
+      }));
+
+      res.json({
+        success: true,
+        data: skills
+      });
+    } catch (error) {
+      console.error('Error fetching skills for sub-role:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching sub-role skills',
+        error: error.message
+      });
+    }
+  }
+);
+
 // GET /api/roles/:id - Get role by ID with details
 router.get('/:id',
   authenticate,
@@ -239,6 +284,45 @@ router.get('/sub-roles/all',
         data: subRoles
       });
     } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching sub-roles',
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET /api/roles/:id/sub-roles - Get sub-roles for a specific role
+router.get('/:id/sub-roles',
+  authenticate,
+  [
+    param('id').isInt()
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const roleId = parseInt(req.params.id);
+
+      // Get sub-roles for this role from role_sub_role table
+      const subRoles = await prisma.$queryRaw`
+        SELECT
+          sr.id::text as id,
+          sr."Sub_Role" as name,
+          sr."NameKnown_Sub_Role" as display_name,
+          rsr.id_role::text as role_id
+        FROM role_sub_role rsr
+        INNER JOIN sub_roles sr ON rsr.id_sub_role = sr.id
+        WHERE rsr.id_role = ${roleId}
+        ORDER BY sr."Sub_Role"
+      `;
+
+      res.json({
+        success: true,
+        data: subRoles
+      });
+    } catch (error) {
+      console.error('Error fetching sub-roles for role:', error);
       res.status(500).json({
         success: false,
         message: 'Error fetching sub-roles',

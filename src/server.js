@@ -98,6 +98,18 @@ const limiter = rateLimit({
       if (req.path.includes('/tenants/')) {
         return true;
       }
+      // Skip for roles endpoints
+      if (req.path.includes('/roles')) {
+        return true;
+      }
+      // Skip for employees endpoints
+      if (req.path.includes('/employees')) {
+        return true;
+      }
+      // Skip for tenant-users endpoints
+      if (req.path.includes('/tenant-users')) {
+        return true;
+      }
     }
     return false;
   }

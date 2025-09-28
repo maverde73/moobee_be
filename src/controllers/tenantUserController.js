@@ -90,6 +90,19 @@ const createUser = async (req, res) => {
     const { tenantId } = req.params;
     const userData = req.body;
 
+    // Prevent HR_MANAGER and HR from creating ADMIN or SUPER_ADMIN users
+    const currentUserRole = req.user?.role || req.decoded?.role;
+    const restrictedRoles = ['ADMIN', 'SUPER_ADMIN'];
+
+    if (userData.role && restrictedRoles.includes(userData.role.toUpperCase())) {
+      if (!['ADMIN', 'SUPER_ADMIN'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Non hai i permessi per creare utenti con ruolo ADMIN o SUPER_ADMIN'
+        });
+      }
+    }
+
     // Check if user already exists
     const existingUser = await tenantUserService.checkUserExists(userData.email, tenantId);
     if (existingUser) {
@@ -132,6 +145,19 @@ const updateUser = async (req, res) => {
   try {
     const { tenantId, userId } = req.params;
     const updateData = req.body;
+
+    // Prevent HR_MANAGER and HR from updating to ADMIN or SUPER_ADMIN role
+    const currentUserRole = req.user?.role || req.decoded?.role;
+    const restrictedRoles = ['ADMIN', 'SUPER_ADMIN'];
+
+    if (updateData.role && restrictedRoles.includes(updateData.role.toUpperCase())) {
+      if (!['ADMIN', 'SUPER_ADMIN'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Non hai i permessi per assegnare ruolo ADMIN o SUPER_ADMIN'
+        });
+      }
+    }
 
     // If password is being updated, hash it
     if (updateData.password) {
@@ -250,11 +276,130 @@ const importUsers = async (req, res) => {
   }
 };
 
+/**
+ * Update tenant user by ID (direct access without tenantId)
+ */
+const updateTenantUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    console.log('Updating tenant user:', id, updateData);
+
+    // Find the tenant user
+    const tenantUser = await prisma.tenant_users.findUnique({
+      where: { id: id }
+    });
+
+    if (!tenantUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tenant user not found'
+      });
+    }
+
+    // Check role restrictions for non-admin users
+    const currentUserRole = req.user.role?.toUpperCase();
+    const restrictedRoles = ['ADMIN', 'SUPER_ADMIN'];
+
+    if (updateData.role && restrictedRoles.includes(updateData.role.toUpperCase())) {
+      if (!['ADMIN', 'SUPER_ADMIN'].includes(currentUserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'Non hai i permessi per assegnare ruoli ADMIN o SUPER_ADMIN'
+        });
+      }
+    }
+
+    // Update the tenant user
+    const updated = await prisma.tenant_users.update({
+      where: { id: id },
+      data: {
+        email: updateData.email || tenantUser.email,
+        role: updateData.role?.toUpperCase() || tenantUser.role,
+        is_active: updateData.is_active !== undefined ? updateData.is_active : tenantUser.is_active,
+        force_password_change: updateData.force_password_change !== undefined ? updateData.force_password_change : tenantUser.force_password_change,
+        updated_at: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Utente aggiornato con successo',
+      data: updated
+    });
+  } catch (error) {
+    console.error('Error updating tenant user by ID:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating tenant user',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Update tenant user password
+ */
+const updateTenantUserPassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'La password deve essere di almeno 8 caratteri'
+      });
+    }
+
+    // Find the tenant user
+    const tenantUser = await prisma.tenant_users.findUnique({
+      where: { id: id }
+    });
+
+    if (!tenantUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tenant user not found'
+      });
+    }
+
+    // Hash the password
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update the password
+    await prisma.tenant_users.update({
+      where: { id: id },
+      data: {
+        password: hashedPassword,
+        force_password_change: false,
+        updated_at: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Password aggiornata con successo'
+    });
+  } catch (error) {
+    console.error('Error updating tenant user password:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating password',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   createUser,
   updateUser,
   deleteUser,
-  importUsers
+  importUsers,
+  updateTenantUserById,
+  updateTenantUserPassword
 };

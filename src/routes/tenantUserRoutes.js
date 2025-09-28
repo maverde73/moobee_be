@@ -51,10 +51,11 @@ router.get('/tenants/:tenantId/users/:userId',
 /**
  * @route POST /api/tenants/:tenantId/users
  * @description Crea un nuovo utente tenant
- * @access Private - Admin only
+ * @access Private - Admin, HR_MANAGER, HR
  */
 router.post('/tenants/:tenantId/users',
-  requireAdmin,
+  authenticate,
+  authorize(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'HR']),
   validateTenantId,
   validateUserCreate,
   tenantUserController.createUser
@@ -63,10 +64,11 @@ router.post('/tenants/:tenantId/users',
 /**
  * @route PUT /api/tenants/:tenantId/users/:userId
  * @description Aggiorna un utente esistente
- * @access Private - Admin only
+ * @access Private - Admin, HR_MANAGER, HR
  */
 router.put('/tenants/:tenantId/users/:userId',
-  requireAdmin,
+  authenticate,
+  authorize(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'HR']),
   validateTenantId,
   validateUserId,
   validateUserUpdate,
@@ -95,6 +97,28 @@ router.post('/tenants/:tenantId/users/import',
   validateTenantId,
   validateImport,
   tenantUserController.importUsers
+);
+
+/**
+ * @route PUT /api/tenant-users/:id
+ * @description Update tenant user by ID (direct access without tenantId)
+ * @access Private - Admin, HR_MANAGER, HR
+ */
+router.put('/tenant-users/:id',
+  authenticate,
+  authorize(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'HR']),
+  tenantUserController.updateTenantUserById
+);
+
+/**
+ * @route PUT /api/tenant-users/:id/password
+ * @description Update tenant user password
+ * @access Private - Admin, HR_MANAGER, HR
+ */
+router.put('/tenant-users/:id/password',
+  authenticate,
+  authorize(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'HR']),
+  tenantUserController.updateTenantUserPassword
 );
 
 module.exports = router;

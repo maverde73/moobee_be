@@ -59,7 +59,8 @@ const validateUserCreate = [
     .withMessage('Password must be at least 8 characters'),
   body('role')
     .optional()
-    .isIn(['employee', 'hr', 'admin', 'viewer'])
+    .isIn(['SUPER_ADMIN', 'ADMIN', 'HR_MANAGER', 'HR', 'SALES', 'MANAGER', 'EMPLOYEE', 'VIEWER',
+           'super_admin', 'admin', 'hr_manager', 'hr', 'sales', 'manager', 'employee', 'viewer'])
     .withMessage('Invalid role'),
   handleValidationErrors
 ];
@@ -89,7 +90,8 @@ const validateUserUpdate = [
     .withMessage('Password must be at least 8 characters'),
   body('role')
     .optional()
-    .isIn(['employee', 'hr', 'admin', 'viewer'])
+    .isIn(['SUPER_ADMIN', 'ADMIN', 'HR_MANAGER', 'HR', 'SALES', 'MANAGER', 'EMPLOYEE', 'VIEWER',
+           'super_admin', 'admin', 'hr_manager', 'hr', 'sales', 'manager', 'employee', 'viewer'])
     .withMessage('Invalid role'),
   handleValidationErrors
 ];
@@ -115,7 +117,8 @@ const validateImport = [
     .withMessage('Each user must have a last name'),
   body('users.*.role')
     .optional()
-    .isIn(['employee', 'hr', 'admin', 'viewer'])
+    .isIn(['SUPER_ADMIN', 'ADMIN', 'HR_MANAGER', 'HR', 'SALES', 'MANAGER', 'EMPLOYEE', 'VIEWER',
+           'super_admin', 'admin', 'hr_manager', 'hr', 'sales', 'manager', 'employee', 'viewer'])
     .withMessage('Invalid role'),
   handleValidationErrors
 ];

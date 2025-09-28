@@ -278,12 +278,16 @@ router.post('/',
 // PUT /api/employees/:id - Update employee
 router.put('/:id',
   authenticate,
-  authorize('hr managers', 'administrators'),
+  authorize(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'HR', 'hr managers', 'administrators']),
   [
     param('id').isInt(),
+    body('first_name').optional().trim(),
+    body('last_name').optional().trim(),
     body('firstName').optional().trim(),
     body('lastName').optional().trim(),
     body('email').optional().isEmail().normalizeEmail(),
+    body('hire_date').optional().isISO8601(),
+    body('hireDate').optional().isISO8601(),
     body('departmentId').optional().isInt(),
     body('position').optional().trim(),
     body('managerId').optional().isInt(),
@@ -306,16 +310,31 @@ router.put('/:id',
         });
       }
 
-      // Build update data
+      // Build update data - support both snake_case and camelCase
       const updateData = {};
-      if (req.body.firstName) updateData.first_name = req.body.firstName;
-      if (req.body.lastName) updateData.last_name = req.body.lastName;
+      if (req.body.first_name || req.body.firstName) {
+        updateData.first_name = req.body.first_name || req.body.firstName;
+      }
+      if (req.body.last_name || req.body.lastName) {
+        updateData.last_name = req.body.last_name || req.body.lastName;
+      }
+      if (req.body.hire_date || req.body.hireDate) {
+        updateData.hire_date = new Date(req.body.hire_date || req.body.hireDate);
+      }
       if (req.body.email) updateData.email = req.body.email;
       if (req.body.phone) updateData.phone = req.body.phone;
       if (req.body.departmentId) updateData.department_id = req.body.departmentId;
       if (req.body.position) updateData.position = req.body.position;
       if (req.body.managerId) updateData.manager_id = req.body.managerId;
       if (req.body.isActive !== undefined) updateData.is_active = req.body.isActive;
+
+      // Handle competenze_trasversali (soft skills) - accept both formats
+      if (req.body.competenze_trasversali !== undefined) {
+        updateData.competenze_trasversali = req.body.competenze_trasversali;
+      } else if (req.body.competenzeTrasversali !== undefined) {
+        updateData.competenze_trasversali = req.body.competenzeTrasversali;
+      }
+
       updateData.updated_at = new Date();
 
       // Update employee
@@ -323,8 +342,7 @@ router.put('/:id',
         where: { id: employeeId },
         data: updateData,
         include: {
-          departments: true,
-          employees: true
+          departments: true
         }
       });
 
@@ -337,6 +355,207 @@ router.put('/:id',
       res.status(500).json({
         success: false,
         message: 'Error updating employee',
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET /api/employees/:id/full - Get complete employee data (employees + tenant_users)
+router.get('/:id/full',
+  authenticate,
+  determineTenant,
+  requireTenant,
+  [
+    param('id').isInt()
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+
+      // Get employee data with tenant_users info
+      const employee = await prisma.employees.findFirst({
+        where: {
+          id: employeeId,
+          tenant_id: req.tenantId
+        },
+        include: {
+          tenant_users: {
+            select: {
+              id: true,
+              email: true,
+              role: true,
+              is_active: true,
+              force_password_change: true,
+              last_login_at: true,
+              login_count: true
+            }
+          },
+          employee_roles: {
+            where: { is_current: true }
+          }
+        }
+      });
+
+      if (!employee) {
+        return res.status(404).json({
+          success: false,
+          message: 'Employee not found'
+        });
+      }
+
+      // Format response to match frontend expectations
+      const responseData = {
+        // From tenant_users
+        tenant_user_id: employee.tenant_users?.id,
+        email: employee.tenant_users?.email || employee.email,
+        role: employee.tenant_users?.role,
+        is_active: employee.tenant_users?.is_active,
+        force_password_change: employee.tenant_users?.force_password_change,
+
+        // From employees
+        employee_id: employee.id,
+        first_name: employee.first_name,
+        last_name: employee.last_name,
+        hire_date: employee.hire_date,
+        competenze_trasversali: employee.competenze_trasversali || [],
+
+        // Relations
+        roles: employee.employee_roles || [],
+        skills: []
+      };
+
+      res.json({
+        success: true,
+        data: responseData
+      });
+    } catch (error) {
+      console.error('Error fetching employee full data:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching employee full data',
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET /api/employees/:id/roles - Get employee roles
+router.get('/:id/roles',
+  authenticate,
+  [
+    param('id').isInt()
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+
+      // Get employee roles with role names from the roles table
+      const rolesData = await prisma.$queryRaw`
+        SELECT
+          er.*,
+          r."NameKnown_Role" as role_name,
+          COALESCE(sr."NameKnown_Sub_Role", sr."Sub_Role") as sub_role_name
+        FROM employee_roles er
+        LEFT JOIN roles r ON er.role_id = r.id
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE er.employee_id = ${employeeId}
+        AND er.is_current = true
+      `;
+
+      res.json({
+        success: true,
+        data: rolesData
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching employee roles',
+        error: error.message
+      });
+    }
+  }
+);
+
+// PUT /api/employees/:id/roles - Update employee roles
+router.put('/:id/roles',
+  authenticate,
+  determineTenant,
+  authorize(['ADMIN', 'SUPER_ADMIN', 'HR_MANAGER', 'HR']),
+  [
+    param('id').isInt(),
+    body('roles').isArray()
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+      const { roles } = req.body;
+      const tenantId = req.tenantId || req.user?.tenantId;
+
+      // Validate tenant ID
+      if (!tenantId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Tenant ID is required'
+        });
+      }
+
+      // Validate roles array
+      if (!roles || !Array.isArray(roles)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid roles data'
+        });
+      }
+
+      // Start transaction to update roles
+      const result = await prisma.$transaction(async (tx) => {
+        // Mark all current roles as not current
+        await tx.employee_roles.updateMany({
+          where: {
+            employee_id: employeeId,
+            is_current: true
+          },
+          data: {
+            is_current: false,
+            end_date: new Date()
+          }
+        });
+
+        // Create new role assignments
+        const newRoles = [];
+        for (const role of roles) {
+          const newRole = await tx.employee_roles.create({
+            data: {
+              employee_id: employeeId,
+              role_id: parseInt(role.role_id),
+              sub_role_id: role.sub_role_id ? parseInt(role.sub_role_id) : null,
+              start_date: role.start_date ? new Date(role.start_date) : new Date(),
+              is_current: true,
+              tenant_id: tenantId, // Add tenant_id from request
+              anni_esperienza: parseInt(role.anni_esperienza) || 0,
+              competenze_tecniche_trasversali: role.competenze_tecniche_trasversali || []
+            }
+          });
+          newRoles.push(newRole);
+        }
+
+        return newRoles;
+      });
+
+      res.json({
+        success: true,
+        message: 'Roles updated successfully',
+        data: result
+      });
+    } catch (error) {
+      console.error('Error updating employee roles:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error updating employee roles',
         error: error.message
       });
     }
