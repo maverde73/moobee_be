@@ -1,0 +1,121 @@
+// Engagement Models in snake_case format for Prisma Schema
+
+model engagement_templates {
+  id                  String                          @id @default(uuid())
+  title               String
+  description         String?
+  type                String                          @default("CUSTOM") // UWES, GALLUP_Q12, CUSTOM
+  category            String                          @default("ENGAGEMENT")
+  status              String                          @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  instructions        String?
+  suggested_frequency String?                         // WEEKLY, MONTHLY, QUARTERLY, ANNUALLY
+  estimated_time      Int?                            // in minutes
+  language            String                          @default("it")
+  tags                String[]
+  metadata            Json?
+  tenant_id           String?
+  created_by          String?
+  created_at          DateTime                        @default(now())
+  updated_at          DateTime                        @updatedAt
+
+  questions           engagement_questions[]
+  campaigns           engagement_campaigns[]
+  selections          tenant_engagement_selections[]
+
+  @@index([tenant_id])
+  @@index([status])
+  @@index([type])
+}
+
+model engagement_questions {
+  id            String                @id @default(uuid())
+  template_id   String
+  question_text String
+  question_type String                @default("LIKERT") // LIKERT, MULTIPLE_CHOICE, OPEN_TEXT, YES_NO, SCALE
+  order         Int
+  required      Boolean               @default(true)
+  metadata      Json?                 // For storing area, weight, scaleMin, scaleMax, etc.
+
+  template      engagement_templates  @relation(fields: [template_id], references: [id], onDelete: Cascade)
+  options       engagement_options[]
+  responses     engagement_responses[]
+
+  @@index([template_id])
+  @@index([order])
+}
+
+model engagement_options {
+  id          String               @id @default(uuid())
+  question_id String
+  option_text String
+  value       Int
+  order       Int
+
+  question    engagement_questions @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  responses   engagement_responses[]
+
+  @@index([question_id])
+  @@index([order])
+}
+
+model engagement_campaigns {
+  id                  String                @id @default(uuid())
+  tenant_id           String
+  template_id         String
+  name                String
+  description         String?
+  start_date          DateTime
+  end_date            DateTime
+  status              String                @default("DRAFT") // DRAFT, ACTIVE, PAUSED, COMPLETED, ARCHIVED
+  target_audience     Json?                 // Role IDs, Department IDs, etc.
+  anonymous_responses Boolean               @default(false)
+  reminder_settings   Json?
+  created_by          String
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+
+  template            engagement_templates  @relation(fields: [template_id], references: [id])
+  responses           engagement_responses[]
+
+  @@index([tenant_id])
+  @@index([template_id])
+  @@index([status])
+  @@index([start_date])
+  @@index([end_date])
+}
+
+model engagement_responses {
+  id             String               @id @default(uuid())
+  campaign_id    String
+  user_id        String
+  question_id    String
+  option_id      String?
+  response_text  String?
+  response_value Int?
+  responded_at   DateTime             @default(now())
+
+  campaign       engagement_campaigns @relation(fields: [campaign_id], references: [id])
+  question       engagement_questions @relation(fields: [question_id], references: [id])
+  option         engagement_options?  @relation(fields: [option_id], references: [id])
+
+  @@unique([campaign_id, user_id, question_id])
+  @@index([campaign_id])
+  @@index([user_id])
+  @@index([responded_at])
+}
+
+model tenant_engagement_selections {
+  id              String               @id @default(uuid())
+  tenant_id       String
+  template_id     String
+  is_active       Boolean              @default(true)
+  selected_at     DateTime             @default(now())
+  selected_by     String?
+  custom_settings Json?
+
+  template        engagement_templates @relation(fields: [template_id], references: [id])
+
+  @@unique([tenant_id, template_id])
+  @@index([tenant_id])
+  @@index([template_id])
+}

@@ -1,0 +1,271 @@
+// =============================================
+// PROJECT MANAGEMENT MODELS
+// Created: 2025-09-26 23:20
+// =============================================
+
+// Add these models to your main schema.prisma file
+
+// ENUMS
+enum ProjectStatus {
+  DRAFT
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProjectType {
+  FORMAL
+  INFORMAL
+  PLACEHOLDER
+}
+
+enum Seniority {
+  JUNIOR
+  MIDDLE
+  SENIOR
+  LEAD
+  PRINCIPAL
+}
+
+enum WorkMode {
+  REMOTE
+  HYBRID
+  ONSITE
+}
+
+enum RolePriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum RoleStatus {
+  OPEN
+  IN_REVIEW
+  FILLED
+  CANCELLED
+}
+
+enum AssignmentStatus {
+  PROPOSED
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+  CANCELLED
+}
+
+// MODELS
+model Project {
+  id                   String                @id @default(uuid())
+  tenant_id           String
+  tenant              tenants               @relation(fields: [tenant_id], references: [id])
+  name                String
+  code                String                @unique
+  client_id           String?
+  client_name         String?
+  pm_id               Int?
+  project_manager     employees?            @relation("ProjectManager", fields: [pm_id], references: [id])
+  status              ProjectStatus         @default(DRAFT)
+  priority            ProjectPriority       @default(MEDIUM)
+  start_date          DateTime?
+  end_date            DateTime?
+  budget              Decimal?              @db.Decimal(15, 2)
+  type                ProjectType           @default(FORMAL)
+  description         String?               @db.Text
+  objectives          Json?
+  deliverables        Json?
+  context_preferences Json?
+  constraints         Json?
+  risks               Json?
+  notes               String?               @db.Text
+  team_size           Int?
+  completion_percentage Decimal?            @db.Decimal(5, 2) @default(0)
+  tags                String[]
+  is_active           Boolean               @default(true)
+  is_archived         Boolean               @default(false)
+  archived_at         DateTime?
+  created_by          String?
+  created_at          DateTime              @default(now())
+  updated_at          DateTime              @updatedAt
+
+  roles               ProjectRole[]
+  milestones          ProjectMilestone[]
+  activity_logs       ProjectActivityLog[]
+
+  @@index([tenant_id])
+  @@index([status])
+  @@index([priority])
+  @@index([pm_id])
+  @@index([start_date, end_date])
+  @@map("projects")
+}
+
+model ProjectRole {
+  id                    String                @id @default(uuid())
+  project_id           String
+  project              Project               @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  role_code            String
+  title                String
+  seniority            Seniority
+  quantity             Int                   @default(1)
+  required_skills      Json?
+  soft_skills          Json?
+  hard_skills          Json?
+  certifications       String[]
+  required_certifications String[]
+  preferred_certifications String[]
+  competencies         Json?
+  preferences          Json?
+  sub_role_id          String?
+  min_experience_years Int?                  @default(0)
+  preferred_experience_years Int?
+  required_languages   Json?
+  preferred_languages  Json?
+  availability_required Int?
+  allocation_percentage Int?                  @default(100)
+  is_billable          Boolean               @default(true)
+  is_urgent            Boolean               @default(false)
+  is_critical          Boolean               @default(false)
+  work_mode            WorkMode?
+  location             String?
+  language_required    String?
+  budget_range         Json?
+  constraints          Json?
+  opportunities        Json?
+  priority             RolePriority          @default(NORMAL)
+  status               RoleStatus            @default(OPEN)
+  created_at           DateTime              @default(now())
+  updated_at           DateTime              @updatedAt
+
+  assignments          ProjectAssignment[]
+  matching_results     ProjectMatchingResult[]
+
+  @@index([project_id])
+  @@index([status])
+  @@index([priority])
+  @@index([seniority])
+  @@map("project_roles")
+}
+
+model ProjectAssignment {
+  id                    String                @id @default(uuid())
+  project_role_id      String
+  project_role         ProjectRole           @relation(fields: [project_role_id], references: [id], onDelete: Cascade)
+  employee_id          Int
+  employee             employees             @relation("ProjectAssignments", fields: [employee_id], references: [id])
+  status               AssignmentStatus      @default(PROPOSED)
+  allocation_percentage Int
+  start_date           DateTime
+  end_date             DateTime
+  actual_start_date    DateTime?
+  actual_end_date      DateTime?
+  hourly_rate          Decimal?              @db.Decimal(10, 2)
+  total_hours_planned  Int?
+  total_hours_actual   Int?
+  performance_rating   Int?
+  notes                String?               @db.Text
+  approved_by          String?
+  approved_at          DateTime?
+  rejection_reason     String?
+  created_at           DateTime              @default(now())
+  updated_at           DateTime              @updatedAt
+
+  @@unique([project_role_id, employee_id])
+  @@index([project_role_id])
+  @@index([employee_id])
+  @@index([status])
+  @@index([start_date, end_date])
+  @@map("project_assignments")
+}
+
+model ProjectMatchingResult {
+  id                   String                @id @default(uuid())
+  project_role_id     String
+  project_role        ProjectRole           @relation(fields: [project_role_id], references: [id], onDelete: Cascade)
+  employee_id         Int
+  employee            employees             @relation("ProjectMatching", fields: [employee_id], references: [id])
+  match_score         Decimal               @db.Decimal(5, 2)
+  skills_match        Decimal               @db.Decimal(5, 2)
+  availability_match  Decimal               @db.Decimal(5, 2)
+  experience_match    Decimal               @db.Decimal(5, 2)
+  preference_match    Decimal               @db.Decimal(5, 2)
+  ai_reasoning        Json?
+  suggested_allocation Int?
+  risk_factors        Json?
+  growth_potential    Json?
+  is_shortlisted      Boolean               @default(false)
+  reviewed_by         String?
+  reviewed_at         DateTime?
+  created_at          DateTime              @default(now())
+
+  @@unique([project_role_id, employee_id])
+  @@index([project_role_id])
+  @@index([employee_id])
+  @@index([match_score(sort: Desc)])
+  @@index([is_shortlisted])
+  @@map("project_matching_results")
+}
+
+model ProjectMilestone {
+  id                    String                @id @default(uuid())
+  project_id           String
+  project              Project               @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  name                 String
+  description          String?               @db.Text
+  due_date             DateTime
+  completed_date       DateTime?
+  status               MilestoneStatus       @default(PENDING)
+  deliverables         Json?
+  dependencies         String[]
+  completion_percentage Int                   @default(0)
+  created_at           DateTime              @default(now())
+  updated_at           DateTime              @updatedAt
+
+  @@index([project_id])
+  @@index([status])
+  @@index([due_date])
+  @@map("project_milestones")
+}
+
+model ProjectActivityLog {
+  id            String                @id @default(uuid())
+  project_id   String
+  project      Project               @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  activity_type String
+  description  String?               @db.Text
+  user_id      String?
+  metadata     Json?
+  created_at   DateTime              @default(now())
+
+  @@index([project_id])
+  @@index([activity_type])
+  @@index([created_at(sort: Desc)])
+  @@map("project_activity_logs")
+}
+
+// Add these relations to existing employees model:
+// employees {
+//   ...existing fields...
+//   managed_projects      Project[]            @relation("ProjectManager")
+//   project_assignments   ProjectAssignment[]  @relation("ProjectAssignments")
+//   project_matches       ProjectMatchingResult[] @relation("ProjectMatching")
+// }

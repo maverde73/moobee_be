@@ -1,0 +1,791 @@
+================================================================================
+MOOBEE USER IMPORT REPORT
+================================================================================
+
+Date: 9/20/2025, 7:31:59 PM
+Tenant ID: f5eafcce-26af-4699-aa97-dd8829621406
+
+SUMMARY
+----------------------------------------
+Total Users Processed: 64
+New Users Created: 64
+Users Updated: 0
+Users Skipped: 0
+Employees Created: 64
+Errors: 0
+
+DETAILED USER REPORT
+================================================================================
+
+[1] afigliolini@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Figliolini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Afigliolini1606!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[2] azoia@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Zoia
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Azoia9689!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[3] adompe@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Dompè
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Adompè1854!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[4] apacetti@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Pacetti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Apacetti1807!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[5] asardaro@nexadata.it
+------------------------------------------------------------
+Name: Alessio Sardaro
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Asardaro4748!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[6] acapozi@nexadata.it
+------------------------------------------------------------
+Name: Alessio Capozi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Acapozi4303!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[7] acutolo@nexadata.it
+------------------------------------------------------------
+Name: Andrea Cutolo
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Acutolo4584!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[8] aetna@nexadata.it
+------------------------------------------------------------
+Name: Andrea Etna
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Aetna6974!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[9] agiampa@nexadata.it
+------------------------------------------------------------
+Name: Andrea Giampa
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Agiampa6951!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[10] alomonaco@nexadata.it
+------------------------------------------------------------
+Name: Andrea Lomonaco
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Alomonaco5786!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[11] anovelli@nexadata.it
+------------------------------------------------------------
+Name: Andrea Novelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Anovelli8073!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[12] afichera@nexadata.it
+------------------------------------------------------------
+Name: Anita Fichera
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Afichera4885!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[13] abehfar@nexadata.it
+------------------------------------------------------------
+Name: Arian Behfar
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Abehfar5959!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[14] cmiraglia@nexadata.it
+------------------------------------------------------------
+Name: Calogero Miraglia
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Cmiraglia6170!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[15] cabdelmessih@nexadata.it
+------------------------------------------------------------
+Name: Christian Abd El Messih
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Cabd el messih4451!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[16] chuang@nexadata.it
+------------------------------------------------------------
+Name: Claudio Huang
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Chuang3055!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[17] cmastromarini@nexadata.it
+------------------------------------------------------------
+Name: Cristian Mastromarini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Cmastromarini3291!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[18] dhrituc@nexadata.it
+------------------------------------------------------------
+Name: Daniel Hrituc
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dhrituc3734!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[19] dsiclari@nexadata.it
+------------------------------------------------------------
+Name: Danilo Siclari
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dsiclari5822!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[20] dsimone@nexadata.it
+------------------------------------------------------------
+Name: Davide Simone
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dsimone7940!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[21] dtrozzo@nexadata.it
+------------------------------------------------------------
+Name: Domenico Trozzo
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dtrozzo3652!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[22] evoytovich@nexadata.it
+------------------------------------------------------------
+Name: Elena Voytovich
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Evoytovich1328!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[23] egiurelli@nexadata.it
+------------------------------------------------------------
+Name: Elena Giurelli
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Egiurelli5429!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[24] elisagiurelli@nexadata.it
+------------------------------------------------------------
+Name: Elisa Giurelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Egiurelli2267!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[25] eguidotti@nexadata.it
+------------------------------------------------------------
+Name: Emanuele Guidotti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Eguidotti2069!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[26] epergoloni@nexadata.it
+------------------------------------------------------------
+Name: Eva Pergoloni
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Epergoloni9999!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[27] fvalentini@nexadata.it
+------------------------------------------------------------
+Name: Fabio Valentini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fvalentini7420!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[28] fdilegge@nexadata.it
+------------------------------------------------------------
+Name: Federico Di Legge
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fdi legge1707!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[29] fpedicini@nexadata.it
+------------------------------------------------------------
+Name: Flavio Pedicini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fpedicini4324!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[30] fprosperi@nexadata.it
+------------------------------------------------------------
+Name: Flavio Prosperi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fprosperi7518!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[31] fferrari@nexadata.it
+------------------------------------------------------------
+Name: Francesco Ferrari
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fferrari1992!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[32] fguarini@nexadata.it
+------------------------------------------------------------
+Name: Francesco Guarini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fguarini7332!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[33] fcifaldi@nexadata.it
+------------------------------------------------------------
+Name: Francesco Cifaldi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fcifaldi4697!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[34] gnardoni@nexadata.it
+------------------------------------------------------------
+Name: Giampaolo Nardoni
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gnardoni8752!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[35] gscamperti@nexadata.it
+------------------------------------------------------------
+Name: Gianluca Scamperti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gscamperti7175!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[36] gremolino@nexadata.it
+------------------------------------------------------------
+Name: Giuseppe Remolino
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gremolino4344!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[37] gabuduaini@nexadata.it
+------------------------------------------------------------
+Name: GUZALINUER ABUDUAINI
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gabuduaini4792!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[38] juddin@nexadata.it
+------------------------------------------------------------
+Name: JALAL UDDIN
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Juddin2170!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[39] kpiatek@nexadata.it
+------------------------------------------------------------
+Name: Kacper Maksymilian Piatek
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Kpiatek9725!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[40] lcioni@nexadata.it
+------------------------------------------------------------
+Name: Leandro Cioni
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lcioni2006!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[41] lfanicchia@nexadata.it
+------------------------------------------------------------
+Name: Leonardo Fanicchia
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lfanicchia6850!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[42] lcaiffa@nexadata.it
+------------------------------------------------------------
+Name: Lorenzo Caiffa
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lcaiffa5904!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[43] ldeserio@nexadata.it
+------------------------------------------------------------
+Name: Luca De serio
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lde serio5107!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[44] mesposito@nexadata.it
+------------------------------------------------------------
+Name: Marco Esposito
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mesposito3906!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[45] mmeneghetti@nexadata.it
+------------------------------------------------------------
+Name: Marco Meneghetti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mmeneghetti1646!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[46] mrippoliti@nexadata.it
+------------------------------------------------------------
+Name: Maria Rita Ippoliti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mippoliti7594!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[47] mgiurelli@nexadata.it
+------------------------------------------------------------
+Name: Massimiliano Giurelli
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mgiurelli1191!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[48] mrovelli@nexadata.it
+------------------------------------------------------------
+Name: Massimiliano Rovelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mrovelli8079!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[49] mlamacchia@nexadata.it
+------------------------------------------------------------
+Name: Matteo Lamacchia
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mlamacchia9201!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[50] mverde@nexadata.it
+------------------------------------------------------------
+Name: Maurizio Verde
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mverde3152!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[51] microsoft.learning@nexadata.it
+------------------------------------------------------------
+Name: Microsoft Learning
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mlearning2306!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[52] mcarnevale@nexadata.it
+------------------------------------------------------------
+Name: Mirco Carnevale
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mcarnevale9166!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[53] ptirelli@nexadata.it
+------------------------------------------------------------
+Name: Paola Tirelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Ptirelli3134!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[54] rmaiello@nexadata.it
+------------------------------------------------------------
+Name: Raffaella Maiello
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rmaiello5687!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[55] rbova@nexadata.it
+------------------------------------------------------------
+Name: Renato Bova
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rbova4522!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[56] rlicciardello@nexadata.it
+------------------------------------------------------------
+Name: Roberta Licciardello
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rlicciardello8394!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[57] rbraga@nexadata.it
+------------------------------------------------------------
+Name: Roberto Braga
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rbraga6258!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[58] rortenzi@nexadata.it
+------------------------------------------------------------
+Name: Roberto Ortenzi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rortenzi3876!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[59] rbiasco@nexadata.it
+------------------------------------------------------------
+Name: Rosario Biasco
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rbiasco1281!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[60] shaji@nexadata.it
+------------------------------------------------------------
+Name: SEYEDEH SHAGHAYEGH HAJI MIRAGHA
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Shaji miragha4128!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[61] sdigiorgio@nexadata.it
+------------------------------------------------------------
+Name: Silvia Di Giorgio
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Sdi giorgio4934!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[62] screscenzi@nexadata.it
+------------------------------------------------------------
+Name: Simone Crescenzi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Screscenzi6997!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[63] tromano@nexadata.it
+------------------------------------------------------------
+Name: Thomas Romano
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Tromano7981!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[64] vsellan@nexadata.it
+------------------------------------------------------------
+Name: Valerio Sellan
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Vsellan4293!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+
+================================================================================
+END OF REPORT
+================================================================================

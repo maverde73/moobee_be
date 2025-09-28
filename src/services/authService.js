@@ -51,10 +51,10 @@ class AuthService {
   // Login user
   async login(email, password) {
     // Find employee by email
-    const employee = await prisma.employees.findUnique({
+    const employee = await prisma.employees.findFirst({
       where: { email },
       include: {
-        departments_employees_department_idTodepartments: true,
+        departments: true,
         employee_roles: {
           where: { is_current: true }
         }
@@ -81,6 +81,7 @@ class AuthService {
       firstName: employee.first_name,
       lastName: employee.last_name,
       departmentId: employee.department_id,
+      tenant_id: employee.tenant_id, // Add tenant_id to JWT
       roles: employee.employee_roles.map(er => ({
         roleId: er.role_id,
         subRoleId: er.sub_role_id
@@ -103,7 +104,7 @@ class AuthService {
         firstName: employee.first_name,
         lastName: employee.last_name,
         position: employee.position,
-        department: employee.departments_employees_department_idTodepartments?.department_name,
+        department: employee.departments?.department_name,
         roles: payload.roles
       }
     };
@@ -115,10 +116,10 @@ class AuthService {
       const decoded = this.verifyRefreshToken(refreshToken);
       
       // Get employee data
-      const employee = await prisma.employees.findUnique({
+      const employee = await prisma.employees.findFirst({
         where: { id: decoded.id },
         include: {
-          departments_employees_department_idTodepartments: true,
+          departments: true,
           employee_roles: {
             where: { is_current: true }
           }
@@ -136,6 +137,7 @@ class AuthService {
         firstName: employee.first_name,
         lastName: employee.last_name,
         departmentId: employee.department_id,
+        tenant_id: employee.tenant_id, // Add tenant_id to JWT
         roles: employee.employee_roles.map(er => ({
           roleId: er.role_id,
           subRoleId: er.sub_role_id

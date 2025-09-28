@@ -1,0 +1,109 @@
+================================================================================
+MOOBEE USER IMPORT REPORT
+================================================================================
+
+Date: 9/15/2025, 11:45:39 PM
+Tenant ID: b1234567-89ab-cdef-0123-456789abcdef
+Tenant Name: Nexa Data SRL - Updated
+
+SUMMARY
+----------------------------------------
+Total Users Processed: 5
+New Users Created: 5
+Users Updated: 0
+Users Skipped: 0
+Employees Created: 5
+Errors: 0
+
+DETAILED USER REPORT
+================================================================================
+
+[1] sofia.russo@nexadata.it
+------------------------------------------------------------
+Name: Sofia Russo
+Role: employee
+Status: CREATED
+Employee ID: 16
+
+**TEMPORARY PASSWORD**: Srusso2157!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Creating new user in tenant_users
+  2. Generated temporary password: Srusso2157!
+  3. Creating employee with department_id: 16
+  4. Employee created with ID: 16
+  5. Created new tenant_user with password reset required
+
+[2] alessandro.marino@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Marino
+Role: employee
+Status: CREATED
+Employee ID: 17
+
+**TEMPORARY PASSWORD**: Amarino9543!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Creating new user in tenant_users
+  2. Generated temporary password: Amarino9543!
+  3. Creating employee with department_id: 16
+  4. Employee created with ID: 17
+  5. Created new tenant_user with password reset required
+
+[3] francesca.greco@nexadata.it
+------------------------------------------------------------
+Name: Francesca Greco
+Role: hr
+Status: CREATED
+Employee ID: 18
+
+**TEMPORARY PASSWORD**: Fgreco6474!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Creating new user in tenant_users
+  2. Generated temporary password: Fgreco6474!
+  3. Creating employee with department_id: 15
+  4. Employee created with ID: 18
+  5. Created new tenant_user with password reset required
+
+[4] roberto.santoro@nexadata.it
+------------------------------------------------------------
+Name: Roberto Santoro
+Role: employee
+Status: CREATED
+Employee ID: 19
+
+**TEMPORARY PASSWORD**: Rsantoro1363!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Creating new user in tenant_users
+  2. Generated temporary password: Rsantoro1363!
+  3. Creating employee with department_id: 16
+  4. Employee created with ID: 19
+  5. Created new tenant_user with password reset required
+
+[5] elena.colombo@nexadata.it
+------------------------------------------------------------
+Name: Elena Colombo
+Role: employee
+Status: CREATED
+Employee ID: 20
+
+**TEMPORARY PASSWORD**: Ecolombo8179!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Creating new user in tenant_users
+  2. Generated temporary password: Ecolombo8179!
+  3. Creating employee with department_id: 16
+  4. Employee created with ID: 20
+  5. Created new tenant_user with password reset required
+
+
+================================================================================
+END OF REPORT
+================================================================================

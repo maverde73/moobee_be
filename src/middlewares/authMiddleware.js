@@ -2,11 +2,16 @@ const authService = require('../services/authService');
 
 // Middleware to verify JWT token
 const authenticate = async (req, res, next) => {
+  console.log('=== Authenticate middleware ===');
+  console.log('Path:', req.path);
+  console.log('Headers:', req.headers.authorization ? 'Has Authorization header' : 'No Authorization header');
+
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('No valid Bearer token in header');
       return res.status(401).json({
         success: false,
         message: 'No token provided'
@@ -15,16 +20,19 @@ const authenticate = async (req, res, next) => {
 
     // Extract token
     const token = authHeader.substring(7);
+    console.log('Token extracted, attempting to verify...');
 
     try {
       // Verify token
       const decoded = authService.verifyAccessToken(token);
-      
+      console.log('Token verified successfully. User:', decoded.email, 'Role:', decoded.role);
+
       // Add user info to request
       req.user = decoded;
-      
+
       next();
     } catch (error) {
+      console.log('Token verification failed:', error.message);
       return res.status(401).json({
         success: false,
         message: 'Invalid or expired token'
@@ -40,7 +48,7 @@ const authenticate = async (req, res, next) => {
 };
 
 // Middleware to check specific roles
-const authorize = (...allowedRoles) => {
+const authorize = (allowedRoles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
@@ -49,16 +57,34 @@ const authorize = (...allowedRoles) => {
       });
     }
 
-    // Check if user has any of the allowed roles
-    const userRoles = req.user.roles || [];
-    const hasRole = userRoles.some(role => 
-      allowedRoles.includes(role.roleName)
-    );
+    // Support both formats:
+    // 1. Simple role string (from unified auth)
+    // 2. Array of role objects (legacy format)
+    let hasRole = false;
+
+    if (req.user.role) {
+      // Unified auth format: role as string
+      const userRole = req.user.role.toUpperCase();
+      hasRole = allowedRoles.some(allowed => {
+        // Check if allowed is a string before calling toUpperCase
+        if (typeof allowed === 'string') {
+          return allowed.toUpperCase() === userRole;
+        }
+        return false;
+      });
+    } else if (req.user.roles && Array.isArray(req.user.roles)) {
+      // Legacy format: roles as array
+      hasRole = req.user.roles.some(role =>
+        allowedRoles.includes(role.roleName)
+      );
+    }
 
     if (!hasRole && allowedRoles.length > 0) {
       return res.status(403).json({
         success: false,
-        message: 'Insufficient permissions'
+        message: 'Insufficient permissions',
+        requiredRoles: allowedRoles,
+        userRole: req.user.role || req.user.roles
       });
     }
 

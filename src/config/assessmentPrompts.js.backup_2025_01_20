@@ -1,0 +1,193 @@
+/**
+ * Fixed prompts for each assessment type
+ * These prompts cannot be modified by users
+ */
+
+const assessmentPrompts = {
+  'big-five': {
+    name: 'Big Five Personality Assessment',
+    basePrompt: `Sei un esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sui Big Five per contesti di selezione e sviluppo professionale.
+
+REQUISITI BASE:
+- Lingua: italiano, registro professionale, livello B1–B2.
+- Tratti: Estroversione, Amicalità, Stabilità emotiva, Coscienziosità, Apertura mentale.
+- Scala di risposta (Likert a 5 punti):
+  1 = Per niente d'accordo
+  2 = Poco d'accordo
+  3 = Né d'accordo né in disaccordo
+  4 = Abbastanza d'accordo
+  5 = Completamente d'accordo
+- Qualità degli item: una sola idea per frase; evitare negazioni doppie; 8–18 parole; contesto lavorativo; nessun riferimento a età, genere, origine, salute o altri aspetti protetti.
+- Controllo bias di acquiescenza: per ciascun tratto inserisci esattamente 2 item in direzione inversa (cioè punteggio alto = livello basso del tratto).
+
+{CUSTOMIZATION}
+
+IMPORTANTE: Se sono specificati dei RUOLI TARGET, le domande devono essere particolarmente rilevanti per valutare le caratteristiche di personalità utili per quei ruoli specifici.
+
+FORMATO OUTPUT:
+Genera esattamente {COUNT} domande in formato JSON array.
+Ogni domanda deve avere i campi: text, category (uno dei 5 tratti), type: "multiple_choice", options (array con le 5 opzioni Likert con text e value).`,
+    categories: ['Estroversione', 'Amicalità', 'Stabilità emotiva', 'Coscienziosità', 'Apertura mentale'],
+    defaultCount: 20,
+    minCount: 10,
+    maxCount: 50
+  },
+
+  'disc': {
+    name: 'DISC Behavioral Assessment',
+    basePrompt: `Sei un/a esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sul modello DISC per contesti di selezione e sviluppo professionale.
+
+REQUISITI BASE:
+- Lingua: italiano, registro professionale, livello B1–B2.
+- Dimensioni DISC: Dominanza, Influenza, Stabilità, Coscienziosità.
+- Scala di risposta (Likert a 5 punti):
+  1 = Per niente d'accordo
+  2 = Poco d'accordo
+  3 = Né d'accordo né in disaccordo
+  4 = Abbastanza d'accordo
+  5 = Completamente d'accordo
+- Qualità degli item: una sola idea per frase; evitare negazioni doppie; 8–18 parole; contesto lavorativo realistico; nessun riferimento a età, genere, origine, salute o altri aspetti protetti.
+- Controllo bias di acquiescenza: per ciascuna dimensione inserisci item in direzione inversa.
+
+{CUSTOMIZATION}
+
+IMPORTANTE: Se sono specificati dei RUOLI TARGET, le domande devono essere particolarmente rilevanti per valutare i comportamenti utili per quei ruoli specifici.
+
+FORMATO OUTPUT:
+Genera esattamente {COUNT} domande in formato JSON array.
+Ogni domanda deve avere i campi: text, category (una delle 4 dimensioni DISC), type: "multiple_choice", options (array con le 5 opzioni scala Likert con text e value).`,
+    categories: ['Dominanza', 'Influenza', 'Stabilità', 'Coscienziosità'],
+    defaultCount: 20,
+    minCount: 12,
+    maxCount: 40
+  },
+
+  'belbin': {
+    name: 'Belbin Team Roles Assessment',
+    basePrompt: `Sei un esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sui Ruoli di Belbin per contesti di selezione e sviluppo professionale.
+
+REQUISITI BASE:
+- Lingua: italiano, registro professionale, livello B1–B2.
+- Ruoli: Plant (Creativo), Monitor Valutatore, Coordinatore, Risolutore di risorse, Implementatore, Completer Finisher, Teamworker, Shaper (Modellatore), Specialista.
+- Scala di risposta (Likert a 5 punti):
+  1 = Per niente d'accordo
+  2 = Poco d'accordo
+  3 = Né d'accordo né in disaccordo
+  4 = Abbastanza d'accordo
+  5 = Completamente d'accordo
+- Qualità degli item: una sola idea per frase; evitare negazioni doppie; 8–18 parole; contesto lavorativo; nessun riferimento a età, genere, origine, salute o altri aspetti protetti.
+- Controllo bias di acquiescenza: per ciascun ruolo inserisci item in direzione inversa.
+
+{CUSTOMIZATION}
+
+IMPORTANTE: Se sono specificati dei RUOLI TARGET, le domande devono essere particolarmente rilevanti per identificare i ruoli di team più adatti per quelle posizioni specifiche.
+
+FORMATO OUTPUT:
+Genera esattamente {COUNT} domande in formato JSON array.
+Ogni domanda deve avere i campi: text, category (uno dei 9 ruoli Belbin), type: "multiple_choice", options (array con le 5 opzioni Likert con text e value).`,
+    categories: ['Plant', 'Monitor Valutatore', 'Coordinatore', 'Risolutore di risorse', 'Implementatore', 'Completer Finisher', 'Teamworker', 'Shaper', 'Specialista'],
+    defaultCount: 15,
+    minCount: 9,
+    maxCount: 45
+  },
+
+};
+
+/**
+ * Get the fixed prompt for an assessment type
+ * @param {string} type - Assessment type
+ * @param {string} customization - Custom requirements to add
+ * @param {number} count - Number of questions to generate
+ * @param {Array} roleSoftSkills - Array of roles with their soft skills
+ * @returns {string} Complete prompt
+ */
+function getAssessmentPrompt(type, customization = '', count = null, roleSoftSkills = null) {
+  const config = assessmentPrompts[type];
+  if (!config) {
+    throw new Error(`Unknown assessment type: ${type}`);
+  }
+
+  const questionCount = count || config.defaultCount;
+
+  // Build customization section
+  let customSection = '';
+  if (customization && customization.trim()) {
+    customSection = `\nREQUISITI PERSONALIZZATI:\n${customization}\n`;
+  }
+
+  // Build role soft skills section if provided
+  if (roleSoftSkills && Array.isArray(roleSoftSkills) && roleSoftSkills.length > 0) {
+    customSection += `\n\n===== RUOLI TARGET E SOFT SKILLS RICHIESTI =====\n`;
+
+    roleSoftSkills.forEach(role => {
+      customSection += `\n📋 **${role.roleName}**\n`;
+
+      // Soft skills critici (priorità 1-2)
+      const criticalSkills = role.skills.filter(s => s.priority <= 2);
+      if (criticalSkills.length > 0) {
+        customSection += `SOFT SKILLS CRITICI (devono essere valutati approfonditamente):\n`;
+        criticalSkills.forEach(skill => {
+          customSection += `  • ${skill.name} (${skill.nameEn}) - Minimo richiesto: ${skill.minScore}%\n`;
+        });
+      }
+
+      // Soft skills importanti (priorità 3-4)
+      const importantSkills = role.skills.filter(s => s.priority >= 3 && s.priority <= 4);
+      if (importantSkills.length > 0) {
+        customSection += `SOFT SKILLS IMPORTANTI:\n`;
+        importantSkills.forEach(skill => {
+          customSection += `  • ${skill.name} - Minimo: ${skill.minScore}%\n`;
+        });
+      }
+
+      // Soft skills complementari (priorità 5+)
+      const complementarySkills = role.skills.filter(s => s.priority >= 5);
+      if (complementarySkills.length > 0) {
+        customSection += `SOFT SKILLS COMPLEMENTARI:\n`;
+        complementarySkills.forEach(skill => {
+          customSection += `  • ${skill.name}\n`;
+        });
+      }
+    });
+
+    customSection += `\n⚠️ IMPORTANTE: Le domande generate devono permettere di valutare accuratamente questi soft skills specifici per i ruoli indicati. Assicurati che ci siano domande sufficienti per ciascuna area critica.\n`;
+  }
+
+  // Replace placeholders
+  let prompt = config.basePrompt
+    .replace('{CUSTOMIZATION}', customSection)
+    .replace('{COUNT}', questionCount);
+
+  return prompt;
+}
+
+/**
+ * Get assessment configuration
+ * @param {string} type - Assessment type
+ * @returns {object} Assessment configuration
+ */
+function getAssessmentConfig(type) {
+  return assessmentPrompts[type] || null;
+}
+
+/**
+ * Get all available assessment types
+ * @returns {array} List of assessment types
+ */
+function getAssessmentTypes() {
+  return Object.keys(assessmentPrompts).map(key => ({
+    id: key,
+    name: assessmentPrompts[key].name,
+    defaultCount: assessmentPrompts[key].defaultCount,
+    minCount: assessmentPrompts[key].minCount,
+    maxCount: assessmentPrompts[key].maxCount,
+    categories: assessmentPrompts[key].categories
+  }));
+}
+
+module.exports = {
+  getAssessmentPrompt,
+  getAssessmentConfig,
+  getAssessmentTypes,
+  assessmentPrompts
+};

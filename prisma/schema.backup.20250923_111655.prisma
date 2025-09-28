@@ -1,0 +1,856 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model assessment_generation_logs {
+  id                                                                                    String                 @id
+  templateId                                                                            Int?
+  provider                                                                              String
+  model                                                                                 String
+  status                                                                                String
+  questionsCount                                                                        Int?
+  generationType                                                                        String
+  metadata                                                                              Json?
+  requestParams                                                                         Json?
+  responseTime                                                                          Int?
+  errorMessage                                                                          String?
+  userId                                                                                String?
+  createdAt                                                                             DateTime               @default(now())
+  assessment_templates_assessment_generation_logs_templateIdToassessment_templates      assessment_templates?  @relation("assessment_generation_logs_templateIdToassessment_templates", fields: [templateId], references: [id])
+  assessment_templates_assessment_templates_generationLogIdToassessment_generation_logs assessment_templates?  @relation("assessment_templates_generationLogIdToassessment_generation_logs")
+  assessment_templates_TemplateGenerationLog                                            assessment_templates[] @relation("TemplateGenerationLog")
+}
+
+model assessment_instance_responses {
+  id                   Int                  @id @default(autoincrement())
+  instanceId           Int
+  questionId           Int
+  answer               Json
+  score                Float?
+  createdAt            DateTime             @default(now())
+  assessment_instances assessment_instances @relation(fields: [instanceId], references: [id])
+
+  @@unique([instanceId, questionId])
+  @@index([instanceId])
+}
+
+model assessment_instances {
+  id                            Int                             @id @default(autoincrement())
+  scheduleId                    Int                             @unique
+  userId                        String
+  tenantId                      String                          @db.Uuid
+  templateId                    Int
+  startedAt                     DateTime
+  completedAt                   DateTime?
+  timeSpent                     Int?
+  reportUrl                     String?
+  assessment_instance_responses assessment_instance_responses[]
+  assessment_schedules          assessment_schedules            @relation(fields: [scheduleId], references: [id])
+  user_soft_skills              user_soft_skills[]
+
+  @@index([completedAt])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model assessment_options {
+  id                   Int                  @id @default(autoincrement())
+  questionId           Int
+  text                 String
+  value                Int
+  orderIndex           Int?                 @default(0)
+  assessment_questions assessment_questions @relation(fields: [questionId], references: [id])
+}
+
+model assessment_questions {
+  id                           Int                            @id @default(autoincrement())
+  templateId                   Int
+  text                         String
+  type                         String
+  category                     String?
+  order                        Int?
+  softSkillMapping             Json?
+  isRequired                   Boolean?                       @default(true)
+  assessment_options           assessment_options[]
+  assessment_templates         assessment_templates           @relation(fields: [templateId], references: [id])
+  question_soft_skill_mappings question_soft_skill_mappings[]
+}
+
+model assessment_schedules {
+  id                           Int                          @id @default(autoincrement())
+  tenantSelectionId            Int
+  userId                       String
+  assignedBy                   String
+  scheduledDate                DateTime
+  dueDate                      DateTime
+  reminderDates                Json?
+  status                       ScheduleStatus               @default(SCHEDULED)
+  createdAt                    DateTime                     @default(now())
+  updatedAt                    DateTime
+  assessment_instances         assessment_instances?
+  tenant_assessment_selections tenant_assessment_selections @relation(fields: [tenantSelectionId], references: [id])
+
+  @@index([scheduledDate])
+  @@index([status])
+  @@index([userId])
+}
+
+model assessment_soft_skill_scores {
+  id               Int      @id @default(autoincrement())
+  assessmentId     Int
+  softSkillId      Int
+  algorithmVersion String   @default("v1.0")
+  employeeId       Int
+  calculatedAt     DateTime @default(now())
+  confidence       Float?
+  level            String   @default("beginner")
+  normalizedScore  Float
+  percentile       Int?
+  rawScore         Float
+  scoreDetails     Json?
+
+  @@unique([assessmentId, employeeId, softSkillId])
+  @@index([assessmentId])
+  @@index([employeeId])
+  @@index([softSkillId])
+}
+
+model assessment_template_roles {
+  id                   Int                  @id @default(autoincrement())
+  templateId           Int
+  roleId               Int
+  assessment_templates assessment_templates @relation(fields: [templateId], references: [id])
+}
+
+model assessment_templates {
+  id                                                                                          Int                            @id @default(autoincrement())
+  name                                                                                        String
+  type                                                                                        String?
+  description                                                                                 String?
+  isActive                                                                                    Boolean                        @default(true)
+  suggestedRoles                                                                              String[]
+  targetSoftSkillIds                                                                          Int[]
+  createdBy                                                                                   String?
+  version                                                                                     String?
+  createdAt                                                                                   DateTime                       @default(now())
+  updatedAt                                                                                   DateTime
+  scoringAlgorithm                                                                            String                         @default("weighted")
+  softSkillsEnabled                                                                           Boolean                        @default(false)
+  aiModelUsed                                                                                 String?
+  aiProvider                                                                                  String?
+  generationLogId                                                                             String?                        @unique
+  generationStatus                                                                            String?
+  createdByAdmin                                                                              String?
+  isGlobal                                                                                    Boolean                        @default(false)
+  aiPrompt                                                                                    String?
+  instructions                                                                                String?
+  suggestedFrequency                                                                          String?                        @db.VarChar(255)
+  aiModel                                                                                     String?                        @default("gpt-4-turbo") @db.VarChar(255)
+  aiTemperature                                                                               Decimal?                       @default(0.7) @db.Decimal(3, 2)
+  aiMaxTokens                                                                                 Int?                           @default(4000)
+  aiLanguage                                                                                  String?                        @default("it") @db.VarChar(10)
+  assessment_generation_logs_assessment_generation_logs_templateIdToassessment_templates      assessment_generation_logs[]   @relation("assessment_generation_logs_templateIdToassessment_templates")
+  assessment_questions                                                                        assessment_questions[]
+  assessment_template_roles                                                                   assessment_template_roles[]
+  assessment_generation_logs_assessment_templates_generationLogIdToassessment_generation_logs assessment_generation_logs?    @relation("assessment_templates_generationLogIdToassessment_generation_logs", fields: [generationLogId], references: [id])
+  template_soft_skill_mappings                                                                template_soft_skill_mappings[]
+  tenant_assessment_selections                                                                tenant_assessment_selections[]
+  assessment_generation_logs_TemplateGenerationLog                                            assessment_generation_logs[]   @relation("TemplateGenerationLog")
+}
+
+model assessments {
+  id                Int       @id @default(autoincrement())
+  employee_id       Int
+  assessment_type   String    @db.VarChar(50)
+  assessment_date   DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  overall_score     Decimal?  @db.Decimal(5, 2)
+  technical_score   Decimal?  @db.Decimal(5, 2)
+  soft_skills_score Decimal?  @db.Decimal(5, 2)
+  notes             String?
+  assessed_by       Int?
+  status            String?   @default("DRAFT") @db.VarChar(50)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id         String    @db.Uuid
+}
+
+model career_aspirations {
+  id              Int       @id @default(autoincrement())
+  employee_id     Int
+  target_role_id  Int?
+  target_position String?   @db.VarChar(200)
+  target_date     DateTime? @db.Date
+  notes           String?
+  is_active       Boolean?  @default(true)
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  updated_at      DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id       String    @db.Uuid
+}
+
+model departments {
+  id                   Int         @id @default(autoincrement())
+  department_name      String      @db.VarChar(100)
+  department_code      String?     @db.VarChar(20)
+  manager_id           Int?
+  parent_department_id Int?
+  is_active            Boolean?    @default(true)
+  created_at           DateTime?   @default(now()) @db.Timestamp(6)
+  updated_at           DateTime?   @default(now()) @db.Timestamp(6)
+  tenant_id            String      @db.Uuid
+  employees            employees[]
+}
+
+model employee_roles {
+  id          Int       @id @default(autoincrement())
+  employee_id Int
+  role_id     Int
+  sub_role_id Int?
+  start_date  DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date    DateTime? @db.Date
+  is_current  Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id   String    @db.Uuid
+  employees   employees @relation(fields: [employee_id], references: [id])
+}
+
+model employee_skills {
+  id                      Int       @id @default(autoincrement())
+  employee_id             Int
+  skill_id                Int
+  proficiency_level       Int?
+  years_experience        Decimal?  @db.Decimal(3, 1)
+  last_used_date          DateTime? @db.Date
+  is_certified            Boolean?  @default(false)
+  certification_date      DateTime? @db.Date
+  certification_authority String?   @db.VarChar(200)
+  notes                   String?
+  created_at              DateTime? @default(now()) @db.Timestamp(6)
+  updated_at              DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id               String    @db.Uuid
+}
+
+model employees {
+  id                 Int              @id @default(autoincrement())
+  employee_code      String?          @db.VarChar(50)
+  first_name         String           @db.VarChar(100)
+  last_name          String           @db.VarChar(100)
+  email              String           @db.VarChar(255)
+  phone              String?          @db.VarChar(20)
+  hire_date          DateTime?        @db.Date
+  department_id      Int?
+  position           String?          @db.VarChar(100)
+  manager_id         Int?
+  is_active          Boolean?         @default(true)
+  created_at         DateTime?        @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?        @default(now()) @db.Timestamp(6)
+  tenant_id          String           @db.Uuid
+  currentRoleId      Int?
+  lastAssessmentDate DateTime?
+  nextAssessmentDue  DateTime?
+  softSkillProfileId Int?
+  employee_roles     employee_roles[]
+  departments        departments?     @relation(fields: [department_id], references: [id])
+  tenant_users       tenant_users[]
+}
+
+model engagement_surveys {
+  id                 Int       @id @default(autoincrement())
+  employee_id        Int
+  survey_month       DateTime  @db.Date
+  job_satisfaction   Int?
+  work_life_balance  Int?
+  career_development Int?
+  team_collaboration Int?
+  manager_support    Int?
+  overall_score      Decimal?  @db.Decimal(3, 1)
+  achieved_goals     String[]
+  challenges_faced   String[]
+  support_needed     String[]
+  comments           String?
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id          String    @db.Uuid
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model extended_descriptions_roles {
+  id                        Int?
+  Extended_Description_Role String?
+  Role                      String?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model extended_descriptions_skills {
+  id                   Int?
+  Extended_Description String?
+  Skill                String?
+
+  @@ignore
+}
+
+model extended_descriptions_sub_roles {
+  id                            Int     @id @default(autoincrement())
+  Extended_Description_Sub_Role String?
+  Sub_Role                      String?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model extended_tech_skills_roles_descriptions_full {
+  id                        Int?
+  Skill                     String?
+  Role                      String?
+  Description_Code          Int?
+  Description               String?
+  Hot_Technology            String?
+  In_Demand                 String?
+  NameKnown_Skill           String?
+  Synonyms_Skill            String[]
+  NameKnown_Role            String?
+  Synonyms_Role             String[]
+  Extended_Description      String?
+  Extended_Description_Role String?
+
+  @@ignore
+}
+
+model notifications {
+  id          Int       @id @default(autoincrement())
+  employee_id Int
+  type        String    @db.VarChar(50)
+  title       String    @db.VarChar(200)
+  message     String?
+  is_read     Boolean?  @default(false)
+  read_at     DateTime? @db.Timestamp(6)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model project_assignments {
+  id                    Int       @id @default(autoincrement())
+  project_id            Int
+  employee_id           Int
+  role_in_project       String?   @db.VarChar(100)
+  allocation_percentage Int?
+  start_date            DateTime  @db.Date
+  end_date              DateTime? @db.Date
+  is_active             Boolean?  @default(true)
+  created_at            DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id             String    @db.Uuid
+}
+
+model project_skills_required {
+  id             Int      @id @default(autoincrement())
+  project_id     Int
+  skill_id       Int
+  required_level Int?
+  is_mandatory   Boolean? @default(false)
+}
+
+model projects {
+  id                 Int       @id @default(autoincrement())
+  project_name       String    @db.VarChar(200)
+  project_code       String?   @db.VarChar(50)
+  description        String?
+  client_name        String?   @db.VarChar(200)
+  start_date         DateTime? @db.Date
+  end_date           DateTime? @db.Date
+  budget             Decimal?  @db.Decimal(12, 2)
+  status             String?   @default("PLANNING") @db.VarChar(50)
+  project_manager_id Int?
+  created_at         DateTime? @default(now()) @db.Timestamp(6)
+  updated_at         DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id          String    @db.Uuid
+}
+
+model question_soft_skill_mappings {
+  id                   Int                  @id @default(autoincrement())
+  questionId           Int
+  softSkillId          Int
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime
+  mappingType          String               @default("primary")
+  modelDimension       String?
+  modelType            String?
+  weight               Float                @default(1.0)
+  assessment_questions assessment_questions @relation(fields: [questionId], references: [id])
+  soft_skills          soft_skills          @relation(fields: [softSkillId], references: [id])
+
+  @@unique([questionId, softSkillId])
+  @@index([questionId])
+  @@index([softSkillId])
+}
+
+model role_mappings {
+  role_id   Int    @id
+  role_name String
+}
+
+model role_soft_skills {
+  id          Int         @id @default(autoincrement())
+  roleId      Int
+  softSkillId Int
+  priority    Int
+  minScore    Float?
+  createdAt   DateTime    @default(now())
+  isRequired  Boolean     @default(false)
+  weight      Float       @default(1.0)
+  description String?
+  targetScore Float?
+  updatedAt   DateTime
+  roles       roles       @relation(fields: [roleId], references: [id])
+  soft_skills soft_skills @relation(fields: [softSkillId], references: [id])
+
+  @@unique([roleId, softSkillId])
+  @@index([roleId])
+  @@index([softSkillId])
+}
+
+model role_sub_role {
+  id          Int       @id @default(autoincrement())
+  id_role     Int
+  id_sub_role Int?
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model role_sub_role_backup {
+  id          Int?
+  Role        String?
+  Sub_Role    String?
+  id_role     Int?
+  id_sub_role Int?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model role_sub_role_backup_final {
+  id_role     Int?
+  id_sub_role Int?
+
+  @@ignore
+}
+
+model roles {
+  id               Int                @id @default(autoincrement())
+  Role             String?
+  NameKnown_Role   String?
+  Synonyms_Role    String[]
+  createdAt        DateTime           @default(now())
+  department       String?
+  description      String?
+  isActive         Boolean            @default(true)
+  level            String?
+  name             String?
+  updatedAt        DateTime?
+  role_soft_skills role_soft_skills[]
+}
+
+model skill_gaps {
+  id             Int       @id @default(autoincrement())
+  employee_id    Int
+  role_id        Int
+  skill_id       Int
+  current_level  Int?
+  required_level Int?
+  gap_size       Int?
+  gap_percentage Decimal?  @db.Decimal(5, 2)
+  priority       String?   @db.VarChar(20)
+  calculated_at  DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model skills {
+  id              Int?
+  Skill           String?
+  NameKnown_Skill String?
+  Synonyms_Skill  String[]
+
+  @@ignore
+}
+
+model soft_skills {
+  id                           Int                            @id @default(autoincrement())
+  name                         String
+  nameEn                       String?
+  description                  String?
+  category                     String?
+  isActive                     Boolean                        @default(true)
+  createdAt                    DateTime                       @default(now())
+  updatedAt                    DateTime
+  code                         String                         @unique
+  descriptionEn                String?
+  evaluationCriteria           Json?
+  orderIndex                   Int                            @default(0)
+  question_soft_skill_mappings question_soft_skill_mappings[]
+  role_soft_skills             role_soft_skills[]
+  template_soft_skill_mappings template_soft_skill_mappings[]
+  user_soft_skills             user_soft_skills[]
+}
+
+model soft_skills_assessments {
+  id                           Int       @id @default(autoincrement())
+  assessment_id                Int?
+  employee_id                  Int
+  communication_score          Int?
+  teamwork_score               Int?
+  problem_solving_score        Int?
+  emotional_intelligence_score Int?
+  leadership_score             Int?
+  total_score                  Int?
+  percentage_score             Decimal?  @db.Decimal(5, 2)
+  skill_level                  String?   @db.VarChar(50)
+  completed_at                 DateTime? @db.Timestamp(6)
+  created_at                   DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id                    String    @db.Uuid
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model sub_roles {
+  id                 Int?
+  Sub_Role           String?
+  NameKnown_Sub_Role String?
+  Synonyms_Sub_Role  String[]
+
+  @@ignore
+}
+
+model template_soft_skill_mappings {
+  id                   Int                  @id @default(autoincrement())
+  templateId           Int
+  softSkillId          Int
+  questionMappings     Json
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime
+  soft_skills          soft_skills          @relation(fields: [softSkillId], references: [id])
+  assessment_templates assessment_templates @relation(fields: [templateId], references: [id])
+
+  @@unique([templateId, softSkillId])
+  @@index([softSkillId])
+  @@index([templateId])
+}
+
+model tenant_api_keys {
+  id         Int       @id @default(autoincrement())
+  tenant_id  String
+  keyName    String
+  apiKey     String    @unique
+  isActive   Boolean   @default(true)
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  tenants    tenants   @relation(fields: [tenant_id], references: [id])
+}
+
+model tenant_assessment_selections {
+  id                   Int                    @id @default(autoincrement())
+  templateId           Int
+  isActive             Boolean                @default(true)
+  selectedAt           DateTime               @default(now())
+  selectedBy           String?
+  assignmentRules      Json?
+  customName           String?
+  frequency            String?
+  updatedAt            DateTime
+  tenant_id            String                 @db.Uuid
+  assessment_schedules assessment_schedules[]
+  assessment_templates assessment_templates   @relation(fields: [templateId], references: [id])
+
+  @@unique([tenant_id, templateId])
+  @@index([templateId])
+  @@index([tenant_id])
+}
+
+model tenant_audit_log {
+  id        Int      @id @default(autoincrement())
+  tenant_id String
+  userId    Int?
+  action    String
+  entity    String?
+  entityId  String?
+  oldValue  Json?
+  newValue  Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  tenants   tenants  @relation(fields: [tenant_id], references: [id])
+}
+
+model tenant_billing {
+  id            Int      @id @default(autoincrement())
+  tenant_id     String
+  plan          String
+  amount        Float
+  currency      String   @default("EUR")
+  status        String
+  billingPeriod String
+  startDate     DateTime
+  endDate       DateTime
+  invoiceUrl    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  tenants       tenants  @relation(fields: [tenant_id], references: [id])
+}
+
+model tenant_features {
+  id          Int      @id @default(autoincrement())
+  tenant_id   String
+  featureName String
+  isEnabled   Boolean  @default(true)
+  config      Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  tenants     tenants  @relation(fields: [tenant_id], references: [id])
+
+  @@unique([tenant_id, featureName])
+}
+
+model tenant_soft_skill_profiles {
+  id               Int      @id @default(autoincrement())
+  profileName      String
+  description      String?
+  softSkillIds     Int[]
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime
+  createdBy        String?
+  softSkillWeights Json?
+  isDefault        Boolean  @default(false)
+  roleIds          Int[]
+  tenant_id        String   @db.Uuid
+
+  @@index([tenant_id])
+}
+
+model tenant_users {
+  id                        String     @id
+  tenant_id                 String
+  email                     String
+  password                  String?
+  password_hash             String?
+  role                      String     @default("user")
+  is_active                 Boolean    @default(true)
+  last_login_at             DateTime?
+  last_login_ip             String?
+  login_count               Int        @default(0)
+  failed_login_count        Int        @default(0)
+  locked_until              DateTime?
+  password_reset_token      String?
+  password_reset_expires_at DateTime?
+  force_password_change     Boolean    @default(false)
+  refresh_token             String?
+  refresh_token_expires_at  DateTime?
+  employee_id               Int?
+  created_at                DateTime   @default(now())
+  updated_at                DateTime
+  employees                 employees? @relation(fields: [employee_id], references: [id])
+  tenants                   tenants    @relation(fields: [tenant_id], references: [id])
+
+  @@unique([tenant_id, email])
+}
+
+model tenants {
+  id                  String             @id
+  slug                String?            @unique
+  name                String
+  companyName         String?
+  domain              String?
+  email               String             @unique
+  phone               String?
+  vat_number          String?
+  tax_code            String?
+  address_street      String?
+  address_city        String?
+  address_state       String?
+  address_zip         String?
+  address_country     String?
+  subscription_plan   String?            @default("basic")
+  subscription_status String?            @default("active")
+  max_employees       Int                @default(50)
+  is_active           Boolean            @default(true)
+  created_by          String?
+  updated_by          String?
+  address             String?
+  city                String?
+  country             String?
+  isActive            Boolean            @default(true)
+  is_deleted          Boolean            @default(false)
+  plan                String?            @default("free")
+  maxUsers            Int                @default(10)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime
+  tenant_api_keys     tenant_api_keys[]
+  tenant_audit_log    tenant_audit_log[]
+  tenant_billing      tenant_billing[]
+  tenant_features     tenant_features[]
+  tenant_users        tenant_users[]
+}
+
+model training_plans {
+  id            Int       @id @default(autoincrement())
+  employee_id   Int
+  skill_id      Int?
+  training_type String?   @db.VarChar(100)
+  provider      String?   @db.VarChar(200)
+  start_date    DateTime? @db.Date
+  end_date      DateTime? @db.Date
+  status        String?   @default("PLANNED") @db.VarChar(50)
+  cost          Decimal?  @db.Decimal(10, 2)
+  notes         String?
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  updated_at    DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id     String    @db.Uuid
+}
+
+model user_soft_skills {
+  id                   Int                  @id @default(autoincrement())
+  userId               String
+  instanceId           Int
+  softSkillId          Int
+  score                Float
+  confidence           Float
+  weight               Float
+  previousScore        Float?
+  trend                Trend?
+  calculatedAt         DateTime             @default(now())
+  assessment_instances assessment_instances @relation(fields: [instanceId], references: [id])
+  soft_skills          soft_skills          @relation(fields: [softSkillId], references: [id])
+
+  @@unique([userId, softSkillId, instanceId])
+  @@index([softSkillId])
+  @@index([userId])
+}
+
+model engagement_templates {
+  id                  String                         @id @default(uuid())
+  title               String
+  description         String?
+  type                String                         @default("CUSTOM")
+  category            String                         @default("ENGAGEMENT")
+  status              String                         @default("DRAFT")
+  instructions        String?
+  suggested_frequency String?
+  estimated_time      Int?
+  language            String                         @default("it")
+  tags                String[]
+  metadata            Json?
+  tenant_id           String?
+  created_by          String?
+  created_at          DateTime                       @default(now())
+  updated_at          DateTime                       @updatedAt
+  campaigns           engagement_campaigns[]
+  questions           engagement_questions[]
+  selections          tenant_engagement_selections[]
+
+  @@index([tenant_id])
+  @@index([status])
+  @@index([type])
+}
+
+model engagement_questions {
+  id            String                 @id @default(uuid())
+  template_id   String
+  question_text String
+  question_type String                 @default("LIKERT")
+  order         Int
+  required      Boolean                @default(true)
+  metadata      Json?
+  options       engagement_options[]
+  template      engagement_templates   @relation(fields: [template_id], references: [id], onDelete: Cascade)
+  responses     engagement_responses[]
+
+  @@index([template_id])
+  @@index([order])
+}
+
+model engagement_options {
+  id          String                 @id @default(uuid())
+  question_id String
+  option_text String
+  value       Int
+  order       Int
+  question    engagement_questions   @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  responses   engagement_responses[]
+
+  @@index([question_id])
+  @@index([order])
+}
+
+model engagement_campaigns {
+  id                  String                 @id @default(uuid())
+  tenant_id           String
+  template_id         String
+  name                String
+  description         String?
+  start_date          DateTime
+  end_date            DateTime
+  status              String                 @default("DRAFT")
+  target_audience     Json?
+  anonymous_responses Boolean                @default(false)
+  reminder_settings   Json?
+  created_by          String
+  created_at          DateTime               @default(now())
+  updated_at          DateTime               @updatedAt
+  template            engagement_templates   @relation(fields: [template_id], references: [id])
+  responses           engagement_responses[]
+
+  @@index([tenant_id])
+  @@index([template_id])
+  @@index([status])
+  @@index([start_date])
+  @@index([end_date])
+}
+
+model engagement_responses {
+  id             String               @id @default(uuid())
+  campaign_id    String
+  user_id        String
+  question_id    String
+  option_id      String?
+  response_text  String?
+  response_value Int?
+  responded_at   DateTime             @default(now())
+  campaign       engagement_campaigns @relation(fields: [campaign_id], references: [id])
+  option         engagement_options?  @relation(fields: [option_id], references: [id])
+  question       engagement_questions @relation(fields: [question_id], references: [id])
+
+  @@unique([campaign_id, user_id, question_id])
+  @@index([campaign_id])
+  @@index([user_id])
+  @@index([responded_at])
+}
+
+model tenant_engagement_selections {
+  id              String               @id @default(uuid())
+  tenant_id       String
+  template_id     String
+  is_active       Boolean              @default(true)
+  selected_at     DateTime             @default(now())
+  selected_by     String?
+  custom_settings Json?
+  template        engagement_templates @relation(fields: [template_id], references: [id])
+
+  @@unique([tenant_id, template_id])
+  @@index([tenant_id])
+  @@index([template_id])
+}
+
+enum ScheduleStatus {
+  SCHEDULED
+  NOTIFIED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+enum Trend {
+  IMPROVING
+  STABLE
+  DECLINING
+}

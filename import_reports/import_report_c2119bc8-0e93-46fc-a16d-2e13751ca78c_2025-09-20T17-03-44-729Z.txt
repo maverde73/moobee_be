@@ -1,0 +1,4058 @@
+================================================================================
+MOOBEE USER IMPORT REPORT
+================================================================================
+
+Date: 9/20/2025, 7:03:44 PM
+Tenant ID: c2119bc8-0e93-46fc-a16d-2e13751ca78c
+
+SUMMARY
+----------------------------------------
+Total Users Processed: 64
+New Users Created: 0
+Users Updated: 0
+Users Skipped: 0
+Employees Created: 0
+Errors: 64
+
+DETAILED USER REPORT
+================================================================================
+
+[1] afigliolini@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Figliolini
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "118ca365-337e-42b7-932c-b5ddef23122d",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "afigliolini@nexadata.it",
+          password_hash: "$2a$10$Q6PLkaZ/GIrFJ/gwy2RJHOmH.JR4B2lC10EkVaq0/4iQoY.1uYOZK",
+          first_name: "Alessandro",
+          last_name: "Figliolini",
+          role: "employee",
+          employee_id: 1,
+          is_active: true,
+          password_reset_token: "ee65552b-3ede-4db6-878a-080fb35d87f3",
+          password_reset_expires_at: new Date("2026-09-20T17:03:24.075Z"),
+          created_at: new Date("2025-09-20T17:03:24.075Z"),
+          updated_at: new Date("2025-09-20T17:03:24.075Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[2] azoia@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Zoia
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "dd146d98-48a5-4f41-a6f6-40acfe60e8eb",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "azoia@nexadata.it",
+          password_hash: "$2a$10$j9GAULxh5iAYCsIE.CciduKGEaA7xuWT1GbFBXtUAYvXMvhDeybqG",
+          first_name: "Alessandro",
+          last_name: "Zoia",
+          role: "employee",
+          employee_id: 2,
+          is_active: true,
+          password_reset_token: "7c3c5884-3705-4915-9682-9e9fffe41fa0",
+          password_reset_expires_at: new Date("2026-09-20T17:03:24.387Z"),
+          created_at: new Date("2025-09-20T17:03:24.387Z"),
+          updated_at: new Date("2025-09-20T17:03:24.387Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[3] adompe@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Dompè
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "76276a51-fbd8-4fc4-91fc-c26e57180ed0",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "adompe@nexadata.it",
+          password_hash: "$2a$10$NvjM17zEqdJ7dBw887tbCuMDKB7L0.DPwrQsNAUP5sX1vIt7tFql.",
+          first_name: "Alessandro",
+          last_name: "Dompè",
+          role: "employee",
+          employee_id: 3,
+          is_active: true,
+          password_reset_token: "0655ca83-d8fd-4b88-8d47-63f2d8e0288a",
+          password_reset_expires_at: new Date("2026-09-20T17:03:24.748Z"),
+          created_at: new Date("2025-09-20T17:03:24.748Z"),
+          updated_at: new Date("2025-09-20T17:03:24.748Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[4] apacetti@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Pacetti
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "5948f8a2-fddb-4fc6-8eef-c189ce2778c8",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "apacetti@nexadata.it",
+          password_hash: "$2a$10$djf3S/hcumdNPwACTA3QxO6/O20DS/C9sjGKnGtpX6z.dfTi7OpXW",
+          first_name: "Alessandro",
+          last_name: "Pacetti",
+          role: "employee",
+          employee_id: 4,
+          is_active: true,
+          password_reset_token: "1106c506-d613-4772-b533-70e2b8780a52",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.109Z"),
+          created_at: new Date("2025-09-20T17:03:25.109Z"),
+          updated_at: new Date("2025-09-20T17:03:25.109Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[5] asardaro@nexadata.it
+------------------------------------------------------------
+Name: Alessio Sardaro
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "bce3d519-c735-4538-ae9d-5da7b6847227",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "asardaro@nexadata.it",
+          password_hash: "$2a$10$XH79T0A0Hk/rvQyfqHcl1emwYGR3/s9oBa.qz.5QsGfCXCWBG0Kt2",
+          first_name: "Alessio",
+          last_name: "Sardaro",
+          role: "employee",
+          employee_id: 5,
+          is_active: true,
+          password_reset_token: "643d54f4-6ecd-44d5-b237-765a05a5516d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.450Z"),
+          created_at: new Date("2025-09-20T17:03:25.450Z"),
+          updated_at: new Date("2025-09-20T17:03:25.450Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[6] acapozi@nexadata.it
+------------------------------------------------------------
+Name: Alessio Capozi
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "e4447819-6b3e-4920-9064-41c7d24c1ce0",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "acapozi@nexadata.it",
+          password_hash: "$2a$10$2MeBAtWvsNAm7I1.8wXnVO5VfXQs0AHAz4eIQyKFEBOlvHjc3vyLO",
+          first_name: "Alessio",
+          last_name: "Capozi",
+          role: "employee",
+          employee_id: 6,
+          is_active: true,
+          password_reset_token: "33fab04f-6759-4c94-856d-775368b23fe5",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.716Z"),
+          created_at: new Date("2025-09-20T17:03:25.716Z"),
+          updated_at: new Date("2025-09-20T17:03:25.716Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[7] acutolo@nexadata.it
+------------------------------------------------------------
+Name: Andrea Cutolo
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "e5dc929d-9abc-4247-85a2-8fbf11cd93dc",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "acutolo@nexadata.it",
+          password_hash: "$2a$10$9dMzfMDhuLaDGXANSstpmOCqOHGU1uyLw9SjxiRY8s82DnJe/B9z2",
+          first_name: "Andrea",
+          last_name: "Cutolo",
+          role: "employee",
+          employee_id: 7,
+          is_active: true,
+          password_reset_token: "d9e639db-ee3e-4ae5-984c-4501007da6bc",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.973Z"),
+          created_at: new Date("2025-09-20T17:03:25.973Z"),
+          updated_at: new Date("2025-09-20T17:03:25.973Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[8] aetna@nexadata.it
+------------------------------------------------------------
+Name: Andrea Etna
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "14056674-b39b-44c0-90e3-9d1ebe53164f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "aetna@nexadata.it",
+          password_hash: "$2a$10$eOMEtgi.bLzDrH49xwY89Og3USMKok6o/p39HImZpdfl38PTIzhpa",
+          first_name: "Andrea",
+          last_name: "Etna",
+          role: "employee",
+          employee_id: 8,
+          is_active: true,
+          password_reset_token: "5cad9279-eb04-43f7-bff2-9e17ca72ebd6",
+          password_reset_expires_at: new Date("2026-09-20T17:03:26.254Z"),
+          created_at: new Date("2025-09-20T17:03:26.254Z"),
+          updated_at: new Date("2025-09-20T17:03:26.254Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[9] agiampa@nexadata.it
+------------------------------------------------------------
+Name: Andrea Giampa
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4ae6dca1-ecf7-4cb9-ae0a-69c3139fcc48",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "agiampa@nexadata.it",
+          password_hash: "$2a$10$tsa.RdmG8.7eITvj3ptYWOBjf74XIuAjhd74SzHPyfjNE405yBfui",
+          first_name: "Andrea",
+          last_name: "Giampa",
+          role: "employee",
+          employee_id: 9,
+          is_active: true,
+          password_reset_token: "ecb0bd35-71ef-4b9b-88ab-ed3fe1df5fb8",
+          password_reset_expires_at: new Date("2026-09-20T17:03:26.555Z"),
+          created_at: new Date("2025-09-20T17:03:26.555Z"),
+          updated_at: new Date("2025-09-20T17:03:26.555Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[10] alomonaco@nexadata.it
+------------------------------------------------------------
+Name: Andrea Lomonaco
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "df182b8d-f2db-4c58-a8bd-9e35bf0e449a",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "alomonaco@nexadata.it",
+          password_hash: "$2a$10$fdUXOuikg0H5q9oyVdvpU.U3ckIDMKJrOBRRhBeDxkfrLdNWkK43W",
+          first_name: "Andrea",
+          last_name: "Lomonaco",
+          role: "employee",
+          employee_id: 10,
+          is_active: true,
+          password_reset_token: "8ced6fc4-da70-4def-bbba-3a9317d5c51c",
+          password_reset_expires_at: new Date("2026-09-20T17:03:26.859Z"),
+          created_at: new Date("2025-09-20T17:03:26.859Z"),
+          updated_at: new Date("2025-09-20T17:03:26.859Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[11] anovelli@nexadata.it
+------------------------------------------------------------
+Name: Andrea Novelli
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4f80b2b3-987d-4868-a5ea-7b35ec089f2f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "anovelli@nexadata.it",
+          password_hash: "$2a$10$mqFL3Co99Mq9HigS9eVqxe9c9B7YGrFQMZXwZVdqcjHRqjBQFpY5.",
+          first_name: "Andrea",
+          last_name: "Novelli",
+          role: "employee",
+          employee_id: 11,
+          is_active: true,
+          password_reset_token: "8f373a2a-8e55-415d-b8b5-7aeca8d0abe3",
+          password_reset_expires_at: new Date("2026-09-20T17:03:27.164Z"),
+          created_at: new Date("2025-09-20T17:03:27.164Z"),
+          updated_at: new Date("2025-09-20T17:03:27.164Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[12] afichera@nexadata.it
+------------------------------------------------------------
+Name: Anita Fichera
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "85f657ab-e62c-4e10-8931-48e0ebffe241",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "afichera@nexadata.it",
+          password_hash: "$2a$10$Mu0wUPSi3yB6mdChL30YJuXX1w/t1XbaZgt/roeEYYI6wA3/h54NC",
+          first_name: "Anita",
+          last_name: "Fichera",
+          role: "hr",
+          employee_id: 12,
+          is_active: true,
+          password_reset_token: "f3e57288-5d5a-42c1-8963-57f6006c10b3",
+          password_reset_expires_at: new Date("2026-09-20T17:03:27.455Z"),
+          created_at: new Date("2025-09-20T17:03:27.455Z"),
+          updated_at: new Date("2025-09-20T17:03:27.455Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[13] abehfar@nexadata.it
+------------------------------------------------------------
+Name: Arian Behfar
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "d767c3bd-5370-4032-959d-579ddcae2d07",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "abehfar@nexadata.it",
+          password_hash: "$2a$10$aftCXCoPGitan0THx7Nl.evUlkWT4Tfrny7q85U9.pDupN34eXFka",
+          first_name: "Arian",
+          last_name: "Behfar",
+          role: "employee",
+          employee_id: 13,
+          is_active: true,
+          password_reset_token: "067583b3-288e-4eb7-8c08-da78b8f9e5cf",
+          password_reset_expires_at: new Date("2026-09-20T17:03:27.737Z"),
+          created_at: new Date("2025-09-20T17:03:27.737Z"),
+          updated_at: new Date("2025-09-20T17:03:27.737Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[14] cmiraglia@nexadata.it
+------------------------------------------------------------
+Name: Calogero Miraglia
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "9efc918b-7085-49bd-acce-c23a1b72caa5",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "cmiraglia@nexadata.it",
+          password_hash: "$2a$10$tSbGlto0MsRQ5ORhf1iBpu38ezGBpQ25xkiGmuKNqQD/wZG0gsl16",
+          first_name: "Calogero",
+          last_name: "Miraglia",
+          role: "employee",
+          employee_id: 14,
+          is_active: true,
+          password_reset_token: "c55910ce-5654-46c4-ac6d-d2549f9f5ebb",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.019Z"),
+          created_at: new Date("2025-09-20T17:03:28.019Z"),
+          updated_at: new Date("2025-09-20T17:03:28.019Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[15] cabdelmessih@nexadata.it
+------------------------------------------------------------
+Name: Christian Abd El Messih
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "9e2a3586-a1f4-4e5d-ad22-a7a48f386d6a",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "cabdelmessih@nexadata.it",
+          password_hash: "$2a$10$IBoxEqHjdflXEvsWcKcKi.4aYmXtO0U.XmJKJpMCvwidnhE81vcCu",
+          first_name: "Christian",
+          last_name: "Abd El Messih",
+          role: "employee",
+          employee_id: 15,
+          is_active: true,
+          password_reset_token: "f2b42757-7224-4833-8e7f-42f081dad59b",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.302Z"),
+          created_at: new Date("2025-09-20T17:03:28.302Z"),
+          updated_at: new Date("2025-09-20T17:03:28.302Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[16] chuang@nexadata.it
+------------------------------------------------------------
+Name: Claudio Huang
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "52de0c4f-3ed9-48a2-bc3e-159eef0fbd61",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "chuang@nexadata.it",
+          password_hash: "$2a$10$ih4.TXN2Yb2Fe6JqmddDue8GcwXid9231gXbl8OHVl0ZkheHX1HL.",
+          first_name: "Claudio",
+          last_name: "Huang",
+          role: "employee",
+          employee_id: 16,
+          is_active: true,
+          password_reset_token: "7b213f0a-3878-419b-88f7-8e9ed6a9eb4e",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.630Z"),
+          created_at: new Date("2025-09-20T17:03:28.630Z"),
+          updated_at: new Date("2025-09-20T17:03:28.630Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[17] cmastromarini@nexadata.it
+------------------------------------------------------------
+Name: Cristian Mastromarini
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "df5984b0-51a2-4d5e-8c9b-ce8036f1cd22",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "cmastromarini@nexadata.it",
+          password_hash: "$2a$10$zzb/8j3uv5Vw7gerbsRWoerPFifc6YG1wlgmgrmE8UEiEKikZm59S",
+          first_name: "Cristian",
+          last_name: "Mastromarini",
+          role: "employee",
+          employee_id: 17,
+          is_active: true,
+          password_reset_token: "b02d0a89-b96a-4e04-8d1a-c65dabd11a54",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.917Z"),
+          created_at: new Date("2025-09-20T17:03:28.917Z"),
+          updated_at: new Date("2025-09-20T17:03:28.917Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[18] dhrituc@nexadata.it
+------------------------------------------------------------
+Name: Daniel Hrituc
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "357ad6a4-420c-4572-ba23-c4018048d30a",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dhrituc@nexadata.it",
+          password_hash: "$2a$10$.kPxRXr3nhphuKGk8YgDZOe4juqiy3Dvqa03qORUuInLMrHvg/ChC",
+          first_name: "Daniel",
+          last_name: "Hrituc",
+          role: "employee",
+          employee_id: 18,
+          is_active: true,
+          password_reset_token: "e7ddce94-5e6e-4f89-a356-d7b7e717d4e5",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.175Z"),
+          created_at: new Date("2025-09-20T17:03:29.175Z"),
+          updated_at: new Date("2025-09-20T17:03:29.175Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[19] dsiclari@nexadata.it
+------------------------------------------------------------
+Name: Danilo Siclari
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3a793b02-c631-401e-aaba-71cff8a3ab60",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dsiclari@nexadata.it",
+          password_hash: "$2a$10$oqTVXZEEzIQIZhoJkDp34.PjDRddN/5Qu9dNy.Lhg.mSRqgF1.M2.",
+          first_name: "Danilo",
+          last_name: "Siclari",
+          role: "employee",
+          employee_id: 19,
+          is_active: true,
+          password_reset_token: "6314f1c3-f32f-45ea-abba-98762dae23b1",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.398Z"),
+          created_at: new Date("2025-09-20T17:03:29.398Z"),
+          updated_at: new Date("2025-09-20T17:03:29.398Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[20] dsimone@nexadata.it
+------------------------------------------------------------
+Name: Davide Simone
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "af634bb9-da1b-435d-af88-bbf4c0c02137",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dsimone@nexadata.it",
+          password_hash: "$2a$10$EHcMLLo19aLq9X4/JE4fMul0FAbeY6zQlCuGMnJNU5RPP1EirzSxi",
+          first_name: "Davide",
+          last_name: "Simone",
+          role: "employee",
+          employee_id: 20,
+          is_active: true,
+          password_reset_token: "91af4f4f-f30e-4a79-a227-6c6c04b5cbc4",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.638Z"),
+          created_at: new Date("2025-09-20T17:03:29.638Z"),
+          updated_at: new Date("2025-09-20T17:03:29.638Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[21] dtrozzo@nexadata.it
+------------------------------------------------------------
+Name: Domenico Trozzo
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "26327e30-e5e3-4cc8-a4d1-4455066ad5ef",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dtrozzo@nexadata.it",
+          password_hash: "$2a$10$IXThzHaKO8S2rcJ2Abl83.as9DkaPUVyTqVakKG0GAgFoB.UtKtAS",
+          first_name: "Domenico",
+          last_name: "Trozzo",
+          role: "employee",
+          employee_id: 21,
+          is_active: true,
+          password_reset_token: "dcab015b-e482-467f-aec7-cb719ab47711",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.876Z"),
+          created_at: new Date("2025-09-20T17:03:29.876Z"),
+          updated_at: new Date("2025-09-20T17:03:29.876Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[22] evoytovich@nexadata.it
+------------------------------------------------------------
+Name: Elena Voytovich
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "36c030df-2870-42c1-b1ef-34b9f86b8330",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "evoytovich@nexadata.it",
+          password_hash: "$2a$10$8IU5p7hMBLJWfgoCflo8ruiY52.75BBHVwcMoo/N7trsbiQ6m6ihW",
+          first_name: "Elena",
+          last_name: "Voytovich",
+          role: "employee",
+          employee_id: 22,
+          is_active: true,
+          password_reset_token: "fbd95b0b-c9dc-495c-aa05-b6935a76cee1",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.100Z"),
+          created_at: new Date("2025-09-20T17:03:30.100Z"),
+          updated_at: new Date("2025-09-20T17:03:30.100Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[23] egiurelli@nexadata.it
+------------------------------------------------------------
+Name: Elena Giurelli
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "a306e4dd-b2c0-442c-97cb-5df22f467b47",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "egiurelli@nexadata.it",
+          password_hash: "$2a$10$WLEWhbeDjhlNk.c0QVUDPudbg8FK3abWtPWIsB7FKF1ydaahh4WW2",
+          first_name: "Elena",
+          last_name: "Giurelli",
+          role: "hr",
+          employee_id: 23,
+          is_active: true,
+          password_reset_token: "f5ca3ca3-1e2a-49fd-8b7b-eec33e8f878d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.342Z"),
+          created_at: new Date("2025-09-20T17:03:30.342Z"),
+          updated_at: new Date("2025-09-20T17:03:30.342Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[24] elisagiurelli@nexadata.it
+------------------------------------------------------------
+Name: Elisa Giurelli
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "b64975d2-6975-4315-91dd-e8cfaab8d3be",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "elisagiurelli@nexadata.it",
+          password_hash: "$2a$10$qE68gSE.xETu8vI2rKIf/OtQ95uCsj8yy0z4YXPX9FSBxD66yTC3.",
+          first_name: "Elisa",
+          last_name: "Giurelli",
+          role: "employee",
+          employee_id: 24,
+          is_active: true,
+          password_reset_token: "270c1354-10c6-43ba-be5e-99f8d59852df",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.605Z"),
+          created_at: new Date("2025-09-20T17:03:30.605Z"),
+          updated_at: new Date("2025-09-20T17:03:30.605Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[25] eguidotti@nexadata.it
+------------------------------------------------------------
+Name: Emanuele Guidotti
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "c694469e-960c-493e-add2-c8d30c40abf3",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "eguidotti@nexadata.it",
+          password_hash: "$2a$10$w4a.343C3U47PWQyZbdI9u6uRKoJAsXQas1PkWPEVNhIO8G0WSgve",
+          first_name: "Emanuele",
+          last_name: "Guidotti",
+          role: "employee",
+          employee_id: 25,
+          is_active: true,
+          password_reset_token: "e0e3d916-075a-43a3-bb62-c2c4fd5ca248",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.885Z"),
+          created_at: new Date("2025-09-20T17:03:30.885Z"),
+          updated_at: new Date("2025-09-20T17:03:30.885Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[26] epergoloni@nexadata.it
+------------------------------------------------------------
+Name: Eva Pergoloni
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "0cbc40a3-da5b-430b-b828-d167070599fa",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "epergoloni@nexadata.it",
+          password_hash: "$2a$10$uP/stHuznMf2lsqd4CEwp.1Ar3fVgQVZP740IzO87MkXfwpoATgkC",
+          first_name: "Eva",
+          last_name: "Pergoloni",
+          role: "employee",
+          employee_id: 26,
+          is_active: true,
+          password_reset_token: "44803c9a-b56a-409d-a233-be750acc1506",
+          password_reset_expires_at: new Date("2026-09-20T17:03:31.284Z"),
+          created_at: new Date("2025-09-20T17:03:31.284Z"),
+          updated_at: new Date("2025-09-20T17:03:31.284Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[27] fvalentini@nexadata.it
+------------------------------------------------------------
+Name: Fabio Valentini
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "a0f0c37d-59d6-4a81-813b-7e6035d2ce8b",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fvalentini@nexadata.it",
+          password_hash: "$2a$10$Vu0oEqwc.D93wQcOx.CJzeWbZ5hJwlf2.sc9R2QCHaCkP.RAjrDQ6",
+          first_name: "Fabio",
+          last_name: "Valentini",
+          role: "employee",
+          employee_id: 27,
+          is_active: true,
+          password_reset_token: "62317907-218e-414e-af55-aab5c8d1a701",
+          password_reset_expires_at: new Date("2026-09-20T17:03:31.641Z"),
+          created_at: new Date("2025-09-20T17:03:31.641Z"),
+          updated_at: new Date("2025-09-20T17:03:31.641Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[28] fdilegge@nexadata.it
+------------------------------------------------------------
+Name: Federico Di Legge
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "1fe23932-cfba-4acb-8790-d279ae38e654",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fdilegge@nexadata.it",
+          password_hash: "$2a$10$QVnItSMzCrpRuh6nghfbN.mryYBLOJ7wrieAsJ5zm6CzuAmhdGpUm",
+          first_name: "Federico",
+          last_name: "Di Legge",
+          role: "employee",
+          employee_id: 28,
+          is_active: true,
+          password_reset_token: "0a0ca9a0-5e85-41d1-9fd3-24a5f7f4f235",
+          password_reset_expires_at: new Date("2026-09-20T17:03:35.042Z"),
+          created_at: new Date("2025-09-20T17:03:35.042Z"),
+          updated_at: new Date("2025-09-20T17:03:35.042Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[29] fpedicini@nexadata.it
+------------------------------------------------------------
+Name: Flavio Pedicini
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "2d6611b2-d8fd-49a8-a51c-f16793aef3fb",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fpedicini@nexadata.it",
+          password_hash: "$2a$10$3TDcRBTSMN5viJuTrXSByeI7b114bAoNIuA.RjJfl8Owb9d16xrQ2",
+          first_name: "Flavio",
+          last_name: "Pedicini",
+          role: "employee",
+          employee_id: 29,
+          is_active: true,
+          password_reset_token: "d78680a8-8474-48c3-88b6-d14b3fdae648",
+          password_reset_expires_at: new Date("2026-09-20T17:03:35.404Z"),
+          created_at: new Date("2025-09-20T17:03:35.404Z"),
+          updated_at: new Date("2025-09-20T17:03:35.404Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[30] fprosperi@nexadata.it
+------------------------------------------------------------
+Name: Flavio Prosperi
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "39a524db-a18c-4847-984f-e73235ca0ff1",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fprosperi@nexadata.it",
+          password_hash: "$2a$10$HIcMTAhNeVptTDWEbn2SI.KhwRc1DrUTAOnu5PrgMwlwzCNObw0ZG",
+          first_name: "Flavio",
+          last_name: "Prosperi",
+          role: "employee",
+          employee_id: 30,
+          is_active: true,
+          password_reset_token: "7cf10802-1770-4528-a8d3-0cbb7c060ac2",
+          password_reset_expires_at: new Date("2026-09-20T17:03:35.728Z"),
+          created_at: new Date("2025-09-20T17:03:35.728Z"),
+          updated_at: new Date("2025-09-20T17:03:35.728Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[31] fferrari@nexadata.it
+------------------------------------------------------------
+Name: Francesco Ferrari
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4c438ea3-bd37-47f6-ba69-2cefdc4b10a2",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fferrari@nexadata.it",
+          password_hash: "$2a$10$J2zpXl9yatbU0dfbTdr7uuitWPpPZjsA7ESCspSK/v2CB/zw.yRD.",
+          first_name: "Francesco",
+          last_name: "Ferrari",
+          role: "employee",
+          employee_id: 31,
+          is_active: true,
+          password_reset_token: "4faa2ec9-d769-4cd0-a058-152276113add",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.023Z"),
+          created_at: new Date("2025-09-20T17:03:36.023Z"),
+          updated_at: new Date("2025-09-20T17:03:36.023Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[32] fguarini@nexadata.it
+------------------------------------------------------------
+Name: Francesco Guarini
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "2a6092e5-5756-4db0-8e44-4765cc013f96",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fguarini@nexadata.it",
+          password_hash: "$2a$10$mlI/5PGRDaOEG4bh5jq.l.orIfJ3qVajjcyhz7yAJmRtvRKfwX4HS",
+          first_name: "Francesco",
+          last_name: "Guarini",
+          role: "employee",
+          employee_id: 32,
+          is_active: true,
+          password_reset_token: "ea330f43-2201-4f16-a035-cda37b8943de",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.324Z"),
+          created_at: new Date("2025-09-20T17:03:36.324Z"),
+          updated_at: new Date("2025-09-20T17:03:36.324Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[33] fcifaldi@nexadata.it
+------------------------------------------------------------
+Name: Francesco Cifaldi
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "efc0d837-9e61-42ea-817b-82c80dd60ccf",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fcifaldi@nexadata.it",
+          password_hash: "$2a$10$kukZN8JZ3ZpQOT7EGyuSbOwQJ/lpRsSqVfZxeS.CIFA9yJihUC/mC",
+          first_name: "Francesco",
+          last_name: "Cifaldi",
+          role: "employee",
+          employee_id: 33,
+          is_active: true,
+          password_reset_token: "99ef2245-3f50-496a-8ac0-0949c45c55ca",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.587Z"),
+          created_at: new Date("2025-09-20T17:03:36.587Z"),
+          updated_at: new Date("2025-09-20T17:03:36.587Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[34] gnardoni@nexadata.it
+------------------------------------------------------------
+Name: Giampaolo Nardoni
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4732625b-5ee7-4f9c-b0f1-557e041f9bcb",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gnardoni@nexadata.it",
+          password_hash: "$2a$10$acI2JRxs7.jebAgNeVjui.2M19rPVVUE/tMzN2MT.jfuJSmeJZIqS",
+          first_name: "Giampaolo",
+          last_name: "Nardoni",
+          role: "employee",
+          employee_id: 34,
+          is_active: true,
+          password_reset_token: "10200388-3656-4459-a51e-8bf3e1933f11",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.874Z"),
+          created_at: new Date("2025-09-20T17:03:36.874Z"),
+          updated_at: new Date("2025-09-20T17:03:36.874Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[35] gscamperti@nexadata.it
+------------------------------------------------------------
+Name: Gianluca Scamperti
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "9c19de01-bb21-4413-a2fe-d98da472b6b8",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gscamperti@nexadata.it",
+          password_hash: "$2a$10$/s8V8GVsyQ6SIjn/uXYNreDh6QQeipqjA.JgfgY3BtJG3qOBZNsTK",
+          first_name: "Gianluca",
+          last_name: "Scamperti",
+          role: "employee",
+          employee_id: 35,
+          is_active: true,
+          password_reset_token: "d6c2c3f9-c26c-4f99-b1d3-d9e12345355d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:37.142Z"),
+          created_at: new Date("2025-09-20T17:03:37.142Z"),
+          updated_at: new Date("2025-09-20T17:03:37.142Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[36] gremolino@nexadata.it
+------------------------------------------------------------
+Name: Giuseppe Remolino
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "afdb51b8-6082-4e12-a0ae-1999dceb5e38",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gremolino@nexadata.it",
+          password_hash: "$2a$10$yAT08PWmA1RV7B1Fx39PTekOmUO21O.7ASGJTxuwPtkU6tneyZC.q",
+          first_name: "Giuseppe",
+          last_name: "Remolino",
+          role: "employee",
+          employee_id: 36,
+          is_active: true,
+          password_reset_token: "de5f274d-1116-4506-adb4-11aa103e7978",
+          password_reset_expires_at: new Date("2026-09-20T17:03:37.428Z"),
+          created_at: new Date("2025-09-20T17:03:37.428Z"),
+          updated_at: new Date("2025-09-20T17:03:37.428Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[37] gabuduaini@nexadata.it
+------------------------------------------------------------
+Name: GUZALINUER ABUDUAINI
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "df9199af-0b67-46cf-ac41-683a2c40dfb6",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gabuduaini@nexadata.it",
+          password_hash: "$2a$10$hx4kg3uMYTYZ96NZuGd7h.bmfV84XinFlVVhsR3vBEpz1YP5GhNDm",
+          first_name: "GUZALINUER",
+          last_name: "ABUDUAINI",
+          role: "employee",
+          employee_id: 37,
+          is_active: true,
+          password_reset_token: "e7936ca2-bb46-4664-bdf1-fec261cfb182",
+          password_reset_expires_at: new Date("2026-09-20T17:03:37.721Z"),
+          created_at: new Date("2025-09-20T17:03:37.721Z"),
+          updated_at: new Date("2025-09-20T17:03:37.721Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[38] juddin@nexadata.it
+------------------------------------------------------------
+Name: JALAL UDDIN
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "fa3477d8-f525-4b45-ac95-f0e8a49d165c",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "juddin@nexadata.it",
+          password_hash: "$2a$10$.QPIvJziW3O.W4VF3AotLea23M4Tway7zHvXGmnK/8wlWs3HzU8Iy",
+          first_name: "JALAL",
+          last_name: "UDDIN",
+          role: "employee",
+          employee_id: 38,
+          is_active: true,
+          password_reset_token: "d7dfc050-0585-4550-9318-5e4e639028d6",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.027Z"),
+          created_at: new Date("2025-09-20T17:03:38.027Z"),
+          updated_at: new Date("2025-09-20T17:03:38.027Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[39] kpiatek@nexadata.it
+------------------------------------------------------------
+Name: Kacper Maksymilian Piatek
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3c03559c-1f6f-404a-a7c3-455849c5889d",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "kpiatek@nexadata.it",
+          password_hash: "$2a$10$HuSdYOa1FEgTHYQKDuKA6Owzwa93frEbpoN/WJwJQGytJnZsaCsdC",
+          first_name: "Kacper Maksymilian",
+          last_name: "Piatek",
+          role: "employee",
+          employee_id: 39,
+          is_active: true,
+          password_reset_token: "91b6c8a6-fead-4aab-8b0a-9b736280fc1d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.304Z"),
+          created_at: new Date("2025-09-20T17:03:38.304Z"),
+          updated_at: new Date("2025-09-20T17:03:38.304Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[40] lcioni@nexadata.it
+------------------------------------------------------------
+Name: Leandro Cioni
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "a71f39d0-0484-43d9-8fff-fa7103c50326",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "lcioni@nexadata.it",
+          password_hash: "$2a$10$5DkQxPGHSRiVfQQnDN6BDO55fwvIpkF/LmteuwYCvz3PuMHpglYBm",
+          first_name: "Leandro",
+          last_name: "Cioni",
+          role: "employee",
+          employee_id: 40,
+          is_active: true,
+          password_reset_token: "acf5b485-5ec7-4c5e-b3e1-88cb1aff51bd",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.567Z"),
+          created_at: new Date("2025-09-20T17:03:38.567Z"),
+          updated_at: new Date("2025-09-20T17:03:38.567Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[41] lfanicchia@nexadata.it
+------------------------------------------------------------
+Name: Leonardo Fanicchia
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "d735c86f-444a-47d2-8177-ef839aaac417",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "lfanicchia@nexadata.it",
+          password_hash: "$2a$10$Xezq3j0Y9gP2HjYvyCL1WelpzUHZiE0lkWIn6wa6NUdPaG5A.Ye8u",
+          first_name: "Leonardo",
+          last_name: "Fanicchia",
+          role: "employee",
+          employee_id: 41,
+          is_active: true,
+          password_reset_token: "52629df0-82b7-4e79-9d08-8e691fc90501",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.822Z"),
+          created_at: new Date("2025-09-20T17:03:38.822Z"),
+          updated_at: new Date("2025-09-20T17:03:38.822Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[42] lcaiffa@nexadata.it
+------------------------------------------------------------
+Name: Lorenzo Caiffa
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "0a48bc9f-cc51-4ba7-b47b-3f6c36d9ca47",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "lcaiffa@nexadata.it",
+          password_hash: "$2a$10$oY5GEkvlZ7H1LR3XNVLrf.knD6PP894ECrZN4Ww2RDh0.hG5Tx196",
+          first_name: "Lorenzo",
+          last_name: "Caiffa",
+          role: "employee",
+          employee_id: 42,
+          is_active: true,
+          password_reset_token: "ac8f88d6-20c9-434c-ab78-448634197978",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.070Z"),
+          created_at: new Date("2025-09-20T17:03:39.070Z"),
+          updated_at: new Date("2025-09-20T17:03:39.070Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[43] ldeserio@nexadata.it
+------------------------------------------------------------
+Name: Luca De serio
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "762ac625-2b70-46cd-ac0f-6b20d96db919",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "ldeserio@nexadata.it",
+          password_hash: "$2a$10$ciz5jKGzGdHyFuR2/3Sc8uU3Oxxn0pPgAuvZVEhOuVwJNKyUYcEsm",
+          first_name: "Luca",
+          last_name: "De serio",
+          role: "employee",
+          employee_id: 43,
+          is_active: true,
+          password_reset_token: "dd927d56-7cb9-4d3d-86c9-53c7514f13a4",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.318Z"),
+          created_at: new Date("2025-09-20T17:03:39.318Z"),
+          updated_at: new Date("2025-09-20T17:03:39.318Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[44] mesposito@nexadata.it
+------------------------------------------------------------
+Name: Marco Esposito
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4aa2890e-b424-414c-b96c-c186a4270901",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mesposito@nexadata.it",
+          password_hash: "$2a$10$sPSxLUdRgGv89mI.gUwtPe0Ccw/f6DDN9Fy4friDO7TwYC/f1OUoq",
+          first_name: "Marco",
+          last_name: "Esposito",
+          role: "employee",
+          employee_id: 44,
+          is_active: true,
+          password_reset_token: "8ea19c3a-7dde-459c-99a6-918257148ac7",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.569Z"),
+          created_at: new Date("2025-09-20T17:03:39.569Z"),
+          updated_at: new Date("2025-09-20T17:03:39.569Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[45] mmeneghetti@nexadata.it
+------------------------------------------------------------
+Name: Marco Meneghetti
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "bbe0e131-9839-4ec6-ad50-9473331fea2e",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mmeneghetti@nexadata.it",
+          password_hash: "$2a$10$rv2bdkv2vqXMzZmGVd21JudyZnTIa2dED3dbn1a3pmM/6w11THCvm",
+          first_name: "Marco",
+          last_name: "Meneghetti",
+          role: "employee",
+          employee_id: 45,
+          is_active: true,
+          password_reset_token: "962d5695-211c-48b1-bc5c-ebfc4d8adee6",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.843Z"),
+          created_at: new Date("2025-09-20T17:03:39.843Z"),
+          updated_at: new Date("2025-09-20T17:03:39.843Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[46] mrippoliti@nexadata.it
+------------------------------------------------------------
+Name: Maria Rita Ippoliti
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3286e46e-ce5a-4d7f-84ad-f11bec2e8b70",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mrippoliti@nexadata.it",
+          password_hash: "$2a$10$efaXbG2ZWVti7W17o5RIMuYrQVFJESXQc6XTbPK.5QWxigrI8RX.e",
+          first_name: "Maria Rita",
+          last_name: "Ippoliti",
+          role: "employee",
+          employee_id: 46,
+          is_active: true,
+          password_reset_token: "2eaa5686-dc92-4050-bf05-6bda1181e14d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.103Z"),
+          created_at: new Date("2025-09-20T17:03:40.103Z"),
+          updated_at: new Date("2025-09-20T17:03:40.103Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[47] mgiurelli@nexadata.it
+------------------------------------------------------------
+Name: Massimiliano Giurelli
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "0e273f6a-b328-46fb-a6bf-f65b89a1795f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mgiurelli@nexadata.it",
+          password_hash: "$2a$10$d..Tg2pRLdXYlBCvZlk2pOzd7UE8EXgviLr1c6hQUDLhetbMfP1ui",
+          first_name: "Massimiliano",
+          last_name: "Giurelli",
+          role: "hr",
+          employee_id: 47,
+          is_active: true,
+          password_reset_token: "0521d08c-5ace-4861-969b-1ebb54e5c386",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.372Z"),
+          created_at: new Date("2025-09-20T17:03:40.372Z"),
+          updated_at: new Date("2025-09-20T17:03:40.372Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[48] mrovelli@nexadata.it
+------------------------------------------------------------
+Name: Massimiliano Rovelli
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "fa33435d-9069-4087-a4f3-291881d9b792",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mrovelli@nexadata.it",
+          password_hash: "$2a$10$nmFzoB7DksWAuF/9A94IKucBtUuyGRsocw6p/5EEUDQO3fzNJggXu",
+          first_name: "Massimiliano",
+          last_name: "Rovelli",
+          role: "employee",
+          employee_id: 48,
+          is_active: true,
+          password_reset_token: "ea8bf08d-eacd-4915-8dce-b73baf0ff610",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.645Z"),
+          created_at: new Date("2025-09-20T17:03:40.645Z"),
+          updated_at: new Date("2025-09-20T17:03:40.645Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[49] mlamacchia@nexadata.it
+------------------------------------------------------------
+Name: Matteo Lamacchia
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "c7cc42c7-e136-4d93-bb2a-088739d35955",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mlamacchia@nexadata.it",
+          password_hash: "$2a$10$sQB5VEQ4uQFF21qG4Y7f/.JJG3ZHIKmQ0vTTgRzGk7uI7kVK14.Ce",
+          first_name: "Matteo",
+          last_name: "Lamacchia",
+          role: "employee",
+          employee_id: 49,
+          is_active: true,
+          password_reset_token: "69c81e3b-2c69-4c78-845d-e08e113ed470",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.908Z"),
+          created_at: new Date("2025-09-20T17:03:40.908Z"),
+          updated_at: new Date("2025-09-20T17:03:40.908Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[50] mverde@nexadata.it
+------------------------------------------------------------
+Name: Maurizio Verde
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "be11404a-75ed-47f0-b6b3-d92a97e3e0fd",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mverde@nexadata.it",
+          password_hash: "$2a$10$tklKBDJjrNgQqkWTrgps3.axiehQtUeyDUPk7jS/hVXb9ZR1opefq",
+          first_name: "Maurizio",
+          last_name: "Verde",
+          role: "employee",
+          employee_id: 50,
+          is_active: true,
+          password_reset_token: "34e57378-8607-452b-a697-626169d526fd",
+          password_reset_expires_at: new Date("2026-09-20T17:03:41.171Z"),
+          created_at: new Date("2025-09-20T17:03:41.171Z"),
+          updated_at: new Date("2025-09-20T17:03:41.171Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[51] microsoft.learning@nexadata.it
+------------------------------------------------------------
+Name: Microsoft Learning
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "6374ee3b-1840-427e-a0e4-a8faa3550227",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "microsoft.learning@nexadata.it",
+          password_hash: "$2a$10$sY4bDZK2BWmGvWZifCRXKuUanLC0AdQJbJiliSx6uqlMJVPh5o0dm",
+          first_name: "Microsoft",
+          last_name: "Learning",
+          role: "employee",
+          employee_id: 51,
+          is_active: true,
+          password_reset_token: "ab378a64-ac4c-4ab6-b914-4028044cd5e1",
+          password_reset_expires_at: new Date("2026-09-20T17:03:41.451Z"),
+          created_at: new Date("2025-09-20T17:03:41.451Z"),
+          updated_at: new Date("2025-09-20T17:03:41.451Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[52] mcarnevale@nexadata.it
+------------------------------------------------------------
+Name: Mirco Carnevale
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "1399ed35-a756-4770-9335-b2a28fd4ca54",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mcarnevale@nexadata.it",
+          password_hash: "$2a$10$e4TSFQpABcG1YVSa4X35EucCuUm4EmY85z7BVeNxs3lKs5x4dhJ2W",
+          first_name: "Mirco",
+          last_name: "Carnevale",
+          role: "employee",
+          employee_id: 52,
+          is_active: true,
+          password_reset_token: "0c062807-e052-4012-9245-04777f640c29",
+          password_reset_expires_at: new Date("2026-09-20T17:03:41.788Z"),
+          created_at: new Date("2025-09-20T17:03:41.788Z"),
+          updated_at: new Date("2025-09-20T17:03:41.788Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[53] ptirelli@nexadata.it
+------------------------------------------------------------
+Name: Paola Tirelli
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "e3412aba-6ef7-497b-a68a-1f7cc6fe62f9",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "ptirelli@nexadata.it",
+          password_hash: "$2a$10$Qc7SXEVDH9cN04kC9NREUuglSv0fFqd1eR1gE3uia0S1r4oQeicHi",
+          first_name: "Paola",
+          last_name: "Tirelli",
+          role: "employee",
+          employee_id: 53,
+          is_active: true,
+          password_reset_token: "67aafb63-ca30-4d08-8175-740329d05a24",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.024Z"),
+          created_at: new Date("2025-09-20T17:03:42.024Z"),
+          updated_at: new Date("2025-09-20T17:03:42.024Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[54] rmaiello@nexadata.it
+------------------------------------------------------------
+Name: Raffaella Maiello
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "10a196e6-db2c-43c2-b78c-dd2b9a4a7037",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rmaiello@nexadata.it",
+          password_hash: "$2a$10$apPtTKNtjXuRYn62WuLyHOqSh8zIVn0F7Y7IWZXtz4rW1246q5Dje",
+          first_name: "Raffaella",
+          last_name: "Maiello",
+          role: "hr",
+          employee_id: 54,
+          is_active: true,
+          password_reset_token: "c333bbee-c2e3-4020-843d-f9f754656116",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.272Z"),
+          created_at: new Date("2025-09-20T17:03:42.272Z"),
+          updated_at: new Date("2025-09-20T17:03:42.272Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[55] rbova@nexadata.it
+------------------------------------------------------------
+Name: Renato Bova
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "c0845c5d-731c-439e-9212-e6df4ce50476",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rbova@nexadata.it",
+          password_hash: "$2a$10$juWvg37yTEXidCX7mplw8u/BEHadFr4UHO1IUtSSWgV.VTpkWAgfC",
+          first_name: "Renato",
+          last_name: "Bova",
+          role: "employee",
+          employee_id: 55,
+          is_active: true,
+          password_reset_token: "cb97fb13-2797-4dad-b0e1-d13e608c7a00",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.496Z"),
+          created_at: new Date("2025-09-20T17:03:42.496Z"),
+          updated_at: new Date("2025-09-20T17:03:42.496Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[56] rlicciardello@nexadata.it
+------------------------------------------------------------
+Name: Roberta Licciardello
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3c623606-c7d5-4ffe-a07c-391e887c7d4f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rlicciardello@nexadata.it",
+          password_hash: "$2a$10$8hh06FUct.Odz6YaWsuyjuGsK635.CvvFZGBNj07.aJx2/FU/4AnG",
+          first_name: "Roberta",
+          last_name: "Licciardello",
+          role: "hr",
+          employee_id: 56,
+          is_active: true,
+          password_reset_token: "a606f9b2-be42-442e-bf70-7cf86a202f0c",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.694Z"),
+          created_at: new Date("2025-09-20T17:03:42.694Z"),
+          updated_at: new Date("2025-09-20T17:03:42.694Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[57] rbraga@nexadata.it
+------------------------------------------------------------
+Name: Roberto Braga
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "5798a9ae-3d2e-4fcf-aec1-39039d5a9b12",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rbraga@nexadata.it",
+          password_hash: "$2a$10$1OaTIss8LkvxqxUbWoARKe3zFpZ971Zpu0G9pV0fwc0RGyeRXFIuK",
+          first_name: "Roberto",
+          last_name: "Braga",
+          role: "employee",
+          employee_id: 57,
+          is_active: true,
+          password_reset_token: "03db7d7e-72c8-467e-a325-108c73b79cd5",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.901Z"),
+          created_at: new Date("2025-09-20T17:03:42.901Z"),
+          updated_at: new Date("2025-09-20T17:03:42.901Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[58] rortenzi@nexadata.it
+------------------------------------------------------------
+Name: Roberto Ortenzi
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "61e4295f-7404-4711-950e-6ee11d8e2217",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rortenzi@nexadata.it",
+          password_hash: "$2a$10$jUIvqWDQTD2uqbXAJ2HhjO9m6FWtw..VWgKFwVHbmnR7Erj3tHn/u",
+          first_name: "Roberto",
+          last_name: "Ortenzi",
+          role: "employee",
+          employee_id: 58,
+          is_active: true,
+          password_reset_token: "d708a684-0bbe-4991-bd61-4de183ada90c",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.130Z"),
+          created_at: new Date("2025-09-20T17:03:43.130Z"),
+          updated_at: new Date("2025-09-20T17:03:43.130Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[59] rbiasco@nexadata.it
+------------------------------------------------------------
+Name: Rosario Biasco
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "cda1bda7-83f2-42ea-b906-9db4a43f23ed",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rbiasco@nexadata.it",
+          password_hash: "$2a$10$QMtKkUeMdzb1UsJ0zNFm9.WQnyDST1iB.oJIuxA.IBl0Z9GGKsdd2",
+          first_name: "Rosario",
+          last_name: "Biasco",
+          role: "employee",
+          employee_id: 59,
+          is_active: true,
+          password_reset_token: "197eda14-35c1-4682-8f1f-077f6e1b584d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.366Z"),
+          created_at: new Date("2025-09-20T17:03:43.366Z"),
+          updated_at: new Date("2025-09-20T17:03:43.366Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[60] shaji@nexadata.it
+------------------------------------------------------------
+Name: SEYEDEH SHAGHAYEGH HAJI MIRAGHA
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "2ec64ea7-2b72-4e83-b6ce-4d626ec0b741",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "shaji@nexadata.it",
+          password_hash: "$2a$10$0BPYUQnZtz6NE.ZtfxkVSOQF5QJ/d7y2cpd.4DDCm25XiaYYkPEI6",
+          first_name: "SEYEDEH SHAGHAYEGH",
+          last_name: "HAJI MIRAGHA",
+          role: "employee",
+          employee_id: 60,
+          is_active: true,
+          password_reset_token: "486a2373-8542-4822-9b76-551f650032ed",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.619Z"),
+          created_at: new Date("2025-09-20T17:03:43.619Z"),
+          updated_at: new Date("2025-09-20T17:03:43.619Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[61] sdigiorgio@nexadata.it
+------------------------------------------------------------
+Name: Silvia Di Giorgio
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "94243e67-1fba-41b2-ad61-65f292f45390",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "sdigiorgio@nexadata.it",
+          password_hash: "$2a$10$YgmE3eB4t1engTS6PG/X9.HrFd8NPfDmOB8ml/pHZAMIVuXMNgTpS",
+          first_name: "Silvia",
+          last_name: "Di Giorgio",
+          role: "employee",
+          employee_id: 61,
+          is_active: true,
+          password_reset_token: "0c0ad3a3-f4c1-4006-9d72-7bb7f5f7ff27",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.894Z"),
+          created_at: new Date("2025-09-20T17:03:43.894Z"),
+          updated_at: new Date("2025-09-20T17:03:43.894Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[62] screscenzi@nexadata.it
+------------------------------------------------------------
+Name: Simone Crescenzi
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "1f304006-fe32-4557-afe3-8168cf6d4d9f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "screscenzi@nexadata.it",
+          password_hash: "$2a$10$IIMjNZuRlz5iWaE9./M3Ie3AbNcUVjERqrEqzEWNtp4pi/KOrFavy",
+          first_name: "Simone",
+          last_name: "Crescenzi",
+          role: "employee",
+          employee_id: 62,
+          is_active: true,
+          password_reset_token: "7711e038-c51a-40bb-a5ef-4846a9c476ae",
+          password_reset_expires_at: new Date("2026-09-20T17:03:44.189Z"),
+          created_at: new Date("2025-09-20T17:03:44.189Z"),
+          updated_at: new Date("2025-09-20T17:03:44.189Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[63] tromano@nexadata.it
+------------------------------------------------------------
+Name: Thomas Romano
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "f32f6fd7-69a1-42e2-a1c4-77b19f2596b0",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "tromano@nexadata.it",
+          password_hash: "$2a$10$Qr4up2QvYQP1sh3ee1nv9.Eb3S4hc8zcTeAnFthCBZT/V37lRosrK",
+          first_name: "Thomas",
+          last_name: "Romano",
+          role: "employee",
+          employee_id: 63,
+          is_active: true,
+          password_reset_token: "16bf8fcb-6718-4489-bf87-92b665899539",
+          password_reset_expires_at: new Date("2026-09-20T17:03:44.462Z"),
+          created_at: new Date("2025-09-20T17:03:44.462Z"),
+          updated_at: new Date("2025-09-20T17:03:44.462Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+[64] vsellan@nexadata.it
+------------------------------------------------------------
+Name: Valerio Sellan
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3c6ed88c-9f2e-4087-af1a-4bb7432c8275",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "vsellan@nexadata.it",
+          password_hash: "$2a$10$i72ELXcrPzIEosq5rreu8eK/1oAQRIR3i53AWS8PEJSE4H93KCGAS",
+          first_name: "Valerio",
+          last_name: "Sellan",
+          role: "employee",
+          employee_id: 64,
+          is_active: true,
+          password_reset_token: "51e50557-f7ff-4ea7-a8c3-cfc49dfd88ae",
+          password_reset_expires_at: new Date("2026-09-20T17:03:44.727Z"),
+          created_at: new Date("2025-09-20T17:03:44.727Z"),
+          updated_at: new Date("2025-09-20T17:03:44.727Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+
+ERRORS ENCOUNTERED
+================================================================================
+1. afigliolini@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "118ca365-337e-42b7-932c-b5ddef23122d",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "afigliolini@nexadata.it",
+          password_hash: "$2a$10$Q6PLkaZ/GIrFJ/gwy2RJHOmH.JR4B2lC10EkVaq0/4iQoY.1uYOZK",
+          first_name: "Alessandro",
+          last_name: "Figliolini",
+          role: "employee",
+          employee_id: 1,
+          is_active: true,
+          password_reset_token: "ee65552b-3ede-4db6-878a-080fb35d87f3",
+          password_reset_expires_at: new Date("2026-09-20T17:03:24.075Z"),
+          created_at: new Date("2025-09-20T17:03:24.075Z"),
+          updated_at: new Date("2025-09-20T17:03:24.075Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+2. azoia@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "dd146d98-48a5-4f41-a6f6-40acfe60e8eb",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "azoia@nexadata.it",
+          password_hash: "$2a$10$j9GAULxh5iAYCsIE.CciduKGEaA7xuWT1GbFBXtUAYvXMvhDeybqG",
+          first_name: "Alessandro",
+          last_name: "Zoia",
+          role: "employee",
+          employee_id: 2,
+          is_active: true,
+          password_reset_token: "7c3c5884-3705-4915-9682-9e9fffe41fa0",
+          password_reset_expires_at: new Date("2026-09-20T17:03:24.387Z"),
+          created_at: new Date("2025-09-20T17:03:24.387Z"),
+          updated_at: new Date("2025-09-20T17:03:24.387Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+3. adompe@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "76276a51-fbd8-4fc4-91fc-c26e57180ed0",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "adompe@nexadata.it",
+          password_hash: "$2a$10$NvjM17zEqdJ7dBw887tbCuMDKB7L0.DPwrQsNAUP5sX1vIt7tFql.",
+          first_name: "Alessandro",
+          last_name: "Dompè",
+          role: "employee",
+          employee_id: 3,
+          is_active: true,
+          password_reset_token: "0655ca83-d8fd-4b88-8d47-63f2d8e0288a",
+          password_reset_expires_at: new Date("2026-09-20T17:03:24.748Z"),
+          created_at: new Date("2025-09-20T17:03:24.748Z"),
+          updated_at: new Date("2025-09-20T17:03:24.748Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+4. apacetti@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "5948f8a2-fddb-4fc6-8eef-c189ce2778c8",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "apacetti@nexadata.it",
+          password_hash: "$2a$10$djf3S/hcumdNPwACTA3QxO6/O20DS/C9sjGKnGtpX6z.dfTi7OpXW",
+          first_name: "Alessandro",
+          last_name: "Pacetti",
+          role: "employee",
+          employee_id: 4,
+          is_active: true,
+          password_reset_token: "1106c506-d613-4772-b533-70e2b8780a52",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.109Z"),
+          created_at: new Date("2025-09-20T17:03:25.109Z"),
+          updated_at: new Date("2025-09-20T17:03:25.109Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+5. asardaro@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "bce3d519-c735-4538-ae9d-5da7b6847227",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "asardaro@nexadata.it",
+          password_hash: "$2a$10$XH79T0A0Hk/rvQyfqHcl1emwYGR3/s9oBa.qz.5QsGfCXCWBG0Kt2",
+          first_name: "Alessio",
+          last_name: "Sardaro",
+          role: "employee",
+          employee_id: 5,
+          is_active: true,
+          password_reset_token: "643d54f4-6ecd-44d5-b237-765a05a5516d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.450Z"),
+          created_at: new Date("2025-09-20T17:03:25.450Z"),
+          updated_at: new Date("2025-09-20T17:03:25.450Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+6. acapozi@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "e4447819-6b3e-4920-9064-41c7d24c1ce0",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "acapozi@nexadata.it",
+          password_hash: "$2a$10$2MeBAtWvsNAm7I1.8wXnVO5VfXQs0AHAz4eIQyKFEBOlvHjc3vyLO",
+          first_name: "Alessio",
+          last_name: "Capozi",
+          role: "employee",
+          employee_id: 6,
+          is_active: true,
+          password_reset_token: "33fab04f-6759-4c94-856d-775368b23fe5",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.716Z"),
+          created_at: new Date("2025-09-20T17:03:25.716Z"),
+          updated_at: new Date("2025-09-20T17:03:25.716Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+7. acutolo@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "e5dc929d-9abc-4247-85a2-8fbf11cd93dc",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "acutolo@nexadata.it",
+          password_hash: "$2a$10$9dMzfMDhuLaDGXANSstpmOCqOHGU1uyLw9SjxiRY8s82DnJe/B9z2",
+          first_name: "Andrea",
+          last_name: "Cutolo",
+          role: "employee",
+          employee_id: 7,
+          is_active: true,
+          password_reset_token: "d9e639db-ee3e-4ae5-984c-4501007da6bc",
+          password_reset_expires_at: new Date("2026-09-20T17:03:25.973Z"),
+          created_at: new Date("2025-09-20T17:03:25.973Z"),
+          updated_at: new Date("2025-09-20T17:03:25.973Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+8. aetna@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "14056674-b39b-44c0-90e3-9d1ebe53164f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "aetna@nexadata.it",
+          password_hash: "$2a$10$eOMEtgi.bLzDrH49xwY89Og3USMKok6o/p39HImZpdfl38PTIzhpa",
+          first_name: "Andrea",
+          last_name: "Etna",
+          role: "employee",
+          employee_id: 8,
+          is_active: true,
+          password_reset_token: "5cad9279-eb04-43f7-bff2-9e17ca72ebd6",
+          password_reset_expires_at: new Date("2026-09-20T17:03:26.254Z"),
+          created_at: new Date("2025-09-20T17:03:26.254Z"),
+          updated_at: new Date("2025-09-20T17:03:26.254Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+9. agiampa@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4ae6dca1-ecf7-4cb9-ae0a-69c3139fcc48",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "agiampa@nexadata.it",
+          password_hash: "$2a$10$tsa.RdmG8.7eITvj3ptYWOBjf74XIuAjhd74SzHPyfjNE405yBfui",
+          first_name: "Andrea",
+          last_name: "Giampa",
+          role: "employee",
+          employee_id: 9,
+          is_active: true,
+          password_reset_token: "ecb0bd35-71ef-4b9b-88ab-ed3fe1df5fb8",
+          password_reset_expires_at: new Date("2026-09-20T17:03:26.555Z"),
+          created_at: new Date("2025-09-20T17:03:26.555Z"),
+          updated_at: new Date("2025-09-20T17:03:26.555Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+10. alomonaco@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "df182b8d-f2db-4c58-a8bd-9e35bf0e449a",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "alomonaco@nexadata.it",
+          password_hash: "$2a$10$fdUXOuikg0H5q9oyVdvpU.U3ckIDMKJrOBRRhBeDxkfrLdNWkK43W",
+          first_name: "Andrea",
+          last_name: "Lomonaco",
+          role: "employee",
+          employee_id: 10,
+          is_active: true,
+          password_reset_token: "8ced6fc4-da70-4def-bbba-3a9317d5c51c",
+          password_reset_expires_at: new Date("2026-09-20T17:03:26.859Z"),
+          created_at: new Date("2025-09-20T17:03:26.859Z"),
+          updated_at: new Date("2025-09-20T17:03:26.859Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+11. anovelli@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4f80b2b3-987d-4868-a5ea-7b35ec089f2f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "anovelli@nexadata.it",
+          password_hash: "$2a$10$mqFL3Co99Mq9HigS9eVqxe9c9B7YGrFQMZXwZVdqcjHRqjBQFpY5.",
+          first_name: "Andrea",
+          last_name: "Novelli",
+          role: "employee",
+          employee_id: 11,
+          is_active: true,
+          password_reset_token: "8f373a2a-8e55-415d-b8b5-7aeca8d0abe3",
+          password_reset_expires_at: new Date("2026-09-20T17:03:27.164Z"),
+          created_at: new Date("2025-09-20T17:03:27.164Z"),
+          updated_at: new Date("2025-09-20T17:03:27.164Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+12. afichera@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "85f657ab-e62c-4e10-8931-48e0ebffe241",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "afichera@nexadata.it",
+          password_hash: "$2a$10$Mu0wUPSi3yB6mdChL30YJuXX1w/t1XbaZgt/roeEYYI6wA3/h54NC",
+          first_name: "Anita",
+          last_name: "Fichera",
+          role: "hr",
+          employee_id: 12,
+          is_active: true,
+          password_reset_token: "f3e57288-5d5a-42c1-8963-57f6006c10b3",
+          password_reset_expires_at: new Date("2026-09-20T17:03:27.455Z"),
+          created_at: new Date("2025-09-20T17:03:27.455Z"),
+          updated_at: new Date("2025-09-20T17:03:27.455Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+13. abehfar@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "d767c3bd-5370-4032-959d-579ddcae2d07",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "abehfar@nexadata.it",
+          password_hash: "$2a$10$aftCXCoPGitan0THx7Nl.evUlkWT4Tfrny7q85U9.pDupN34eXFka",
+          first_name: "Arian",
+          last_name: "Behfar",
+          role: "employee",
+          employee_id: 13,
+          is_active: true,
+          password_reset_token: "067583b3-288e-4eb7-8c08-da78b8f9e5cf",
+          password_reset_expires_at: new Date("2026-09-20T17:03:27.737Z"),
+          created_at: new Date("2025-09-20T17:03:27.737Z"),
+          updated_at: new Date("2025-09-20T17:03:27.737Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+14. cmiraglia@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "9efc918b-7085-49bd-acce-c23a1b72caa5",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "cmiraglia@nexadata.it",
+          password_hash: "$2a$10$tSbGlto0MsRQ5ORhf1iBpu38ezGBpQ25xkiGmuKNqQD/wZG0gsl16",
+          first_name: "Calogero",
+          last_name: "Miraglia",
+          role: "employee",
+          employee_id: 14,
+          is_active: true,
+          password_reset_token: "c55910ce-5654-46c4-ac6d-d2549f9f5ebb",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.019Z"),
+          created_at: new Date("2025-09-20T17:03:28.019Z"),
+          updated_at: new Date("2025-09-20T17:03:28.019Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+15. cabdelmessih@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "9e2a3586-a1f4-4e5d-ad22-a7a48f386d6a",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "cabdelmessih@nexadata.it",
+          password_hash: "$2a$10$IBoxEqHjdflXEvsWcKcKi.4aYmXtO0U.XmJKJpMCvwidnhE81vcCu",
+          first_name: "Christian",
+          last_name: "Abd El Messih",
+          role: "employee",
+          employee_id: 15,
+          is_active: true,
+          password_reset_token: "f2b42757-7224-4833-8e7f-42f081dad59b",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.302Z"),
+          created_at: new Date("2025-09-20T17:03:28.302Z"),
+          updated_at: new Date("2025-09-20T17:03:28.302Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+16. chuang@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "52de0c4f-3ed9-48a2-bc3e-159eef0fbd61",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "chuang@nexadata.it",
+          password_hash: "$2a$10$ih4.TXN2Yb2Fe6JqmddDue8GcwXid9231gXbl8OHVl0ZkheHX1HL.",
+          first_name: "Claudio",
+          last_name: "Huang",
+          role: "employee",
+          employee_id: 16,
+          is_active: true,
+          password_reset_token: "7b213f0a-3878-419b-88f7-8e9ed6a9eb4e",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.630Z"),
+          created_at: new Date("2025-09-20T17:03:28.630Z"),
+          updated_at: new Date("2025-09-20T17:03:28.630Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+17. cmastromarini@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "df5984b0-51a2-4d5e-8c9b-ce8036f1cd22",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "cmastromarini@nexadata.it",
+          password_hash: "$2a$10$zzb/8j3uv5Vw7gerbsRWoerPFifc6YG1wlgmgrmE8UEiEKikZm59S",
+          first_name: "Cristian",
+          last_name: "Mastromarini",
+          role: "employee",
+          employee_id: 17,
+          is_active: true,
+          password_reset_token: "b02d0a89-b96a-4e04-8d1a-c65dabd11a54",
+          password_reset_expires_at: new Date("2026-09-20T17:03:28.917Z"),
+          created_at: new Date("2025-09-20T17:03:28.917Z"),
+          updated_at: new Date("2025-09-20T17:03:28.917Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+18. dhrituc@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "357ad6a4-420c-4572-ba23-c4018048d30a",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dhrituc@nexadata.it",
+          password_hash: "$2a$10$.kPxRXr3nhphuKGk8YgDZOe4juqiy3Dvqa03qORUuInLMrHvg/ChC",
+          first_name: "Daniel",
+          last_name: "Hrituc",
+          role: "employee",
+          employee_id: 18,
+          is_active: true,
+          password_reset_token: "e7ddce94-5e6e-4f89-a356-d7b7e717d4e5",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.175Z"),
+          created_at: new Date("2025-09-20T17:03:29.175Z"),
+          updated_at: new Date("2025-09-20T17:03:29.175Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+19. dsiclari@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3a793b02-c631-401e-aaba-71cff8a3ab60",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dsiclari@nexadata.it",
+          password_hash: "$2a$10$oqTVXZEEzIQIZhoJkDp34.PjDRddN/5Qu9dNy.Lhg.mSRqgF1.M2.",
+          first_name: "Danilo",
+          last_name: "Siclari",
+          role: "employee",
+          employee_id: 19,
+          is_active: true,
+          password_reset_token: "6314f1c3-f32f-45ea-abba-98762dae23b1",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.398Z"),
+          created_at: new Date("2025-09-20T17:03:29.398Z"),
+          updated_at: new Date("2025-09-20T17:03:29.398Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+20. dsimone@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "af634bb9-da1b-435d-af88-bbf4c0c02137",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dsimone@nexadata.it",
+          password_hash: "$2a$10$EHcMLLo19aLq9X4/JE4fMul0FAbeY6zQlCuGMnJNU5RPP1EirzSxi",
+          first_name: "Davide",
+          last_name: "Simone",
+          role: "employee",
+          employee_id: 20,
+          is_active: true,
+          password_reset_token: "91af4f4f-f30e-4a79-a227-6c6c04b5cbc4",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.638Z"),
+          created_at: new Date("2025-09-20T17:03:29.638Z"),
+          updated_at: new Date("2025-09-20T17:03:29.638Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+21. dtrozzo@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "26327e30-e5e3-4cc8-a4d1-4455066ad5ef",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "dtrozzo@nexadata.it",
+          password_hash: "$2a$10$IXThzHaKO8S2rcJ2Abl83.as9DkaPUVyTqVakKG0GAgFoB.UtKtAS",
+          first_name: "Domenico",
+          last_name: "Trozzo",
+          role: "employee",
+          employee_id: 21,
+          is_active: true,
+          password_reset_token: "dcab015b-e482-467f-aec7-cb719ab47711",
+          password_reset_expires_at: new Date("2026-09-20T17:03:29.876Z"),
+          created_at: new Date("2025-09-20T17:03:29.876Z"),
+          updated_at: new Date("2025-09-20T17:03:29.876Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+22. evoytovich@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "36c030df-2870-42c1-b1ef-34b9f86b8330",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "evoytovich@nexadata.it",
+          password_hash: "$2a$10$8IU5p7hMBLJWfgoCflo8ruiY52.75BBHVwcMoo/N7trsbiQ6m6ihW",
+          first_name: "Elena",
+          last_name: "Voytovich",
+          role: "employee",
+          employee_id: 22,
+          is_active: true,
+          password_reset_token: "fbd95b0b-c9dc-495c-aa05-b6935a76cee1",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.100Z"),
+          created_at: new Date("2025-09-20T17:03:30.100Z"),
+          updated_at: new Date("2025-09-20T17:03:30.100Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+23. egiurelli@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "a306e4dd-b2c0-442c-97cb-5df22f467b47",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "egiurelli@nexadata.it",
+          password_hash: "$2a$10$WLEWhbeDjhlNk.c0QVUDPudbg8FK3abWtPWIsB7FKF1ydaahh4WW2",
+          first_name: "Elena",
+          last_name: "Giurelli",
+          role: "hr",
+          employee_id: 23,
+          is_active: true,
+          password_reset_token: "f5ca3ca3-1e2a-49fd-8b7b-eec33e8f878d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.342Z"),
+          created_at: new Date("2025-09-20T17:03:30.342Z"),
+          updated_at: new Date("2025-09-20T17:03:30.342Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+24. elisagiurelli@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "b64975d2-6975-4315-91dd-e8cfaab8d3be",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "elisagiurelli@nexadata.it",
+          password_hash: "$2a$10$qE68gSE.xETu8vI2rKIf/OtQ95uCsj8yy0z4YXPX9FSBxD66yTC3.",
+          first_name: "Elisa",
+          last_name: "Giurelli",
+          role: "employee",
+          employee_id: 24,
+          is_active: true,
+          password_reset_token: "270c1354-10c6-43ba-be5e-99f8d59852df",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.605Z"),
+          created_at: new Date("2025-09-20T17:03:30.605Z"),
+          updated_at: new Date("2025-09-20T17:03:30.605Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+25. eguidotti@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "c694469e-960c-493e-add2-c8d30c40abf3",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "eguidotti@nexadata.it",
+          password_hash: "$2a$10$w4a.343C3U47PWQyZbdI9u6uRKoJAsXQas1PkWPEVNhIO8G0WSgve",
+          first_name: "Emanuele",
+          last_name: "Guidotti",
+          role: "employee",
+          employee_id: 25,
+          is_active: true,
+          password_reset_token: "e0e3d916-075a-43a3-bb62-c2c4fd5ca248",
+          password_reset_expires_at: new Date("2026-09-20T17:03:30.885Z"),
+          created_at: new Date("2025-09-20T17:03:30.885Z"),
+          updated_at: new Date("2025-09-20T17:03:30.885Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+26. epergoloni@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "0cbc40a3-da5b-430b-b828-d167070599fa",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "epergoloni@nexadata.it",
+          password_hash: "$2a$10$uP/stHuznMf2lsqd4CEwp.1Ar3fVgQVZP740IzO87MkXfwpoATgkC",
+          first_name: "Eva",
+          last_name: "Pergoloni",
+          role: "employee",
+          employee_id: 26,
+          is_active: true,
+          password_reset_token: "44803c9a-b56a-409d-a233-be750acc1506",
+          password_reset_expires_at: new Date("2026-09-20T17:03:31.284Z"),
+          created_at: new Date("2025-09-20T17:03:31.284Z"),
+          updated_at: new Date("2025-09-20T17:03:31.284Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+27. fvalentini@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "a0f0c37d-59d6-4a81-813b-7e6035d2ce8b",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fvalentini@nexadata.it",
+          password_hash: "$2a$10$Vu0oEqwc.D93wQcOx.CJzeWbZ5hJwlf2.sc9R2QCHaCkP.RAjrDQ6",
+          first_name: "Fabio",
+          last_name: "Valentini",
+          role: "employee",
+          employee_id: 27,
+          is_active: true,
+          password_reset_token: "62317907-218e-414e-af55-aab5c8d1a701",
+          password_reset_expires_at: new Date("2026-09-20T17:03:31.641Z"),
+          created_at: new Date("2025-09-20T17:03:31.641Z"),
+          updated_at: new Date("2025-09-20T17:03:31.641Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+28. fdilegge@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "1fe23932-cfba-4acb-8790-d279ae38e654",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fdilegge@nexadata.it",
+          password_hash: "$2a$10$QVnItSMzCrpRuh6nghfbN.mryYBLOJ7wrieAsJ5zm6CzuAmhdGpUm",
+          first_name: "Federico",
+          last_name: "Di Legge",
+          role: "employee",
+          employee_id: 28,
+          is_active: true,
+          password_reset_token: "0a0ca9a0-5e85-41d1-9fd3-24a5f7f4f235",
+          password_reset_expires_at: new Date("2026-09-20T17:03:35.042Z"),
+          created_at: new Date("2025-09-20T17:03:35.042Z"),
+          updated_at: new Date("2025-09-20T17:03:35.042Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+29. fpedicini@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "2d6611b2-d8fd-49a8-a51c-f16793aef3fb",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fpedicini@nexadata.it",
+          password_hash: "$2a$10$3TDcRBTSMN5viJuTrXSByeI7b114bAoNIuA.RjJfl8Owb9d16xrQ2",
+          first_name: "Flavio",
+          last_name: "Pedicini",
+          role: "employee",
+          employee_id: 29,
+          is_active: true,
+          password_reset_token: "d78680a8-8474-48c3-88b6-d14b3fdae648",
+          password_reset_expires_at: new Date("2026-09-20T17:03:35.404Z"),
+          created_at: new Date("2025-09-20T17:03:35.404Z"),
+          updated_at: new Date("2025-09-20T17:03:35.404Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+30. fprosperi@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "39a524db-a18c-4847-984f-e73235ca0ff1",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fprosperi@nexadata.it",
+          password_hash: "$2a$10$HIcMTAhNeVptTDWEbn2SI.KhwRc1DrUTAOnu5PrgMwlwzCNObw0ZG",
+          first_name: "Flavio",
+          last_name: "Prosperi",
+          role: "employee",
+          employee_id: 30,
+          is_active: true,
+          password_reset_token: "7cf10802-1770-4528-a8d3-0cbb7c060ac2",
+          password_reset_expires_at: new Date("2026-09-20T17:03:35.728Z"),
+          created_at: new Date("2025-09-20T17:03:35.728Z"),
+          updated_at: new Date("2025-09-20T17:03:35.728Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+31. fferrari@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4c438ea3-bd37-47f6-ba69-2cefdc4b10a2",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fferrari@nexadata.it",
+          password_hash: "$2a$10$J2zpXl9yatbU0dfbTdr7uuitWPpPZjsA7ESCspSK/v2CB/zw.yRD.",
+          first_name: "Francesco",
+          last_name: "Ferrari",
+          role: "employee",
+          employee_id: 31,
+          is_active: true,
+          password_reset_token: "4faa2ec9-d769-4cd0-a058-152276113add",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.023Z"),
+          created_at: new Date("2025-09-20T17:03:36.023Z"),
+          updated_at: new Date("2025-09-20T17:03:36.023Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+32. fguarini@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "2a6092e5-5756-4db0-8e44-4765cc013f96",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fguarini@nexadata.it",
+          password_hash: "$2a$10$mlI/5PGRDaOEG4bh5jq.l.orIfJ3qVajjcyhz7yAJmRtvRKfwX4HS",
+          first_name: "Francesco",
+          last_name: "Guarini",
+          role: "employee",
+          employee_id: 32,
+          is_active: true,
+          password_reset_token: "ea330f43-2201-4f16-a035-cda37b8943de",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.324Z"),
+          created_at: new Date("2025-09-20T17:03:36.324Z"),
+          updated_at: new Date("2025-09-20T17:03:36.324Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+33. fcifaldi@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "efc0d837-9e61-42ea-817b-82c80dd60ccf",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "fcifaldi@nexadata.it",
+          password_hash: "$2a$10$kukZN8JZ3ZpQOT7EGyuSbOwQJ/lpRsSqVfZxeS.CIFA9yJihUC/mC",
+          first_name: "Francesco",
+          last_name: "Cifaldi",
+          role: "employee",
+          employee_id: 33,
+          is_active: true,
+          password_reset_token: "99ef2245-3f50-496a-8ac0-0949c45c55ca",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.587Z"),
+          created_at: new Date("2025-09-20T17:03:36.587Z"),
+          updated_at: new Date("2025-09-20T17:03:36.587Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+34. gnardoni@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4732625b-5ee7-4f9c-b0f1-557e041f9bcb",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gnardoni@nexadata.it",
+          password_hash: "$2a$10$acI2JRxs7.jebAgNeVjui.2M19rPVVUE/tMzN2MT.jfuJSmeJZIqS",
+          first_name: "Giampaolo",
+          last_name: "Nardoni",
+          role: "employee",
+          employee_id: 34,
+          is_active: true,
+          password_reset_token: "10200388-3656-4459-a51e-8bf3e1933f11",
+          password_reset_expires_at: new Date("2026-09-20T17:03:36.874Z"),
+          created_at: new Date("2025-09-20T17:03:36.874Z"),
+          updated_at: new Date("2025-09-20T17:03:36.874Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+35. gscamperti@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "9c19de01-bb21-4413-a2fe-d98da472b6b8",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gscamperti@nexadata.it",
+          password_hash: "$2a$10$/s8V8GVsyQ6SIjn/uXYNreDh6QQeipqjA.JgfgY3BtJG3qOBZNsTK",
+          first_name: "Gianluca",
+          last_name: "Scamperti",
+          role: "employee",
+          employee_id: 35,
+          is_active: true,
+          password_reset_token: "d6c2c3f9-c26c-4f99-b1d3-d9e12345355d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:37.142Z"),
+          created_at: new Date("2025-09-20T17:03:37.142Z"),
+          updated_at: new Date("2025-09-20T17:03:37.142Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+36. gremolino@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "afdb51b8-6082-4e12-a0ae-1999dceb5e38",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gremolino@nexadata.it",
+          password_hash: "$2a$10$yAT08PWmA1RV7B1Fx39PTekOmUO21O.7ASGJTxuwPtkU6tneyZC.q",
+          first_name: "Giuseppe",
+          last_name: "Remolino",
+          role: "employee",
+          employee_id: 36,
+          is_active: true,
+          password_reset_token: "de5f274d-1116-4506-adb4-11aa103e7978",
+          password_reset_expires_at: new Date("2026-09-20T17:03:37.428Z"),
+          created_at: new Date("2025-09-20T17:03:37.428Z"),
+          updated_at: new Date("2025-09-20T17:03:37.428Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+37. gabuduaini@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "df9199af-0b67-46cf-ac41-683a2c40dfb6",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "gabuduaini@nexadata.it",
+          password_hash: "$2a$10$hx4kg3uMYTYZ96NZuGd7h.bmfV84XinFlVVhsR3vBEpz1YP5GhNDm",
+          first_name: "GUZALINUER",
+          last_name: "ABUDUAINI",
+          role: "employee",
+          employee_id: 37,
+          is_active: true,
+          password_reset_token: "e7936ca2-bb46-4664-bdf1-fec261cfb182",
+          password_reset_expires_at: new Date("2026-09-20T17:03:37.721Z"),
+          created_at: new Date("2025-09-20T17:03:37.721Z"),
+          updated_at: new Date("2025-09-20T17:03:37.721Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+38. juddin@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "fa3477d8-f525-4b45-ac95-f0e8a49d165c",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "juddin@nexadata.it",
+          password_hash: "$2a$10$.QPIvJziW3O.W4VF3AotLea23M4Tway7zHvXGmnK/8wlWs3HzU8Iy",
+          first_name: "JALAL",
+          last_name: "UDDIN",
+          role: "employee",
+          employee_id: 38,
+          is_active: true,
+          password_reset_token: "d7dfc050-0585-4550-9318-5e4e639028d6",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.027Z"),
+          created_at: new Date("2025-09-20T17:03:38.027Z"),
+          updated_at: new Date("2025-09-20T17:03:38.027Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+39. kpiatek@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3c03559c-1f6f-404a-a7c3-455849c5889d",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "kpiatek@nexadata.it",
+          password_hash: "$2a$10$HuSdYOa1FEgTHYQKDuKA6Owzwa93frEbpoN/WJwJQGytJnZsaCsdC",
+          first_name: "Kacper Maksymilian",
+          last_name: "Piatek",
+          role: "employee",
+          employee_id: 39,
+          is_active: true,
+          password_reset_token: "91b6c8a6-fead-4aab-8b0a-9b736280fc1d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.304Z"),
+          created_at: new Date("2025-09-20T17:03:38.304Z"),
+          updated_at: new Date("2025-09-20T17:03:38.304Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+40. lcioni@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "a71f39d0-0484-43d9-8fff-fa7103c50326",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "lcioni@nexadata.it",
+          password_hash: "$2a$10$5DkQxPGHSRiVfQQnDN6BDO55fwvIpkF/LmteuwYCvz3PuMHpglYBm",
+          first_name: "Leandro",
+          last_name: "Cioni",
+          role: "employee",
+          employee_id: 40,
+          is_active: true,
+          password_reset_token: "acf5b485-5ec7-4c5e-b3e1-88cb1aff51bd",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.567Z"),
+          created_at: new Date("2025-09-20T17:03:38.567Z"),
+          updated_at: new Date("2025-09-20T17:03:38.567Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+41. lfanicchia@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "d735c86f-444a-47d2-8177-ef839aaac417",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "lfanicchia@nexadata.it",
+          password_hash: "$2a$10$Xezq3j0Y9gP2HjYvyCL1WelpzUHZiE0lkWIn6wa6NUdPaG5A.Ye8u",
+          first_name: "Leonardo",
+          last_name: "Fanicchia",
+          role: "employee",
+          employee_id: 41,
+          is_active: true,
+          password_reset_token: "52629df0-82b7-4e79-9d08-8e691fc90501",
+          password_reset_expires_at: new Date("2026-09-20T17:03:38.822Z"),
+          created_at: new Date("2025-09-20T17:03:38.822Z"),
+          updated_at: new Date("2025-09-20T17:03:38.822Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+42. lcaiffa@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "0a48bc9f-cc51-4ba7-b47b-3f6c36d9ca47",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "lcaiffa@nexadata.it",
+          password_hash: "$2a$10$oY5GEkvlZ7H1LR3XNVLrf.knD6PP894ECrZN4Ww2RDh0.hG5Tx196",
+          first_name: "Lorenzo",
+          last_name: "Caiffa",
+          role: "employee",
+          employee_id: 42,
+          is_active: true,
+          password_reset_token: "ac8f88d6-20c9-434c-ab78-448634197978",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.070Z"),
+          created_at: new Date("2025-09-20T17:03:39.070Z"),
+          updated_at: new Date("2025-09-20T17:03:39.070Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+43. ldeserio@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "762ac625-2b70-46cd-ac0f-6b20d96db919",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "ldeserio@nexadata.it",
+          password_hash: "$2a$10$ciz5jKGzGdHyFuR2/3Sc8uU3Oxxn0pPgAuvZVEhOuVwJNKyUYcEsm",
+          first_name: "Luca",
+          last_name: "De serio",
+          role: "employee",
+          employee_id: 43,
+          is_active: true,
+          password_reset_token: "dd927d56-7cb9-4d3d-86c9-53c7514f13a4",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.318Z"),
+          created_at: new Date("2025-09-20T17:03:39.318Z"),
+          updated_at: new Date("2025-09-20T17:03:39.318Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+44. mesposito@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "4aa2890e-b424-414c-b96c-c186a4270901",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mesposito@nexadata.it",
+          password_hash: "$2a$10$sPSxLUdRgGv89mI.gUwtPe0Ccw/f6DDN9Fy4friDO7TwYC/f1OUoq",
+          first_name: "Marco",
+          last_name: "Esposito",
+          role: "employee",
+          employee_id: 44,
+          is_active: true,
+          password_reset_token: "8ea19c3a-7dde-459c-99a6-918257148ac7",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.569Z"),
+          created_at: new Date("2025-09-20T17:03:39.569Z"),
+          updated_at: new Date("2025-09-20T17:03:39.569Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+45. mmeneghetti@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "bbe0e131-9839-4ec6-ad50-9473331fea2e",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mmeneghetti@nexadata.it",
+          password_hash: "$2a$10$rv2bdkv2vqXMzZmGVd21JudyZnTIa2dED3dbn1a3pmM/6w11THCvm",
+          first_name: "Marco",
+          last_name: "Meneghetti",
+          role: "employee",
+          employee_id: 45,
+          is_active: true,
+          password_reset_token: "962d5695-211c-48b1-bc5c-ebfc4d8adee6",
+          password_reset_expires_at: new Date("2026-09-20T17:03:39.843Z"),
+          created_at: new Date("2025-09-20T17:03:39.843Z"),
+          updated_at: new Date("2025-09-20T17:03:39.843Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+46. mrippoliti@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3286e46e-ce5a-4d7f-84ad-f11bec2e8b70",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mrippoliti@nexadata.it",
+          password_hash: "$2a$10$efaXbG2ZWVti7W17o5RIMuYrQVFJESXQc6XTbPK.5QWxigrI8RX.e",
+          first_name: "Maria Rita",
+          last_name: "Ippoliti",
+          role: "employee",
+          employee_id: 46,
+          is_active: true,
+          password_reset_token: "2eaa5686-dc92-4050-bf05-6bda1181e14d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.103Z"),
+          created_at: new Date("2025-09-20T17:03:40.103Z"),
+          updated_at: new Date("2025-09-20T17:03:40.103Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+47. mgiurelli@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "0e273f6a-b328-46fb-a6bf-f65b89a1795f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mgiurelli@nexadata.it",
+          password_hash: "$2a$10$d..Tg2pRLdXYlBCvZlk2pOzd7UE8EXgviLr1c6hQUDLhetbMfP1ui",
+          first_name: "Massimiliano",
+          last_name: "Giurelli",
+          role: "hr",
+          employee_id: 47,
+          is_active: true,
+          password_reset_token: "0521d08c-5ace-4861-969b-1ebb54e5c386",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.372Z"),
+          created_at: new Date("2025-09-20T17:03:40.372Z"),
+          updated_at: new Date("2025-09-20T17:03:40.372Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+48. mrovelli@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "fa33435d-9069-4087-a4f3-291881d9b792",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mrovelli@nexadata.it",
+          password_hash: "$2a$10$nmFzoB7DksWAuF/9A94IKucBtUuyGRsocw6p/5EEUDQO3fzNJggXu",
+          first_name: "Massimiliano",
+          last_name: "Rovelli",
+          role: "employee",
+          employee_id: 48,
+          is_active: true,
+          password_reset_token: "ea8bf08d-eacd-4915-8dce-b73baf0ff610",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.645Z"),
+          created_at: new Date("2025-09-20T17:03:40.645Z"),
+          updated_at: new Date("2025-09-20T17:03:40.645Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+49. mlamacchia@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "c7cc42c7-e136-4d93-bb2a-088739d35955",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mlamacchia@nexadata.it",
+          password_hash: "$2a$10$sQB5VEQ4uQFF21qG4Y7f/.JJG3ZHIKmQ0vTTgRzGk7uI7kVK14.Ce",
+          first_name: "Matteo",
+          last_name: "Lamacchia",
+          role: "employee",
+          employee_id: 49,
+          is_active: true,
+          password_reset_token: "69c81e3b-2c69-4c78-845d-e08e113ed470",
+          password_reset_expires_at: new Date("2026-09-20T17:03:40.908Z"),
+          created_at: new Date("2025-09-20T17:03:40.908Z"),
+          updated_at: new Date("2025-09-20T17:03:40.908Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+50. mverde@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "be11404a-75ed-47f0-b6b3-d92a97e3e0fd",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mverde@nexadata.it",
+          password_hash: "$2a$10$tklKBDJjrNgQqkWTrgps3.axiehQtUeyDUPk7jS/hVXb9ZR1opefq",
+          first_name: "Maurizio",
+          last_name: "Verde",
+          role: "employee",
+          employee_id: 50,
+          is_active: true,
+          password_reset_token: "34e57378-8607-452b-a697-626169d526fd",
+          password_reset_expires_at: new Date("2026-09-20T17:03:41.171Z"),
+          created_at: new Date("2025-09-20T17:03:41.171Z"),
+          updated_at: new Date("2025-09-20T17:03:41.171Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+51. microsoft.learning@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "6374ee3b-1840-427e-a0e4-a8faa3550227",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "microsoft.learning@nexadata.it",
+          password_hash: "$2a$10$sY4bDZK2BWmGvWZifCRXKuUanLC0AdQJbJiliSx6uqlMJVPh5o0dm",
+          first_name: "Microsoft",
+          last_name: "Learning",
+          role: "employee",
+          employee_id: 51,
+          is_active: true,
+          password_reset_token: "ab378a64-ac4c-4ab6-b914-4028044cd5e1",
+          password_reset_expires_at: new Date("2026-09-20T17:03:41.451Z"),
+          created_at: new Date("2025-09-20T17:03:41.451Z"),
+          updated_at: new Date("2025-09-20T17:03:41.451Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+52. mcarnevale@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "1399ed35-a756-4770-9335-b2a28fd4ca54",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "mcarnevale@nexadata.it",
+          password_hash: "$2a$10$e4TSFQpABcG1YVSa4X35EucCuUm4EmY85z7BVeNxs3lKs5x4dhJ2W",
+          first_name: "Mirco",
+          last_name: "Carnevale",
+          role: "employee",
+          employee_id: 52,
+          is_active: true,
+          password_reset_token: "0c062807-e052-4012-9245-04777f640c29",
+          password_reset_expires_at: new Date("2026-09-20T17:03:41.788Z"),
+          created_at: new Date("2025-09-20T17:03:41.788Z"),
+          updated_at: new Date("2025-09-20T17:03:41.788Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+53. ptirelli@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "e3412aba-6ef7-497b-a68a-1f7cc6fe62f9",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "ptirelli@nexadata.it",
+          password_hash: "$2a$10$Qc7SXEVDH9cN04kC9NREUuglSv0fFqd1eR1gE3uia0S1r4oQeicHi",
+          first_name: "Paola",
+          last_name: "Tirelli",
+          role: "employee",
+          employee_id: 53,
+          is_active: true,
+          password_reset_token: "67aafb63-ca30-4d08-8175-740329d05a24",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.024Z"),
+          created_at: new Date("2025-09-20T17:03:42.024Z"),
+          updated_at: new Date("2025-09-20T17:03:42.024Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+54. rmaiello@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "10a196e6-db2c-43c2-b78c-dd2b9a4a7037",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rmaiello@nexadata.it",
+          password_hash: "$2a$10$apPtTKNtjXuRYn62WuLyHOqSh8zIVn0F7Y7IWZXtz4rW1246q5Dje",
+          first_name: "Raffaella",
+          last_name: "Maiello",
+          role: "hr",
+          employee_id: 54,
+          is_active: true,
+          password_reset_token: "c333bbee-c2e3-4020-843d-f9f754656116",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.272Z"),
+          created_at: new Date("2025-09-20T17:03:42.272Z"),
+          updated_at: new Date("2025-09-20T17:03:42.272Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+55. rbova@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "c0845c5d-731c-439e-9212-e6df4ce50476",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rbova@nexadata.it",
+          password_hash: "$2a$10$juWvg37yTEXidCX7mplw8u/BEHadFr4UHO1IUtSSWgV.VTpkWAgfC",
+          first_name: "Renato",
+          last_name: "Bova",
+          role: "employee",
+          employee_id: 55,
+          is_active: true,
+          password_reset_token: "cb97fb13-2797-4dad-b0e1-d13e608c7a00",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.496Z"),
+          created_at: new Date("2025-09-20T17:03:42.496Z"),
+          updated_at: new Date("2025-09-20T17:03:42.496Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+56. rlicciardello@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3c623606-c7d5-4ffe-a07c-391e887c7d4f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rlicciardello@nexadata.it",
+          password_hash: "$2a$10$8hh06FUct.Odz6YaWsuyjuGsK635.CvvFZGBNj07.aJx2/FU/4AnG",
+          first_name: "Roberta",
+          last_name: "Licciardello",
+          role: "hr",
+          employee_id: 56,
+          is_active: true,
+          password_reset_token: "a606f9b2-be42-442e-bf70-7cf86a202f0c",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.694Z"),
+          created_at: new Date("2025-09-20T17:03:42.694Z"),
+          updated_at: new Date("2025-09-20T17:03:42.694Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+57. rbraga@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "5798a9ae-3d2e-4fcf-aec1-39039d5a9b12",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rbraga@nexadata.it",
+          password_hash: "$2a$10$1OaTIss8LkvxqxUbWoARKe3zFpZ971Zpu0G9pV0fwc0RGyeRXFIuK",
+          first_name: "Roberto",
+          last_name: "Braga",
+          role: "employee",
+          employee_id: 57,
+          is_active: true,
+          password_reset_token: "03db7d7e-72c8-467e-a325-108c73b79cd5",
+          password_reset_expires_at: new Date("2026-09-20T17:03:42.901Z"),
+          created_at: new Date("2025-09-20T17:03:42.901Z"),
+          updated_at: new Date("2025-09-20T17:03:42.901Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+58. rortenzi@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "61e4295f-7404-4711-950e-6ee11d8e2217",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rortenzi@nexadata.it",
+          password_hash: "$2a$10$jUIvqWDQTD2uqbXAJ2HhjO9m6FWtw..VWgKFwVHbmnR7Erj3tHn/u",
+          first_name: "Roberto",
+          last_name: "Ortenzi",
+          role: "employee",
+          employee_id: 58,
+          is_active: true,
+          password_reset_token: "d708a684-0bbe-4991-bd61-4de183ada90c",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.130Z"),
+          created_at: new Date("2025-09-20T17:03:43.130Z"),
+          updated_at: new Date("2025-09-20T17:03:43.130Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+59. rbiasco@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "cda1bda7-83f2-42ea-b906-9db4a43f23ed",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "rbiasco@nexadata.it",
+          password_hash: "$2a$10$QMtKkUeMdzb1UsJ0zNFm9.WQnyDST1iB.oJIuxA.IBl0Z9GGKsdd2",
+          first_name: "Rosario",
+          last_name: "Biasco",
+          role: "employee",
+          employee_id: 59,
+          is_active: true,
+          password_reset_token: "197eda14-35c1-4682-8f1f-077f6e1b584d",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.366Z"),
+          created_at: new Date("2025-09-20T17:03:43.366Z"),
+          updated_at: new Date("2025-09-20T17:03:43.366Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+60. shaji@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "2ec64ea7-2b72-4e83-b6ce-4d626ec0b741",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "shaji@nexadata.it",
+          password_hash: "$2a$10$0BPYUQnZtz6NE.ZtfxkVSOQF5QJ/d7y2cpd.4DDCm25XiaYYkPEI6",
+          first_name: "SEYEDEH SHAGHAYEGH",
+          last_name: "HAJI MIRAGHA",
+          role: "employee",
+          employee_id: 60,
+          is_active: true,
+          password_reset_token: "486a2373-8542-4822-9b76-551f650032ed",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.619Z"),
+          created_at: new Date("2025-09-20T17:03:43.619Z"),
+          updated_at: new Date("2025-09-20T17:03:43.619Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+61. sdigiorgio@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "94243e67-1fba-41b2-ad61-65f292f45390",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "sdigiorgio@nexadata.it",
+          password_hash: "$2a$10$YgmE3eB4t1engTS6PG/X9.HrFd8NPfDmOB8ml/pHZAMIVuXMNgTpS",
+          first_name: "Silvia",
+          last_name: "Di Giorgio",
+          role: "employee",
+          employee_id: 61,
+          is_active: true,
+          password_reset_token: "0c0ad3a3-f4c1-4006-9d72-7bb7f5f7ff27",
+          password_reset_expires_at: new Date("2026-09-20T17:03:43.894Z"),
+          created_at: new Date("2025-09-20T17:03:43.894Z"),
+          updated_at: new Date("2025-09-20T17:03:43.894Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+62. screscenzi@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "1f304006-fe32-4557-afe3-8168cf6d4d9f",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "screscenzi@nexadata.it",
+          password_hash: "$2a$10$IIMjNZuRlz5iWaE9./M3Ie3AbNcUVjERqrEqzEWNtp4pi/KOrFavy",
+          first_name: "Simone",
+          last_name: "Crescenzi",
+          role: "employee",
+          employee_id: 62,
+          is_active: true,
+          password_reset_token: "7711e038-c51a-40bb-a5ef-4846a9c476ae",
+          password_reset_expires_at: new Date("2026-09-20T17:03:44.189Z"),
+          created_at: new Date("2025-09-20T17:03:44.189Z"),
+          updated_at: new Date("2025-09-20T17:03:44.189Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+63. tromano@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "f32f6fd7-69a1-42e2-a1c4-77b19f2596b0",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "tromano@nexadata.it",
+          password_hash: "$2a$10$Qr4up2QvYQP1sh3ee1nv9.Eb3S4hc8zcTeAnFthCBZT/V37lRosrK",
+          first_name: "Thomas",
+          last_name: "Romano",
+          role: "employee",
+          employee_id: 63,
+          is_active: true,
+          password_reset_token: "16bf8fcb-6718-4489-bf87-92b665899539",
+          password_reset_expires_at: new Date("2026-09-20T17:03:44.462Z"),
+          created_at: new Date("2025-09-20T17:03:44.462Z"),
+          updated_at: new Date("2025-09-20T17:03:44.462Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+64. vsellan@nexadata.it: 
+Invalid `prisma.tenant_users.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:353:35
+
+  350 });
+  351 
+  352 // Create tenant user (con nome/cognome per compatibilità ma presi da employees)
+→ 353 await prisma.tenant_users.create({
+        data: {
+          id: "3c6ed88c-9f2e-4087-af1a-4bb7432c8275",
+              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          tenant_id: "c2119bc8-0e93-46fc-a16d-2e13751ca78c",
+          email: "vsellan@nexadata.it",
+          password_hash: "$2a$10$i72ELXcrPzIEosq5rreu8eK/1oAQRIR3i53AWS8PEJSE4H93KCGAS",
+          first_name: "Valerio",
+          last_name: "Sellan",
+          role: "employee",
+          employee_id: 64,
+          is_active: true,
+          password_reset_token: "51e50557-f7ff-4ea7-a8c3-cfc49dfd88ae",
+          password_reset_expires_at: new Date("2026-09-20T17:03:44.727Z"),
+          created_at: new Date("2025-09-20T17:03:44.727Z"),
+          updated_at: new Date("2025-09-20T17:03:44.727Z")
+        }
+      })
+
+Argument `id`: Invalid value provided. Expected Int, provided String.
+
+================================================================================
+END OF REPORT
+================================================================================

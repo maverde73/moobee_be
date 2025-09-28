@@ -18,73 +18,76 @@ const authController = {
         });
       }
 
-      // Find employee by email
-      const employee = await prisma.employees.findUnique({
-        where: { email },
+      // Prima controlla se è un tenant user
+      const tenantUser = await prisma.tenant_users.findFirst({
+        where: {
+          email,
+          isActive: true
+        },
         include: {
-          departments: true,
-          employee_roles: {
-            include: {
-              roles: true
-            }
-          }
+          tenant: true
         }
       });
 
-      if (!employee) {
-        return res.status(401).json({
-          success: false,
-          message: 'Credenziali non valide'
-        });
-      }
+      if (tenantUser) {
+        // Gestione login per tenant users
+        let validPassword = false;
 
-      // For demo, check if password matches the demo password
-      // In production, you would hash and compare passwords
-      const validPassword = password === 'Password123!';
-      
-      if (!validPassword) {
-        return res.status(401).json({
-          success: false,
-          message: 'Credenziali non valide'
-        });
-      }
-
-      // Generate tokens
-      const accessToken = jwt.sign(
-        {
-          id: employee.id,
-          email: employee.email,
-          tenantId: employee.tenant_id
-        },
-        process.env.JWT_ACCESS_SECRET || 'your-access-secret',
-        { expiresIn: '15m' }
-      );
-
-      const refreshToken = jwt.sign(
-        {
-          id: employee.id,
-          email: employee.email,
-          tenantId: employee.tenant_id
-        },
-        process.env.JWT_REFRESH_SECRET || 'your-refresh-secret',
-        { expiresIn: '7d' }
-      );
-
-      // Return user data and tokens
-      res.json({
-        success: true,
-        accessToken,
-        refreshToken,
-        user: {
-          id: employee.id,
-          email: employee.email,
-          firstName: employee.first_name,
-          lastName: employee.last_name,
-          position: employee.position,
-          department: employee.departments?.department_name,
-          employeeCode: employee.employee_code,
-          isActive: employee.is_active
+        if (tenantUser.password) {
+          // Se ha una password hashata, confronta
+          validPassword = await bcrypt.compare(password, tenantUser.password);
+        } else if (email === 'superadmin@moobee.com' && password === 'SuperAdmin123!') {
+          // Caso speciale per super admin senza password hashata
+          validPassword = true;
         }
+
+        if (!validPassword) {
+          return res.status(401).json({
+            success: false,
+            message: 'Credenziali non valide'
+          });
+        }
+
+        // Genera token JWT per tenant user
+        const token = jwt.sign(
+          {
+            id: tenantUser.id,
+            email: tenantUser.email,
+            role: tenantUser.role,
+            tenantId: tenantUser.tenantId,
+            userType: 'tenant'
+          },
+          process.env.JWT_SECRET || 'your-secret-key',
+          { expiresIn: '24h' }
+        );
+
+        // Aggiorna ultimo login
+        await prisma.tenant_users.update({
+          where: { id: tenantUser.id },
+          data: { lastLogin: new Date() }
+        });
+
+        return res.status(200).json({
+          success: true,
+          data: {
+            user: {
+              id: tenantUser.id,
+              email: tenantUser.email,
+              firstName: tenantUser.firstName,
+              lastName: tenantUser.lastName,
+              role: tenantUser.role,
+              tenantId: tenantUser.tenantId,
+              tenantName: tenantUser.tenant.name
+            },
+            token
+          }
+        });
+      }
+
+      // Se non è un tenant user, restituisce errore
+      return res.status(401).json({
+        success: false,
+        message: 'Credenziali non valide'
       });
     } catch (error) {
       console.error('Login error:', error);

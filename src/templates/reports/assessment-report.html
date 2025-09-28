@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Report Assessment - {{userName}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #fff;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header .subtitle {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .info-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #667eea;
+    }
+
+    .info-card h3 {
+      color: #667eea;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .info-card p {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .section {
+      margin: 40px 0;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .section h2 {
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .skill-card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.3s;
+    }
+
+    .skill-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .skill-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .skill-name {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .skill-score {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: {{scoreColor score}};
+    }
+
+    .skill-trend {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .trend-improving {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .trend-stable {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .trend-declining {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s;
+    }
+
+    .radar-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .recommendations {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 5px;
+    }
+
+    .recommendations h3 {
+      color: #2e7d32;
+      margin-bottom: 15px;
+    }
+
+    .recommendations ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .recommendations li {
+      padding: 8px 0;
+      border-bottom: 1px solid #c8e6c9;
+    }
+
+    .recommendations li:last-child {
+      border-bottom: none;
+    }
+
+    .footer {
+      margin-top: 50px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      text-align: center;
+      color: #666;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    @media print {
+      .header {
+        background: #667eea;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .section {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>Report Assessment</h1>
+      <div class="subtitle">Profilo Competenze Trasversali</div>
+    </div>
+
+    <!-- User Information -->
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Nome</h3>
+        <p>{{userName}}</p>
+      </div>
+      <div class="info-card">
+        <h3>Assessment</h3>
+        <p>{{assessmentName}}</p>
+      </div>
+      <div class="info-card">
+        <h3>Data</h3>
+        <p>{{formatDate completedAt}}</p>
+      </div>
+      <div class="info-card">
+        <h3>Punteggio Medio</h3>
+        <p>{{averageScore}}/100</p>
+      </div>
+    </div>
+
+    <!-- Skills Overview -->
+    <div class="section">
+      <h2>Panoramica Competenze</h2>
+
+      {{#if chartData}}
+      <div class="radar-container">
+        <canvas id="radarChart"></canvas>
+      </div>
+      {{/if}}
+
+      <div class="skills-grid">
+        {{#each softSkills}}
+        <div class="skill-card">
+          <div class="skill-header">
+            <span class="skill-name">{{this.skill}}</span>
+            <span class="skill-score" style="color: {{scoreColor this.score}}">
+              {{this.score}}
+            </span>
+          </div>
+
+          {{#if this.trend}}
+          <span class="skill-trend trend-{{toLowerCase this.trend}}">
+            {{trendIcon this.trend}} {{this.trend}}
+          </span>
+          {{/if}}
+
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: {{this.score}}%"></div>
+          </div>
+
+          {{#if this.description}}
+          <p style="margin-top: 10px; color: #666; font-size: 0.9em;">
+            {{this.description}}
+          </p>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Strengths and Improvements -->
+    <div class="section">
+      <h2>Analisi Dettagliata</h2>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div>
+          <h3 style="color: #4caf50; margin-bottom: 15px;">💪 Punti di Forza</h3>
+          <ul style="list-style: none; padding: 0;">
+            {{#each strengths}}
+            <li style="padding: 10px; background: #e8f5e9; margin-bottom: 10px; border-radius: 5px;">
+              <strong>{{this.skill}}</strong>
+              <span class="badge badge-success">{{this.score}}/100</span>
+            </li>
+            {{/each}}
+          </ul>
+        </div>
+
+        <div>
+          <h3 style="color: #ff9800; margin-bottom: 15px;">🎯 Aree di Miglioramento</h3>
+          <ul style="list-style: none; padding: 0;">
+            {{#each improvements}}
+            <li style="padding: 10px; background: #fff3cd; margin-bottom: 10px; border-radius: 5px;">
+              <strong>{{this.skill}}</strong>
+              <span class="badge badge-warning">{{this.score}}/100</span>
+            </li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    {{#if recommendations}}
+    <div class="recommendations">
+      <h3>📋 Raccomandazioni Personalizzate</h3>
+      <ul>
+        {{#each recommendations}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+    {{/if}}
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Report generato il {{formatDate generatedAt}}</p>
+      <p style="margin-top: 10px;">© 2025 Moobee - Sistema di Valutazione Competenze</p>
+    </div>
+  </div>
+
+  {{#if chartData}}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('radarChart');
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: {{{json chartData.labels}}},
+          datasets: [{
+            label: 'Punteggio',
+            data: {{{json chartData.datasets[0].data}}},
+            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+            borderColor: 'rgba(102, 126, 234, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+  </script>
+  {{/if}}
+</body>
+</html>

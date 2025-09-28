@@ -1,60 +1,76 @@
 // Middleware to determine and attach tenant to request
-const prisma = require('../config/database');
+const prisma = require("../config/database");
 
 /**
- * Determines the tenant based on user email domain
+ * Determines the tenant based on user's tenant_id
  * and attaches tenantId to the request
  */
 const determineTenant = async (req, res, next) => {
   try {
-    let tenantId = null;
-    let tenantSlug = null;
+    // Normalize tenant field to use underscore standard (tenant_id)
+    if (req.user && req.user.tenantId && !req.user.tenant_id) {
+      req.user.tenant_id = req.user.tenantId;
+      console.log('Normalized tenantId to tenant_id for consistency');
+    }
 
-    if (req.user && req.user.email) {
-      const email = req.user.email.toLowerCase();
-      
-      // Map email domains to tenant slugs
-      if (email.includes('@nexadata.it')) {
-        tenantSlug = 'nexadata';
-      } 
-      // Add more domain mappings here as needed
-      // else if (email.includes('@company2.com')) {
-      //   tenantSlug = 'company2';
-      // }
-      
-      // If no specific domain match, use default
-      if (!tenantSlug) {
-        tenantSlug = 'default';
-      }
-
-      // Get tenant from database
+    // Check if user has tenant_id (our standard)
+    if (req.user && req.user.tenant_id) {
+      // Get tenant from database using the user's tenant_id
       const tenant = await prisma.tenants.findFirst({
-        where: { slug: tenantSlug }
+        where: { id: req.user.tenant_id },
       });
 
       if (tenant) {
-        tenantId = tenant.id;
-        req.tenantId = tenantId;
+        req.tenantId = tenant.id;
         req.tenant = tenant;
-      } else {
-        // If tenant not found, try default
-        const defaultTenant = await prisma.tenants.findFirst({
-          where: { slug: 'default' }
+        console.log(
+          `User ${req.user?.email} mapped to tenant: ${tenant.name} (from user.tenant_id)`
+        );
+        next();
+        return;
+      }
+    }
+
+    // Fallback: try to get tenant_id from tenant_users table
+    if (req.user && req.user.email) {
+      const tenantUser = await prisma.tenant_users.findFirst({
+        where: { email: req.user.email },
+        include: { tenant: true },
+      });
+
+      if (tenantUser && tenantUser.tenant_id) {
+        const tenant = await prisma.tenants.findFirst({
+          where: { id: tenantUser.tenant_id },
         });
-        
-        if (defaultTenant) {
-          req.tenantId = defaultTenant.id;
-          req.tenant = defaultTenant;
+
+        if (tenant) {
+          req.tenantId = tenant.id;
+          req.tenant = tenant;
+          console.log(
+            `User ${req.user?.email} mapped to tenant: ${tenant.name} (from tenant_users)`
+          );
+          next();
+          return;
         }
       }
     }
 
-    // Log for debugging
-    console.log(`User ${req.user?.email} mapped to tenant: ${req.tenant?.name || 'none'}`);
-    
+    // If no tenant found, try default
+    const defaultTenant = await prisma.tenants.findFirst({
+      where: { slug: "default" },
+    });
+
+    if (defaultTenant) {
+      req.tenantId = defaultTenant.id;
+      req.tenant = defaultTenant;
+      console.log(`User ${req.user?.email} mapped to default tenant`);
+    } else {
+      console.log(`User ${req.user?.email} - no tenant found`);
+    }
+
     next();
   } catch (error) {
-    console.error('Error determining tenant:', error);
+    console.error("Error determining tenant:", error);
     // Don't fail the request, just continue without tenant
     next();
   }
@@ -68,7 +84,7 @@ const requireTenant = (req, res, next) => {
   if (!req.tenantId) {
     return res.status(403).json({
       success: false,
-      message: 'Unable to determine organization. Please contact support.'
+      message: "Unable to determine organization. Please contact support.",
     });
   }
   next();
@@ -76,5 +92,5 @@ const requireTenant = (req, res, next) => {
 
 module.exports = {
   determineTenant,
-  requireTenant
+  requireTenant,
 };

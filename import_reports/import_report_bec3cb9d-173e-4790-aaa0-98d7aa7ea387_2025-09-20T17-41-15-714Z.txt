@@ -1,0 +1,83 @@
+================================================================================
+MOOBEE USER IMPORT REPORT
+================================================================================
+
+Date: 9/20/2025, 7:41:15 PM
+Tenant ID: bec3cb9d-173e-4790-aaa0-98d7aa7ea387
+
+SUMMARY
+----------------------------------------
+Total Users Processed: 5
+New Users Created: 5
+Users Updated: 0
+Users Skipped: 0
+Employees Created: 5
+Errors: 0
+
+DETAILED USER REPORT
+================================================================================
+
+[1] alice.williams@moobee.com
+------------------------------------------------------------
+Name: Alice Williams
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Awilliams9419!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[2] bob.anderson@moobee.com
+------------------------------------------------------------
+Name: Bob Anderson
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Banderson2858!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[3] charlie.brown@moobee.com
+------------------------------------------------------------
+Name: Charlie Brown
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Cbrown3307!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[4] diana.davis@moobee.com
+------------------------------------------------------------
+Name: Diana Davis
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Ddavis3009!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[5] edward.zimmer@moobee.com
+------------------------------------------------------------
+Name: Edward Zimmer
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Ezimmer4742!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+
+================================================================================
+END OF REPORT
+================================================================================

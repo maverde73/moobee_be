@@ -1,0 +1,869 @@
+================================================================================
+MOOBEE USER IMPORT REPORT
+================================================================================
+
+Date: 9/16/2025, 1:57:33 AM
+Tenant ID: b1234567-89ab-cdef-0123-456789abcdef
+
+SUMMARY
+----------------------------------------
+Total Users Processed: 64
+New Users Created: 59
+Users Updated: 0
+Users Skipped: 0
+Employees Created: 59
+Errors: 5
+
+DETAILED USER REPORT
+================================================================================
+
+[1] afigliolini@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Figliolini
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:267:49
+
+  264 const hashedPassword = await bcrypt.hash(tempPassword, 10);
+  265 
+  266 // Create employee first
+→ 267 const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+
+[2] azoia@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Zoia
+Role: employee
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+
+[3] adompe@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Dompè
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Adompè7658!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[4] apacetti@nexadata.it
+------------------------------------------------------------
+Name: Alessandro Pacetti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Apacetti5821!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[5] asardaro@nexadata.it
+------------------------------------------------------------
+Name: Alessio Sardaro
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Asardaro8536!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[6] acapozi@nexadata.it
+------------------------------------------------------------
+Name: Alessio Capozi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Acapozi6970!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[7] acutolo@nexadata.it
+------------------------------------------------------------
+Name: Andrea Cutolo
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Acutolo3900!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[8] aetna@nexadata.it
+------------------------------------------------------------
+Name: Andrea Etna
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Aetna3573!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[9] agiampa@nexadata.it
+------------------------------------------------------------
+Name: Andrea Giampa
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Agiampa7740!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[10] alomonaco@nexadata.it
+------------------------------------------------------------
+Name: Andrea Lomonaco
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Alomonaco9619!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[11] anovelli@nexadata.it
+------------------------------------------------------------
+Name: Andrea Novelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Anovelli4153!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[12] afichera@nexadata.it
+------------------------------------------------------------
+Name: Anita Fichera
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+
+[13] abehfar@nexadata.it
+------------------------------------------------------------
+Name: Arian Behfar
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Abehfar2881!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[14] cmiraglia@nexadata.it
+------------------------------------------------------------
+Name: Calogero Miraglia
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Cmiraglia6608!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[15] cabdelmessih@nexadata.it
+------------------------------------------------------------
+Name: Christian Abd El Messih
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Cabd el messih7503!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[16] chuang@nexadata.it
+------------------------------------------------------------
+Name: Claudio Huang
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Chuang8636!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[17] cmastromarini@nexadata.it
+------------------------------------------------------------
+Name: Cristian Mastromarini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Cmastromarini6627!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[18] dhrituc@nexadata.it
+------------------------------------------------------------
+Name: Daniel Hrituc
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dhrituc8920!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[19] dsiclari@nexadata.it
+------------------------------------------------------------
+Name: Danilo Siclari
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dsiclari3972!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[20] dsimone@nexadata.it
+------------------------------------------------------------
+Name: Davide Simone
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dsimone5701!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[21] dtrozzo@nexadata.it
+------------------------------------------------------------
+Name: Domenico Trozzo
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Dtrozzo8702!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[22] evoytovich@nexadata.it
+------------------------------------------------------------
+Name: Elena Voytovich
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Evoytovich1646!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[23] egiurelli@nexadata.it
+------------------------------------------------------------
+Name: Elena Giurelli
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+
+[24] elisagiurelli@nexadata.it
+------------------------------------------------------------
+Name: Elisa Giurelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Egiurelli9596!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[25] eguidotti@nexadata.it
+------------------------------------------------------------
+Name: Emanuele Guidotti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Eguidotti4022!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[26] epergoloni@nexadata.it
+------------------------------------------------------------
+Name: Eva Pergoloni
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Epergoloni3824!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[27] fvalentini@nexadata.it
+------------------------------------------------------------
+Name: Fabio Valentini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fvalentini2852!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[28] fdilegge@nexadata.it
+------------------------------------------------------------
+Name: Federico Di Legge
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fdi legge3169!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[29] fpedicini@nexadata.it
+------------------------------------------------------------
+Name: Flavio Pedicini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fpedicini9525!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[30] fprosperi@nexadata.it
+------------------------------------------------------------
+Name: Flavio Prosperi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fprosperi4905!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[31] fferrari@nexadata.it
+------------------------------------------------------------
+Name: Francesco Ferrari
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fferrari1174!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[32] fguarini@nexadata.it
+------------------------------------------------------------
+Name: Francesco Guarini
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fguarini6324!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[33] fcifaldi@nexadata.it
+------------------------------------------------------------
+Name: Francesco Cifaldi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Fcifaldi1322!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[34] gnardoni@nexadata.it
+------------------------------------------------------------
+Name: Giampaolo Nardoni
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gnardoni5527!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[35] gscamperti@nexadata.it
+------------------------------------------------------------
+Name: Gianluca Scamperti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gscamperti4453!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[36] gremolino@nexadata.it
+------------------------------------------------------------
+Name: Giuseppe Remolino
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gremolino9374!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[37] gabuduaini@nexadata.it
+------------------------------------------------------------
+Name: GUZALINUER ABUDUAINI
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Gabuduaini2691!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[38] juddin@nexadata.it
+------------------------------------------------------------
+Name: JALAL UDDIN
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Juddin1969!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[39] kpiatek@nexadata.it
+------------------------------------------------------------
+Name: Kacper Maksymilian Piatek
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Kpiatek8934!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[40] lcioni@nexadata.it
+------------------------------------------------------------
+Name: Leandro Cioni
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lcioni2256!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[41] lfanicchia@nexadata.it
+------------------------------------------------------------
+Name: Leonardo Fanicchia
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lfanicchia1130!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[42] lcaiffa@nexadata.it
+------------------------------------------------------------
+Name: Lorenzo Caiffa
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lcaiffa5737!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[43] ldeserio@nexadata.it
+------------------------------------------------------------
+Name: Luca De serio
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Lde serio1013!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[44] mesposito@nexadata.it
+------------------------------------------------------------
+Name: Marco Esposito
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mesposito2819!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[45] mmeneghetti@nexadata.it
+------------------------------------------------------------
+Name: Marco Meneghetti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mmeneghetti5180!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[46] mrippoliti@nexadata.it
+------------------------------------------------------------
+Name: Maria Rita Ippoliti
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mippoliti3435!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[47] mgiurelli@nexadata.it
+------------------------------------------------------------
+Name: Massimiliano Giurelli
+Role: hr
+Status: ERROR
+
+Actions Performed:
+
+ERROR: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+
+[48] mrovelli@nexadata.it
+------------------------------------------------------------
+Name: Massimiliano Rovelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mrovelli3919!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[49] mlamacchia@nexadata.it
+------------------------------------------------------------
+Name: Matteo Lamacchia
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mlamacchia4528!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[50] mverde@nexadata.it
+------------------------------------------------------------
+Name: Maurizio Verde
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mverde6092!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[51] microsoft.learning@nexadata.it
+------------------------------------------------------------
+Name: Microsoft Learning
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mlearning2847!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[52] mcarnevale@nexadata.it
+------------------------------------------------------------
+Name: Mirco Carnevale
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Mcarnevale6113!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[53] ptirelli@nexadata.it
+------------------------------------------------------------
+Name: Paola Tirelli
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Ptirelli5314!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[54] rmaiello@nexadata.it
+------------------------------------------------------------
+Name: Raffaella Maiello
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rmaiello5854!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[55] rbova@nexadata.it
+------------------------------------------------------------
+Name: Renato Bova
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rbova1863!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[56] rlicciardello@nexadata.it
+------------------------------------------------------------
+Name: Roberta Licciardello
+Role: hr
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rlicciardello4591!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[57] rbraga@nexadata.it
+------------------------------------------------------------
+Name: Roberto Braga
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rbraga1291!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[58] rortenzi@nexadata.it
+------------------------------------------------------------
+Name: Roberto Ortenzi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rortenzi8353!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[59] rbiasco@nexadata.it
+------------------------------------------------------------
+Name: Rosario Biasco
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Rbiasco4359!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[60] shaji@nexadata.it
+------------------------------------------------------------
+Name: SEYEDEH SHAGHAYEGH HAJI MIRAGHA
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Shaji miragha1386!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[61] sdigiorgio@nexadata.it
+------------------------------------------------------------
+Name: Silvia Di Giorgio
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Sdi giorgio7659!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[62] screscenzi@nexadata.it
+------------------------------------------------------------
+Name: Simone Crescenzi
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Screscenzi6368!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[63] tromano@nexadata.it
+------------------------------------------------------------
+Name: Thomas Romano
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Tromano2664!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+[64] vsellan@nexadata.it
+------------------------------------------------------------
+Name: Valerio Sellan
+Role: employee
+Status: CREATED
+
+**TEMPORARY PASSWORD**: Vsellan1497!
+Note: User must change password on first login (expires in 1 year)
+
+Actions Performed:
+  1. Created new user and employee
+
+
+ERRORS ENCOUNTERED
+================================================================================
+1. afigliolini@nexadata.it: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:267:49
+
+  264 const hashedPassword = await bcrypt.hash(tempPassword, 10);
+  265 
+  266 // Create employee first
+→ 267 const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+2. azoia@nexadata.it: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+3. afichera@nexadata.it: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+4. egiurelli@nexadata.it: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+5. mgiurelli@nexadata.it: 
+Invalid `prisma.employees.create()` invocation in
+/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/tenantUserService.js:232:51
+
+  229 if (existingUser) {
+  230   if (!existingUser.employee_id) {
+  231     // Create employee record for existing user
+→ 232     const employee = await prisma.employees.create(
+Unique constraint failed on the fields: (`email`)
+
+================================================================================
+END OF REPORT
+================================================================================

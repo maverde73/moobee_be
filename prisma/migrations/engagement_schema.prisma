@@ -1,0 +1,243 @@
+// Engagement Schema - To be added to main schema.prisma
+// Version: 1.0.0
+// Date: 2025-01-22
+
+// ========================================
+// ENGAGEMENT TEMPLATES
+// ========================================
+model EngagementTemplate {
+  id                 String                @id @default(uuid())
+  tenantId          String
+  name              String
+  type              EngagementType        @default(UWES)
+  roleId            Int
+  description       String?
+  instructions      String?
+  suggestedFrequency Frequency           @default(MONTHLY)
+  isActive          Boolean              @default(true)
+  isPublic          Boolean              @default(false)
+  version           Int                  @default(1)
+  status            TemplateStatus       @default(DRAFT)
+  createdBy         String
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  // Relations
+  tenant            Tenant               @relation(fields: [tenantId], references: [id])
+  role              Role                 @relation(fields: [roleId], references: [id])
+  questions         EngagementQuestion[]
+  campaigns         EngagementCampaign[]
+  responses         EngagementResponse[]
+
+  @@unique([tenantId, name, version])
+  @@index([tenantId])
+  @@index([roleId])
+  @@index([status])
+}
+
+// ========================================
+// ENGAGEMENT QUESTIONS
+// ========================================
+model EngagementQuestion {
+  id              String                @id @default(uuid())
+  templateId      String
+  code            String                // UWES_01, GQ12_03, CUSTOM_01
+  text            String
+  area            EngagementArea
+  type            QuestionType         @default(LIKERT)
+  scaleMin        Int                  @default(1)
+  scaleMax        Int                  @default(5)
+  weight          Float                @default(1.0)
+  orderIndex      Int
+  isRequired      Boolean              @default(true)
+  metadata        Json?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Relations
+  template        EngagementTemplate   @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  responses       ResponseDetail[]
+
+  @@unique([templateId, code])
+  @@index([templateId])
+  @@index([area])
+}
+
+// ========================================
+// ENGAGEMENT CAMPAIGNS
+// ========================================
+model EngagementCampaign {
+  id              String                @id @default(uuid())
+  tenantId        String
+  templateId      String
+  name            String
+  startDate       DateTime
+  endDate         DateTime
+  frequency       CampaignFrequency
+  rrule           String?              // For recurring campaigns
+  targetFilters   Json                 // {departments: [], seniority: [], projects: []}
+  channels        String[]             // ['email', 'webapp', 'slack']
+  reminderConfig  Json?                // {enabled: true, intervals: [3, 7]}
+  status          CampaignStatus       @default(SCHEDULED)
+  createdBy       String
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Relations
+  tenant          Tenant               @relation(fields: [tenantId], references: [id])
+  template        EngagementTemplate   @relation(fields: [templateId], references: [id])
+  responses       EngagementResponse[]
+
+  @@index([tenantId])
+  @@index([templateId])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+// ========================================
+// ENGAGEMENT RESPONSES
+// ========================================
+model EngagementResponse {
+  id              String                @id @default(uuid())
+  tenantId        String
+  campaignId      String
+  templateId      String
+  employeeId      String
+  completedAt     DateTime?
+  totalScore      Float?
+  areaScores      Json?                // {motivation: 85, leadership: 72, ...}
+  status          ResponseStatus       @default(PENDING)
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Relations
+  tenant          Tenant               @relation(fields: [tenantId], references: [id])
+  campaign        EngagementCampaign   @relation(fields: [campaignId], references: [id])
+  template        EngagementTemplate   @relation(fields: [templateId], references: [id])
+  employee        Employee             @relation(fields: [employeeId], references: [id])
+  details         ResponseDetail[]
+
+  @@unique([campaignId, employeeId])
+  @@index([tenantId])
+  @@index([campaignId])
+  @@index([employeeId])
+  @@index([status])
+}
+
+// ========================================
+// RESPONSE DETAILS
+// ========================================
+model ResponseDetail {
+  id              String                @id @default(uuid())
+  responseId      String
+  questionId      String
+  value           Int?                 // For Likert scale
+  textValue       String?              // For open text
+  createdAt       DateTime             @default(now())
+
+  // Relations
+  response        EngagementResponse   @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question        EngagementQuestion   @relation(fields: [questionId], references: [id])
+
+  @@unique([responseId, questionId])
+  @@index([responseId])
+  @@index([questionId])
+}
+
+// ========================================
+// ACTION PLANS
+// ========================================
+model ActionPlan {
+  id              String                @id @default(uuid())
+  tenantId        String
+  roleId          Int?
+  area            EngagementArea
+  name            String
+  description     String
+  actions         Json                 // Array of action items
+  targetMetrics   Json                 // {targetScore: 80, timeframe: 90}
+  status          ActionPlanStatus     @default(DRAFT)
+  startDate       DateTime?
+  endDate         DateTime?
+  createdBy       String
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Relations
+  tenant          Tenant               @relation(fields: [tenantId], references: [id])
+  role            Role?                @relation(fields: [roleId], references: [id])
+
+  @@index([tenantId])
+  @@index([roleId])
+  @@index([area])
+  @@index([status])
+}
+
+// ========================================
+// ENUMS
+// ========================================
+enum EngagementType {
+  UWES
+  GALLUP_Q12
+  CUSTOM
+}
+
+enum EngagementArea {
+  MOTIVATION
+  LEADERSHIP
+  COMMUNICATION
+  WORK_LIFE_BALANCE
+  BELONGING
+  GROWTH
+}
+
+enum Frequency {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  BIANNUAL
+  ANNUAL
+}
+
+enum TemplateStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum QuestionType {
+  LIKERT
+  MULTIPLE_CHOICE
+  OPEN_TEXT
+}
+
+enum CampaignFrequency {
+  ONCE
+  RECURRING
+  PULSE
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum ResponseStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+}
+
+enum ActionPlanStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}

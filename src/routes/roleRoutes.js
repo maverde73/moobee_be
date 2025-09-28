@@ -17,9 +17,53 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
+// GET /api/roles/search - Search roles with simple response
+router.get('/search',
+  async (req, res) => {
+    try {
+      const { q } = req.query;
+
+      let roles;
+      if (q) {
+        roles = await prisma.$queryRaw`
+          SELECT DISTINCT
+            id::text as id,
+            INITCAP("NameKnown_Role") as name
+          FROM roles
+          WHERE "NameKnown_Role" ILIKE ${`%${q}%`}
+          ORDER BY INITCAP("NameKnown_Role") ASC
+          LIMIT 100
+        `;
+      } else {
+        roles = await prisma.$queryRaw`
+          SELECT DISTINCT
+            id::text as id,
+            INITCAP("NameKnown_Role") as name
+          FROM roles
+          WHERE "NameKnown_Role" IS NOT NULL
+          ORDER BY INITCAP("NameKnown_Role") ASC
+          LIMIT 100
+        `;
+      }
+
+      res.json({
+        success: true,
+        data: roles
+      });
+    } catch (error) {
+      console.error('Error searching roles:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error searching roles',
+        error: error.message
+      });
+    }
+  }
+);
+
 // GET /api/roles - Get all roles with sub-roles
+// Made public to support assessment creation
 router.get('/',
-  authenticate,
   [
     query('search').optional().trim(),
     query('withSubRoles').optional().isBoolean()
@@ -37,17 +81,28 @@ router.get('/',
         ];
       }
 
-      const roles = await prisma.roles.findMany({
-        where,
-        include: withSubRoles === 'true' ? {
-          role_sub_role: {
-            include: {
-              sub_roles: true
-            }
-          }
-        } : undefined,
-        orderBy: { Role: 'asc' }
-      });
+      // Since roles table has @@ignore, we use raw SQL
+      let roles;
+      if (search) {
+        roles = await prisma.$queryRaw`
+          SELECT
+            id::text as id,
+            INITCAP("NameKnown_Role") as name
+          FROM roles
+          WHERE "NameKnown_Role" ILIKE ${`%${search}%`}
+            AND "NameKnown_Role" IS NOT NULL
+          ORDER BY INITCAP("NameKnown_Role") ASC
+        `;
+      } else {
+        roles = await prisma.$queryRaw`
+          SELECT
+            id::text as id,
+            INITCAP("NameKnown_Role") as name
+          FROM roles
+          WHERE "NameKnown_Role" IS NOT NULL
+          ORDER BY INITCAP("NameKnown_Role") ASC
+        `;
+      }
 
       res.json({
         success: true,

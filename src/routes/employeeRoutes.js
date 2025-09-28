@@ -18,16 +18,17 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
-// GET /api/employees - Get all employees with pagination
-router.get('/', 
+// GET /api/employees - Get all employees with pagination and search
+router.get('/',
   authenticate,
   determineTenant,
   requireTenant,
   [
     query('page').optional().isInt({ min: 1 }),
-    query('limit').optional().isInt({ min: 1, max: 100 }),
+    query('limit').optional().isInt({ min: 1, max: 1000 }),
     query('department').optional().isInt(),
-    query('isActive').optional().isBoolean()
+    query('isActive').optional().isBoolean(),
+    query('search').optional().isString()
   ],
   handleValidationErrors,
   async (req, res) => {
@@ -35,13 +36,27 @@ router.get('/',
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
+      const search = req.query.search || '';
+
+      console.log('=== Employee Route - GET /employees ===');
+      console.log('Search term:', search, 'Length:', search.length);
 
       const where = {
         tenant_id: req.tenantId // Use tenant from middleware
       };
-      
+
       if (req.query.department) where.department_id = parseInt(req.query.department);
       if (req.query.isActive !== undefined) where.is_active = req.query.isActive === 'true';
+
+      // Add search filter if search term is provided (minimum 3 characters)
+      if (search && search.length >= 3) {
+        console.log('Adding search filter for:', search);
+        where.OR = [
+          { first_name: { contains: search, mode: 'insensitive' } },
+          { last_name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } }
+        ];
+      }
 
       const [employees, total] = await Promise.all([
         prisma.employees.findMany({
@@ -49,21 +64,28 @@ router.get('/',
           skip,
           take: limit,
           include: {
-            departments_employees_department_idTodepartments: true,
+            departments: true,
             employee_roles: {
               where: { is_current: true }
-            },
-            employee_skills: true
+            }
           },
           orderBy: { last_name: 'asc' }
         }),
         prisma.employees.count({ where })
       ]);
 
+      console.log(`Found ${employees.length} employees (Total: ${total})`);
+
+      // Add computed 'name' field to each employee
+      const employeesWithName = employees.map(emp => ({
+        ...emp,
+        name: `${emp.first_name || ''} ${emp.last_name || ''}`.trim() || emp.email || 'Nome non disponibile'
+      }));
+
       res.json({
         success: true,
         data: {
-          employees,
+          employees: employeesWithName,
           pagination: {
             page,
             limit,
@@ -93,33 +115,61 @@ router.get('/:id',
   handleValidationErrors,
   async (req, res) => {
     try {
-      // Find employee and verify it belongs to the same tenant
+      // Find employee with tenant restriction
       const employee = await prisma.employees.findFirst({
-        where: { 
+        where: {
           id: parseInt(req.params.id),
-          tenant_id: req.tenantId // Ensure employee belongs to user's tenant
+          tenant_id: req.tenantId // Re-enabled tenant filtering
         },
         include: {
-          departments_employees_department_idTodepartments: true,
-          employees: true, // Manager
-          employee_roles: {
-            where: { is_current: true }
-          },
-          employee_skills: true,
-          assessments_assessments_employee_idToemployees: {
-            orderBy: { assessment_date: 'desc' },
-            take: 5
-          },
-          engagement_surveys: {
-            orderBy: { survey_month: 'desc' },
-            take: 3
-          },
-          project_assignments: {
-            where: { is_active: true },
-            include: {
-              projects: true
+          // Department info - using correct relation name
+          departments: {
+            select: {
+              department_name: true
             }
-          }
+          },
+          // User account info
+          tenant_users: {
+            select: {
+              role: true,
+              last_login_at: true,
+              login_count: true,
+              is_active: true
+            }
+          },
+          // Current roles - simplified without ignored relations
+          employee_roles: {
+            where: { is_current: true },
+            select: {
+              id: true,
+              role_id: true,
+              sub_role_id: true,
+              start_date: true,
+              is_current: true
+            }
+          },
+          // Comment out non-existent relations for now
+          // TODO: Add back when assessments and project_assignments tables are properly set up
+          // assessments: {
+          //   orderBy: { assessment_date: 'desc' },
+          //   take: 5,
+          //   select: {
+          //     assessment_date: true,
+          //     overall_score: true
+          //   }
+          // },
+          // project_assignments: {
+          //   where: { is_active: true },
+          //   include: {
+          //     projects: {
+          //       select: {
+          //         project_name: true,
+          //         status: true,
+          //         project_code: true
+          //       }
+          //     }
+          //   }
+          // }
         }
       });
 
@@ -130,9 +180,17 @@ router.get('/:id',
         });
       }
 
+      // Transform response to have simpler property names for frontend
+      const transformedEmployee = {
+        ...employee,
+        department: employee.departments?.department_name || null,
+        // Add computed name field
+        name: `${employee.first_name || ''} ${employee.last_name || ''}`.trim() || employee.email || 'Nome non disponibile'
+      };
+
       res.json({
         success: true,
-        data: employee
+        data: transformedEmployee
       });
     } catch (error) {
       res.status(500).json({
@@ -197,7 +255,7 @@ router.post('/',
           employee_code: `EMP${Date.now()}`
         },
         include: {
-          departments_employees_department_idTodepartments: true,
+          departments: true,
           employees: true
         }
       });
@@ -265,7 +323,7 @@ router.put('/:id',
         where: { id: employeeId },
         data: updateData,
         include: {
-          departments_employees_department_idTodepartments: true,
+          departments: true,
           employees: true
         }
       });
@@ -368,5 +426,69 @@ router.post('/:id/skills',
     }
   }
 );
+
+// Update employee profile (for logged-in user with unified auth)
+router.put('/profile', require('../middlewares/unifiedAuth').authenticateTenantUser, async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    const tenantId = req.user.tenantId;
+    const {
+      firstName,
+      lastName,
+      phone,
+      currentRole,
+      education,
+      yearsOfExperience,
+      seniority
+    } = req.body;
+
+    // Find the employee by email and tenant
+    const employee = await prisma.employees.findFirst({
+      where: {
+        email: userEmail,
+        tenant_id: tenantId
+      }
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: 'Employee not found'
+      });
+    }
+
+    // Update employee data
+    const updatedEmployee = await prisma.employees.update({
+      where: { id: employee.id },
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone,
+        position: currentRole,
+        updated_at: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      employee: {
+        firstName: updatedEmployee.first_name,
+        lastName: updatedEmployee.last_name,
+        email: updatedEmployee.email,
+        phone: updatedEmployee.phone,
+        position: updatedEmployee.position
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating profile',
+      error: error.message
+    });
+  }
+});
 
 module.exports = router;

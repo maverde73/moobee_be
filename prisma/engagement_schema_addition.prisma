@@ -1,0 +1,175 @@
+// ========================================
+// ENGAGEMENT SYSTEM SCHEMA
+// Version: 1.0.0
+// Date: 2025-01-22
+// To be added to main schema.prisma
+// ========================================
+
+// ========================================
+// ENGAGEMENT TEMPLATES
+// ========================================
+model engagement_templates {
+  id                  String                @id @default(uuid())
+  tenant_id           String                @db.Uuid
+  name                String
+  type                String                @default("UWES") // UWES, GALLUP_Q12, CUSTOM
+  role_id             Int
+  description         String?
+  instructions        String?
+  suggested_frequency String                @default("MONTHLY") // WEEKLY, MONTHLY, QUARTERLY, BIANNUAL, ANNUAL
+  is_active           Boolean               @default(true)
+  is_public           Boolean               @default(false)
+  version             Int                   @default(1)
+  status              String                @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  created_by          String
+  created_at          DateTime              @default(now()) @db.Timestamp(6)
+  updated_at          DateTime              @updatedAt @db.Timestamp(6)
+
+  // Relations
+  role                roles                 @relation(fields: [role_id], references: [id])
+  questions           engagement_questions[]
+  campaigns           engagement_campaigns[]
+  responses           engagement_responses[]
+
+  @@unique([tenant_id, name, version])
+  @@index([tenant_id])
+  @@index([role_id])
+  @@index([status])
+}
+
+// ========================================
+// ENGAGEMENT QUESTIONS
+// ========================================
+model engagement_questions {
+  id                  String                @id @default(uuid())
+  template_id         String
+  code                String                // UWES_01, GQ12_03, CUSTOM_01
+  text                String
+  area                String                // MOTIVATION, LEADERSHIP, COMMUNICATION, WORK_LIFE_BALANCE, BELONGING, GROWTH
+  type                String                @default("LIKERT") // LIKERT, MULTIPLE_CHOICE, OPEN_TEXT
+  scale_min           Int                   @default(1)
+  scale_max           Int                   @default(5)
+  weight              Float                 @default(1.0)
+  order_index         Int
+  is_required         Boolean               @default(true)
+  metadata            Json?
+  created_at          DateTime              @default(now()) @db.Timestamp(6)
+  updated_at          DateTime              @updatedAt @db.Timestamp(6)
+
+  // Relations
+  template            engagement_templates  @relation(fields: [template_id], references: [id], onDelete: Cascade)
+  response_details    response_details[]
+
+  @@unique([template_id, code])
+  @@index([template_id])
+  @@index([area])
+}
+
+// ========================================
+// ENGAGEMENT CAMPAIGNS
+// ========================================
+model engagement_campaigns {
+  id                  String                @id @default(uuid())
+  tenant_id           String                @db.Uuid
+  template_id         String
+  name                String
+  start_date          DateTime
+  end_date            DateTime
+  frequency           String                // ONCE, RECURRING, PULSE
+  rrule               String?               // For recurring campaigns
+  target_filters      Json                  // {departments: [], seniority: [], projects: []}
+  channels            String[]              // ['email', 'webapp', 'slack']
+  reminder_config     Json?                 // {enabled: true, intervals: [3, 7]}
+  status              String                @default("SCHEDULED") // DRAFT, SCHEDULED, ACTIVE, PAUSED, COMPLETED, CANCELLED
+  created_by          String
+  created_at          DateTime              @default(now()) @db.Timestamp(6)
+  updated_at          DateTime              @updatedAt @db.Timestamp(6)
+
+  // Relations
+  template            engagement_templates  @relation(fields: [template_id], references: [id])
+  responses           engagement_responses[]
+
+  @@index([tenant_id])
+  @@index([template_id])
+  @@index([status])
+  @@index([start_date, end_date])
+}
+
+// ========================================
+// ENGAGEMENT RESPONSES
+// ========================================
+model engagement_responses {
+  id                  String                @id @default(uuid())
+  tenant_id           String                @db.Uuid
+  campaign_id         String
+  template_id         String
+  employee_id         Int
+  completed_at        DateTime?
+  total_score         Float?
+  area_scores         Json?                 // {motivation: 85, leadership: 72, ...}
+  status              String                @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, EXPIRED
+  ip_address          String?
+  user_agent          String?
+  created_at          DateTime              @default(now()) @db.Timestamp(6)
+  updated_at          DateTime              @updatedAt @db.Timestamp(6)
+
+  // Relations
+  campaign            engagement_campaigns  @relation(fields: [campaign_id], references: [id])
+  template            engagement_templates  @relation(fields: [template_id], references: [id])
+  employee            employees            @relation(fields: [employee_id], references: [id])
+  response_details    response_details[]
+
+  @@unique([campaign_id, employee_id])
+  @@index([tenant_id])
+  @@index([campaign_id])
+  @@index([employee_id])
+  @@index([status])
+}
+
+// ========================================
+// RESPONSE DETAILS
+// ========================================
+model response_details {
+  id                  String                @id @default(uuid())
+  response_id         String
+  question_id         String
+  value               Int?                  // For Likert scale
+  text_value          String?               // For open text
+  created_at          DateTime              @default(now()) @db.Timestamp(6)
+
+  // Relations
+  response            engagement_responses  @relation(fields: [response_id], references: [id], onDelete: Cascade)
+  question            engagement_questions  @relation(fields: [question_id], references: [id])
+
+  @@unique([response_id, question_id])
+  @@index([response_id])
+  @@index([question_id])
+}
+
+// ========================================
+// ACTION PLANS
+// ========================================
+model action_plans {
+  id                  String                @id @default(uuid())
+  tenant_id           String                @db.Uuid
+  role_id             Int?
+  area                String                // MOTIVATION, LEADERSHIP, COMMUNICATION, etc.
+  name                String
+  description         String
+  actions             Json                  // Array of action items
+  target_metrics      Json                  // {targetScore: 80, timeframe: 90}
+  status              String                @default("DRAFT") // DRAFT, ACTIVE, COMPLETED, ARCHIVED
+  start_date          DateTime?
+  end_date            DateTime?
+  created_by          String
+  created_at          DateTime              @default(now()) @db.Timestamp(6)
+  updated_at          DateTime              @updatedAt @db.Timestamp(6)
+
+  // Relations
+  role                roles?               @relation(fields: [role_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([role_id])
+  @@index([area])
+  @@index([status])
+}

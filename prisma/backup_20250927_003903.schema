@@ -1,0 +1,9 @@
+Prisma schema loaded from prisma/schema.prisma
+Environment variables loaded from .env
+Datasource "db": PostgreSQL database "railway", schema "public" at "trolley.proxy.rlwy.net:12026"
+
+- Introspecting based on datasource defined in prisma/schema.prisma
+✔ Introspected 66 models and wrote them into prisma/schema.prisma in 1.78s
+      
+Run prisma generate to generate Prisma Client.
+
