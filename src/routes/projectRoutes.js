@@ -173,12 +173,12 @@ router.patch(
 /**
  * @route DELETE /api/projects/:id
  * @desc Delete project (soft delete)
- * @access Private (Admin only)
+ * @access Private (HR Manager, Manager, Admin)
  */
 router.delete(
   '/:id',
   authenticate,
-  authorize(['ADMIN', 'SUPER_ADMIN']),
+  authorize(['HR_MANAGER', 'MANAGER', 'ADMIN', 'SUPER_ADMIN']),
   projectController.deleteProject.bind(projectController)
 );
 
