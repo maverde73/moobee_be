@@ -10,6 +10,7 @@ const { authenticate, authorize } = require('../middlewares/authMiddleware');
 
 // Import controllers
 const templateController = require('../controllers/engagement/engagementTemplateController');
+const builderController = require('../controllers/engagement/engagementBuilderController');
 const aiController = require('../controllers/engagement/engagementAIController');
 const aiProvidersController = require('../controllers/engagement/aiProvidersController');
 const campaignController = require('../controllers/engagement/engagementCampaignController');
@@ -521,6 +522,82 @@ router.get('/weighted-results',
 router.get('/trends',
   authenticate,
   engagementWeightedResultsController.getEngagementTrends
+);
+
+// ========================================
+// ENGAGEMENT BUILDER ROUTES
+// ========================================
+
+/**
+ * @route GET /api/engagement/suggestions/role/:roleId
+ * @desc Get engagement suggestions based on role
+ * @access Private (HR, Admin)
+ */
+router.get(
+  '/suggestions/role/:roleId',
+  authenticate,
+  authorize(['hr', 'hr_manager', 'HR', 'ADMIN', 'SUPER_ADMIN']),
+  builderController.getRoleSuggestions
+);
+
+/**
+ * @route POST /api/engagement/builder/templates
+ * @desc Create engagement template via builder
+ * @access Private (HR, Admin)
+ */
+router.post(
+  '/builder/templates',
+  authenticate,
+  authorize(['HR', 'ADMIN', 'SUPER_ADMIN']),
+  builderController.createBuilderTemplate
+);
+
+/**
+ * @route PUT /api/engagement/builder/templates/:id
+ * @desc Update engagement template via builder
+ * @access Private (HR, Admin)
+ */
+router.put(
+  '/builder/templates/:id',
+  authenticate,
+  authorize(['HR', 'ADMIN', 'SUPER_ADMIN']),
+  builderController.updateBuilderTemplate
+);
+
+/**
+ * @route GET /api/engagement/builder/templates/:id
+ * @desc Get engagement template builder config
+ * @access Private (HR, Admin)
+ */
+router.get(
+  '/builder/templates/:id',
+  authenticate,
+  authorize(['hr', 'hr_manager', 'HR', 'ADMIN', 'SUPER_ADMIN']),
+  builderController.getBuilderTemplate
+);
+
+/**
+ * @route POST /api/engagement/builder/validate
+ * @desc Validate template configuration
+ * @access Private (HR, Admin)
+ */
+router.post(
+  '/builder/validate',
+  authenticate,
+  authorize(['HR', 'ADMIN', 'SUPER_ADMIN']),
+  builderController.validateTemplate
+);
+
+/**
+ * @route POST /api/engagement/builder/preview
+ * @desc Preview template as it would appear to respondents
+ * @access Private (HR, Admin)
+ */
+router.post(
+  '/builder/preview',
+  authenticate,
+  authorize(['HR', 'ADMIN', 'SUPER_ADMIN']),
+  builderController.previewTemplate
 );
 
 module.exports = router;
