@@ -238,63 +238,137 @@ class TenantSelectionController {
    */
   async getAssessmentsWithSelectionStatus(req, res) {
     try {
-      const { tenantId, page = 1, limit = 100 } = req.query;
+      const { tenantId, page = 1, limit = 100, mode = 'catalog' } = req.query;
       const skip = (parseInt(page) - 1) * parseInt(limit);
 
-      // Build include object conditionally
-      const includeObj = {
-        assessment_questions: {
-          include: {
-            assessment_options: true
-          }
-        }
-      };
+      console.log('=== getAssessmentsWithSelectionStatus ===');
+      console.log('  tenantId:', tenantId);
+      console.log('  mode:', mode);
+      console.log('  page:', page, 'limit:', limit);
 
-      // Only add tenantSelections if tenantId is provided and valid
-      if (tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
-        includeObj.tenant_assessment_selections = {
+      // MODE: 'catalog' = tutti gli assessment (default)
+      // MODE: 'selected' = solo assessment collegati al tenant
+      const isCatalogMode = mode === 'catalog';
+      const isSelectedMode = mode === 'selected';
+
+      let templates;
+      let totalCount;
+
+      if (isSelectedMode && tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
+        // MODO SELECTED: Carica solo gli assessment collegati al tenant tramite tenant_assessment_selections
+        console.log('  Loading SELECTED assessments for tenant:', tenantId);
+
+        // Prima trova gli ID dei template selezionati dal tenant
+        const selections = await prisma.tenant_assessment_selections.findMany({
           where: {
             tenant_id: tenantId,
             isActive: true
+          },
+          select: {
+            templateId: true
+          }
+        });
+
+        const selectedTemplateIds = selections.map(s => s.templateId);
+        console.log('  Selected template IDs:', selectedTemplateIds);
+
+        if (selectedTemplateIds.length === 0) {
+          // Nessun assessment selezionato
+          return res.json({
+            success: true,
+            data: [],
+            metadata: {
+              totalCount: 0,
+              currentPage: parseInt(page),
+              totalPages: 0,
+              limit: parseInt(limit),
+              hasNextPage: false,
+              hasPrevPage: false
+            }
+          });
+        }
+
+        // Carica solo i template selezionati
+        templates = await prisma.assessment_templates.findMany({
+          where: {
+            id: { in: selectedTemplateIds }
+          },
+          skip,
+          take: parseInt(limit),
+          include: {
+            assessment_questions: {
+              include: {
+                assessment_options: true
+              }
+            },
+            tenant_assessment_selections: {
+              where: {
+                tenant_id: tenantId,
+                isActive: true
+              }
+            }
+          },
+          orderBy: {
+            name: 'asc'
+          }
+        });
+
+        totalCount = selectedTemplateIds.length;
+      } else {
+        // MODO CATALOG: Carica TUTTI gli assessment (per il catalogo)
+        console.log('  Loading ALL assessments (catalog mode)');
+
+        const includeObj = {
+          assessment_questions: {
+            include: {
+              assessment_options: true
+            }
           }
         };
+
+        // Only add tenantSelections if tenantId is provided and valid
+        if (tenantId && tenantId !== 'null' && tenantId !== 'undefined') {
+          includeObj.tenant_assessment_selections = {
+            where: {
+              tenant_id: tenantId,
+              isActive: true
+            }
+          };
+        }
+
+        templates = await prisma.assessment_templates.findMany({
+          skip,
+          take: parseInt(limit),
+          include: includeObj,
+          orderBy: {
+            name: 'asc'
+          }
+        });
+
+        totalCount = await prisma.assessment_templates.count();
       }
 
-      // Recupera TUTTI i template dalla tabella assessment_templates
-      const templates = await prisma.assessment_templates.findMany({
-        // Non applico filtri per mostrare tutto il catalogo
-        skip,
-        take: parseInt(limit),
-        include: includeObj,
-        orderBy: {
-          name: 'asc'
+      // Collect all unique role IDs from all templates FIRST
+      const allRoleIds = new Set();
+      templates.forEach(template => {
+        if (template.suggestedRoles && Array.isArray(template.suggestedRoles)) {
+          template.suggestedRoles.forEach(role => {
+            const [id] = role.split(':');
+            const roleId = parseInt(id);
+            if (!isNaN(roleId)) {
+              allRoleIds.add(roleId);
+            }
+          });
         }
       });
 
-      // Conta totale per paginazione
-      const totalCount = await prisma.assessment_templates.count();
-
-      // Funzione helper per recuperare soft skills dai ruoli
-      const getRoleSoftSkills = async (suggestedRoles) => {
-        if (!suggestedRoles || suggestedRoles.length === 0) {
-          return [];
-        }
-
+      // Fetch ALL role soft skills in ONE query
+      let allRoleSkillsMap = new Map();
+      if (allRoleIds.size > 0) {
         try {
-          // Estrai gli ID dei ruoli dalle stringhe "id:name"
-          const roleIds = suggestedRoles.map(role => {
-            const [id] = role.split(':');
-            return parseInt(id);
-          }).filter(id => !isNaN(id));
-
-          if (roleIds.length === 0) {
-            return [];
-          }
-
-          // Recupera i soft skills per i ruoli
-          const roleSkills = await prisma.role_soft_skills.findMany({
+          const roleSkillsData = await prisma.role_soft_skills.findMany({
             where: {
-              roleId: { in: roleIds }
+              roleId: { in: Array.from(allRoleIds) }
             },
             include: {
               soft_skills: true,
@@ -302,37 +376,66 @@ class TenantSelectionController {
             }
           });
 
-          // Raggruppa i soft skills unici
-          const skillsMap = new Map();
-          roleSkills.forEach(rs => {
-            if (!skillsMap.has(rs.softSkillId)) {
-              skillsMap.set(rs.softSkillId, {
-                id: rs.softSkillId,
-                name: rs.soft_skills.name,
-                nameEn: rs.soft_skills.nameEn,
-                category: rs.soft_skills.category,
-                priority: rs.priority,
-                roles: [rs.roles.name]
+          // Build a map: roleId -> [skills]
+          roleSkillsData.forEach(rs => {
+            if (!allRoleSkillsMap.has(rs.roleId)) {
+              allRoleSkillsMap.set(rs.roleId, []);
+            }
+            allRoleSkillsMap.get(rs.roleId).push({
+              id: rs.softSkillId,
+              name: rs.soft_skills.name,
+              nameEn: rs.soft_skills.nameEn,
+              category: rs.soft_skills.category,
+              priority: rs.priority,
+              roleName: rs.roles.name
+            });
+          });
+        } catch (error) {
+          console.error('Error fetching role soft skills:', error);
+        }
+      }
+
+      // Helper function to get skills for a template (NO async DB calls)
+      const getRoleSoftSkills = (suggestedRoles) => {
+        if (!suggestedRoles || suggestedRoles.length === 0) {
+          return [];
+        }
+
+        const roleIds = suggestedRoles.map(role => {
+          const [id] = role.split(':');
+          return parseInt(id);
+        }).filter(id => !isNaN(id));
+
+        if (roleIds.length === 0) {
+          return [];
+        }
+
+        // Collect skills from pre-fetched data
+        const skillsMap = new Map();
+        roleIds.forEach(roleId => {
+          const roleSkills = allRoleSkillsMap.get(roleId) || [];
+          roleSkills.forEach(skill => {
+            if (!skillsMap.has(skill.id)) {
+              skillsMap.set(skill.id, {
+                ...skill,
+                roles: [skill.roleName]
               });
             } else {
-              const skill = skillsMap.get(rs.softSkillId);
-              skill.priority = Math.min(skill.priority, rs.priority);
-              if (!skill.roles.includes(rs.roles.name)) {
-                skill.roles.push(rs.roles.name);
+              const existing = skillsMap.get(skill.id);
+              existing.priority = Math.min(existing.priority, skill.priority);
+              if (!existing.roles.includes(skill.roleName)) {
+                existing.roles.push(skill.roleName);
               }
             }
           });
+        });
 
-          return Array.from(skillsMap.values()).sort((a, b) => a.priority - b.priority);
-        } catch (error) {
-          console.error('Error fetching role soft skills:', error);
-          return [];
-        }
+        return Array.from(skillsMap.values()).sort((a, b) => a.priority - b.priority);
       };
 
-      // Formatta la risposta con lo stato di selezione e soft skills
-      const assessmentsWithStatus = await Promise.all(templates.map(async template => {
-        const roleSoftSkills = await getRoleSoftSkills(template.suggestedRoles);
+      // Formatta la risposta con lo stato di selezione e soft skills (NO MORE async/await needed)
+      const assessmentsWithStatus = templates.map(template => {
+        const roleSoftSkills = getRoleSoftSkills(template.suggestedRoles);
 
         return {
           id: template.id,
@@ -358,7 +461,7 @@ class TenantSelectionController {
           createdBy: { email: template.createdBy || 'System' },
           version: template.version || 1
         };
-      }));
+      });
 
       res.json({
         success: true,

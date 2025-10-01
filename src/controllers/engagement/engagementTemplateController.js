@@ -51,6 +51,12 @@ const getTemplates = async (req, res) => {
     const isTenantOnly = tenant_only === 'true';
     const tenantId = req.user.tenantId || req.user.tenant_id;
 
+    console.log('DEBUG: getTemplates');
+    console.log('  req.user:', JSON.stringify(req.user, null, 2));
+    console.log('  tenantId:', tenantId);
+    console.log('  isCatalogView:', isCatalogView);
+    console.log('  isTenantOnly:', isTenantOnly);
+
     // If tenant_only is true, get only templates that belong to this tenant via selections
     if (isTenantOnly) {
       // Get template IDs from tenant_engagement_selections
@@ -88,9 +94,11 @@ const getTemplates = async (req, res) => {
           }
         });
       }
-    } else if (!isCatalogView && !isTenantOnly && req.user.role !== 'super_admin') {
+    } else if (!isCatalogView && !isTenantOnly && req.user.role !== 'super_admin' && req.user.role !== 'SUPER_ADMIN') {
       // Only apply tenant filter if NOT in tenant_only mode
-      where.tenant_id = tenantId;
+      if (tenantId) {
+        where.tenant_id = tenantId;
+      }
     }
 
     // Get templates and count from database

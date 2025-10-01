@@ -207,18 +207,18 @@ model departments {
 }
 
 model employee_roles {
-  id                               Int       @id @default(autoincrement())
-  employee_id                      Int
-  role_id                          Int
-  sub_role_id                      Int?
-  start_date                       DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
-  end_date                         DateTime? @db.Date
-  is_current                       Boolean?  @default(true)
-  created_at                       DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id                        String    @db.Uuid
-  anni_esperienza                  Int?      @default(0)
+  id                              Int       @id @default(autoincrement())
+  employee_id                     Int
+  role_id                         Int
+  sub_role_id                     Int?
+  start_date                      DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date                        DateTime? @db.Date
+  is_current                      Boolean?  @default(true)
+  created_at                      DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id                       String    @db.Uuid
   competenze_tecniche_trasversali Json?     @default("[]")
-  employees                        employees @relation(fields: [employee_id], references: [id])
+  anni_esperienza                 Int?      @default(0)
+  employees                       employees @relation(fields: [employee_id], references: [id])
 }
 
 model employee_skills {
@@ -252,14 +252,23 @@ model employees {
   created_at                      DateTime?                         @default(now()) @db.Timestamp(6)
   updated_at                      DateTime?                         @default(now()) @db.Timestamp(6)
   tenant_id                       String                            @db.Uuid
-  competenze_trasversali          Json?                             @default("[]")
   currentRoleId                   Int?
   lastAssessmentDate              DateTime?
   nextAssessmentDue               DateTime?
   softSkillProfileId              Int?
+  competenze_trasversali          Json?                             @default("[]")
   assessment_campaign_assignments assessment_campaign_assignments[]
   assessment_results              assessment_results[]
+  cv_extractions                  cv_extractions[]
+  employee_additional_info        employee_additional_info?
+  employee_awards                 employee_awards[]
+  employee_certifications         employee_certifications[]
+  employee_education              employee_education[]
+  employee_languages              employee_languages[]
+  employee_projects               employee_projects[]
+  employee_publications           employee_publications[]
   employee_roles                  employee_roles[]
+  employee_work_experiences       employee_work_experiences[]
   departments                     departments?                      @relation(fields: [department_id], references: [id])
   engagement_campaign_assignments engagement_campaign_assignments[]
   engagement_results              engagement_results[]
@@ -297,7 +306,7 @@ model extended_descriptions_roles {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model extended_descriptions_skills {
-  id                   Int?
+  id                   Int     @id
   Extended_Description String?
   Skill                String?
 
@@ -312,7 +321,7 @@ model extended_descriptions_sub_roles {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model extended_tech_skills_roles_descriptions_full {
-  id                        Int?
+  id                        Int      @id(map: "ext_full_pkey") @default(autoincrement())
   Skill                     String?
   Role                      String?
   Description_Code          Int?
@@ -330,6 +339,7 @@ model extended_tech_skills_roles_descriptions_full {
   Grading                   Float?
   Value                     Float?
 
+  @@unique([id_skill, id_role], map: "ext_full_skill_role_uq")
   @@ignore
 }
 
@@ -522,11 +532,23 @@ model skill_gaps {
 }
 
 model skills {
-  id                     Int                      @id
+  id                     Int                      @id @default(autoincrement())
   Skill                  String?
   NameKnown_Skill        String?
   Synonyms_Skill         String[]
+  tenant_id              String?                  @db.VarChar(255)
+  created_by             String?                  @db.VarChar(255)
+  is_active              Boolean?                 @default(true)
+  created_at             DateTime?                @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
+  tenants                tenants?                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   skills_sub_roles_value skills_sub_roles_value[]
+
+  @@unique([Skill, tenant_id], map: "unique_skill_per_tenant")
+  @@index([is_active], map: "idx_skills_active")
+  @@index([tenant_id, is_active, Skill], map: "idx_skills_composite")
+  @@index([Skill], map: "idx_skills_skill")
+  @@index([tenant_id], map: "idx_skills_tenant_id")
 }
 
 model soft_skills {
@@ -570,9 +592,9 @@ model sub_roles {
   Sub_Role               String?
   NameKnown_Sub_Role     String?
   Synonyms_Sub_Role      String[]
+  project_roles          project_roles[]
   role_sub_role          role_sub_role[]
   skills_sub_roles_value skills_sub_roles_value[]
-  project_roles          project_roles[]
 }
 
 model template_soft_skill_mappings {
@@ -711,42 +733,43 @@ model tenant_users {
 }
 
 model tenants {
-  id                  String             @id
-  slug                String?            @unique
-  name                String
-  companyName         String?
-  domain              String?
-  email               String             @unique
-  phone               String?
-  vat_number          String?
-  tax_code            String?
-  address_street      String?
-  address_city        String?
-  address_state       String?
-  address_zip         String?
-  address_country     String?
-  subscription_plan   String?            @default("basic")
-  subscription_status String?            @default("active")
-  max_employees       Int                @default(50)
-  is_active           Boolean            @default(true)
-  created_by          String?
-  updated_by          String?
-  address             String?
-  city                String?
-  country             String?
-  isActive            Boolean            @default(true)
-  is_deleted          Boolean            @default(false)
-  plan                String?            @default("free")
-  maxUsers            Int                @default(10)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime
-  logo                String?
-  tenant_api_keys     tenant_api_keys[]
-  tenant_audit_log    tenant_audit_log[]
-  tenant_billing      tenant_billing[]
-  tenant_features     tenant_features[]
-  tenant_users        tenant_users[]
+  id                    String                @id
+  slug                  String?               @unique
+  name                  String
+  companyName           String?
+  domain                String?
+  email                 String                @unique
+  phone                 String?
+  vat_number            String?
+  tax_code              String?
+  address_street        String?
+  address_city          String?
+  address_state         String?
+  address_zip           String?
+  address_country       String?
+  subscription_plan     String?               @default("basic")
+  subscription_status   String?               @default("active")
+  max_employees         Int                   @default(50)
+  is_active             Boolean               @default(true)
+  created_by            String?
+  updated_by            String?
+  address               String?
+  city                  String?
+  country               String?
+  isActive              Boolean               @default(true)
+  is_deleted            Boolean               @default(false)
+  plan                  String?               @default("free")
+  maxUsers              Int                   @default(10)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime
+  logo                  String?
+  skills                skills[]
+  tenant_api_keys       tenant_api_keys[]
+  tenant_audit_log      tenant_audit_log[]
+  tenant_billing        tenant_billing[]
   tenant_certifications TenantCertification[]
+  tenant_features       tenant_features[]
+  tenant_users          tenant_users[]
 }
 
 model training_plans {
@@ -1107,69 +1130,6 @@ model assessment_results {
   @@index([campaign_id])
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model assessment_campaign_assignments_backup_20250925 {
-  id               String?
-  campaign_id      String?
-  employee_id      String?
-  status           String?
-  assigned_at      DateTime?
-  assigned_by      String?
-  started_at       DateTime?
-  completed_at     DateTime?
-  expired_at       DateTime?
-  current_attempt  Int?
-  total_attempts   Int?
-  progress_percent Float?
-  time_spent       Int?
-  score            Float?
-  result_id        String?
-
-  @@index([id], map: "idx_assessment_backup_id")
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model assessment_results_backup_20250925 {
-  id              String?
-  campaign_id     String?
-  employee_id     String?
-  assignment_id   String?
-  responses       Json?
-  scores          Json?
-  overall_score   Float?
-  percentile      Float?
-  strengths       Json?
-  improvements    Json?
-  recommendations Json?
-  completed_at    DateTime?
-  time_taken      Int?
-  attempt_number  Int?
-
-  @@index([id], map: "idx_results_backup_id")
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model engagement_campaign_assignments_backup_20250925 {
-  id               String?
-  campaign_id      String?
-  employee_id      String?
-  assigned_at      DateTime?
-  assigned_by      String?
-  status           String?
-  started_at       DateTime?
-  completed_at     DateTime?
-  completion_rate  Float?
-  last_accessed_at DateTime?
-  reminder_count   Int?
-  last_reminder_at DateTime?
-  notes            String?
-
-  @@index([id], map: "idx_engagement_backup_id")
-  @@ignore
-}
-
 model migration_log {
   id            Int       @id @default(autoincrement())
   step          String?   @db.VarChar(100)
@@ -1272,7 +1232,6 @@ model project_roles {
   preferred_certifications   String[]                   @db.VarChar(255)
   competencies               Json?
   preferences                Json?
-  role_id                    Int?
   sub_role_id                Int?
   min_experience_years       Int?                       @default(0)
   preferred_experience_years Int?
@@ -1293,9 +1252,10 @@ model project_roles {
   status                     String?                    @default("OPEN") @db.VarChar(50)
   created_at                 DateTime?                  @default(now()) @db.Timestamp(6)
   updated_at                 DateTime?                  @default(now()) @db.Timestamp(6)
+  role_id                    Int?
   project_matching_results   project_matching_results[]
   projects                   projects                   @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  sub_role                   sub_roles?                 @relation(fields: [sub_role_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  sub_role                   sub_roles?                 @relation(fields: [sub_role_id], references: [id], onUpdate: NoAction)
 
   @@index([competencies], map: "idx_project_roles_competencies", type: Gin)
   @@index([hard_skills], map: "idx_project_roles_hard_skills", type: Gin)
@@ -1306,6 +1266,318 @@ model project_roles {
   @@index([seniority], map: "idx_project_roles_seniority")
   @@index([status], map: "idx_project_roles_status")
   @@index([sub_role_id], map: "idx_project_roles_sub_role_id")
+}
+
+model Certification {
+  id                        String                    @id @default(uuid())
+  code                      String                    @unique
+  name                      String
+  category                  String                    @db.VarChar(100)
+  level                     CertificationLevel?
+  provider                  String?
+  description               String?
+  url                       String?
+  validity_years            Int?                      @map("validity_years")
+  is_active                 Boolean                   @default(true)
+  created_at                DateTime                  @default(now())
+  updated_at                DateTime                  @updatedAt
+  created_by                Int?
+  normalized_name           String?                   @unique(map: "idx_certifications_normalized_name") @db.VarChar(255)
+  issuing_organization      String?                   @db.VarChar(255)
+  standard_duration_months  Int?
+  is_renewable              Boolean?                  @default(true)
+  verification_url_template String?
+  employee_certifications   employee_certifications[]
+  tenant_certifications     TenantCertification[]
+
+  @@index([category])
+  @@index([is_active])
+  @@index([name])
+  @@index([category], map: "idx_certifications_category")
+  @@index([issuing_organization], map: "idx_certifications_issuing_org")
+  @@map("certifications")
+}
+
+model TenantCertification {
+  id               String        @id @default(uuid())
+  tenant_id        String
+  certification_id String
+  custom_name      String?
+  is_required      Boolean       @default(false)
+  priority         Int           @default(0)
+  notes            String?
+  created_at       DateTime      @default(now())
+  certification    Certification @relation(fields: [certification_id], references: [id])
+  tenant           tenants       @relation(fields: [tenant_id], references: [id])
+
+  @@unique([tenant_id, certification_id])
+  @@map("tenant_certifications")
+}
+
+model companies {
+  id                        Int                         @id @default(autoincrement())
+  name                      String                      @db.VarChar(200)
+  normalized_name           String?                     @unique @db.VarChar(200)
+  industry_id               Int?
+  website                   String?
+  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  industries                industries?                 @relation(fields: [industry_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employee_work_experiences employee_work_experiences[]
+
+  @@index([industry_id], map: "idx_companies_industry")
+  @@index([normalized_name], map: "idx_companies_normalized_name")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model cv_extractions {
+  id                        String                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tenant_id                 String                      @db.Uuid
+  employee_id               Int
+  original_filename         String?                     @db.VarChar(500)
+  original_file_path        String?
+  file_size_bytes           BigInt?
+  file_type                 String?                     @db.VarChar(50)
+  extraction_result         Json?
+  status                    String?                     @default("pending") @db.VarChar(50)
+  error_message             String?
+  processing_time_seconds   Float?
+  llm_model_used            String?                     @db.VarChar(100)
+  llm_tokens_used           Int?
+  deleted_at                DateTime?                   @db.Timestamp(6)
+  deleted_by                String?
+  created_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  updated_at                DateTime?                   @default(now()) @db.Timestamp(6)
+  updated_by                String?
+  employees                 employees                   @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  employee_additional_info  employee_additional_info[]
+  employee_awards           employee_awards[]
+  employee_certifications   employee_certifications[]
+  employee_education        employee_education[]
+  employee_languages        employee_languages[]
+  employee_projects         employee_projects[]
+  employee_publications     employee_publications[]
+  employee_work_experiences employee_work_experiences[]
+
+  @@index([extraction_result], map: "idx_cv_extractions_result_gin", type: Gin)
+}
+
+model education_degrees {
+  id                     Int                  @id @default(autoincrement())
+  degree_type            String               @unique @db.VarChar(100)
+  degree_level           Int
+  italian_equivalent     String?              @db.VarChar(100)
+  description            String?
+  typical_duration_years Int?
+  created_at             DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?            @default(now()) @db.Timestamp(6)
+  employee_education     employee_education[]
+}
+
+model employee_additional_info {
+  id                   String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id          Int             @unique
+  date_of_birth        DateTime?       @db.Date
+  place_of_birth       String?         @db.VarChar(200)
+  nationality          String?         @db.VarChar(100)
+  marital_status       String?         @db.VarChar(50)
+  personal_email       String?         @db.VarChar(200)
+  personal_phone       String?         @db.VarChar(50)
+  linkedin_url         String?
+  github_url           String?
+  portfolio_url        String?
+  hobbies_interests    String[]
+  volunteer_experience String?
+  cv_extraction_id     String?         @db.Uuid
+  created_at           DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at           DateTime?       @default(now()) @db.Timestamp(6)
+  cv_extractions       cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees            employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_employee_additional_info_employee")
+}
+
+model employee_awards {
+  id                   String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id          Int
+  award_name           String          @db.VarChar(300)
+  issuing_organization String          @db.VarChar(200)
+  date_received        DateTime?       @db.Date
+  description          String?
+  cv_extraction_id     String?         @db.Uuid
+  created_at           DateTime?       @default(now()) @db.Timestamp(6)
+  cv_extractions       cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees            employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_employee_awards_employee")
+}
+
+model employee_certifications {
+  id                   String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id          Int
+  certification_id     String?
+  certification_name   String          @db.VarChar(300)
+  issuing_organization String?         @db.VarChar(200)
+  issue_date           DateTime?       @db.Date
+  expiry_date          DateTime?       @db.Date
+  is_active            Boolean?        @default(true)
+  credential_id        String?         @db.VarChar(200)
+  credential_url       String?
+  cv_extraction_id     String?         @db.Uuid
+  created_at           DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at           DateTime?       @default(now()) @db.Timestamp(6)
+  certifications       Certification?  @relation(fields: [certification_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cv_extractions       cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees            employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_employee_certifications_employee")
+}
+
+model employee_education {
+  id                   String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id          Int
+  degree_id            Int?
+  degree_name          String             @db.VarChar(200)
+  field_of_study       String?            @db.VarChar(200)
+  institution_name     String             @db.VarChar(200)
+  institution_location String?            @db.VarChar(200)
+  start_date           DateTime?          @db.Date
+  end_date             DateTime?          @db.Date
+  is_current           Boolean?           @default(false)
+  grade                String?            @db.VarChar(50)
+  honors               String?
+  thesis_title         String?
+  cv_extraction_id     String?            @db.Uuid
+  created_at           DateTime?          @default(now()) @db.Timestamp(6)
+  updated_at           DateTime?          @default(now()) @db.Timestamp(6)
+  cv_extractions       cv_extractions?    @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  education_degrees    education_degrees? @relation(fields: [degree_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees            employees          @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_employee_education_employee")
+}
+
+model employee_languages {
+  id                          String                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id                 Int
+  language_id                 Int
+  proficiency_level_id        Int?
+  listening_level             String?                      @db.VarChar(10)
+  reading_level               String?                      @db.VarChar(10)
+  spoken_interaction_level    String?                      @db.VarChar(10)
+  spoken_production_level     String?                      @db.VarChar(10)
+  writing_level               String?                      @db.VarChar(10)
+  is_native                   Boolean?                     @default(false)
+  cv_extraction_id            String?                      @db.Uuid
+  created_at                  DateTime?                    @default(now()) @db.Timestamp(6)
+  updated_at                  DateTime?                    @default(now()) @db.Timestamp(6)
+  cv_extractions              cv_extractions?              @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees                   employees                    @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  languages                   languages                    @relation(fields: [language_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  language_proficiency_levels language_proficiency_levels? @relation(fields: [proficiency_level_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([employee_id, language_id])
+  @@index([employee_id], map: "idx_employee_languages_employee")
+  @@index([language_id], map: "idx_employee_languages_language")
+}
+
+model employee_projects {
+  id                String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id       Int
+  project_name      String          @db.VarChar(200)
+  description       String
+  start_date        DateTime?       @db.Date
+  end_date          DateTime?       @db.Date
+  is_current        Boolean?        @default(false)
+  role              String?         @db.VarChar(100)
+  technologies_used String[]
+  project_url       String?
+  cv_extraction_id  String?         @db.Uuid
+  created_at        DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?       @default(now()) @db.Timestamp(6)
+  cv_extractions    cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees         employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_employee_projects_employee")
+}
+
+model employee_publications {
+  id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id      Int
+  title            String
+  authors          Json
+  publication_type String?         @db.VarChar(100)
+  venue            String?         @db.VarChar(300)
+  publication_date DateTime?       @db.Date
+  doi              String?         @db.VarChar(200)
+  isbn             String?         @db.VarChar(50)
+  url              String?
+  abstract         String?
+  keywords         String[]
+  cv_extraction_id String?         @db.Uuid
+  created_at       DateTime?       @default(now()) @db.Timestamp(6)
+  cv_extractions   cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees        employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_employee_publications_employee")
+}
+
+model employee_work_experiences {
+  id               String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  employee_id      Int
+  company_id       Int?
+  company_name     String          @db.VarChar(200)
+  company_location String?         @db.VarChar(200)
+  company_industry String?         @db.VarChar(100)
+  job_title        String          @db.VarChar(200)
+  employment_type  String?         @db.VarChar(50)
+  seniority_level  String?         @db.VarChar(50)
+  start_date       DateTime?       @db.Date
+  end_date         DateTime?       @db.Date
+  is_current       Boolean?        @default(false)
+  description      String?
+  responsibilities String[]
+  achievements     String[]
+  projects         Json?
+  skills_used      String[]
+  cv_extraction_id String?         @db.Uuid
+  created_at       DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?       @default(now()) @db.Timestamp(6)
+  companies        companies?      @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  cv_extractions   cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees        employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([employee_id], map: "idx_employee_work_experiences_employee")
+}
+
+model industries {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique @db.VarChar(100)
+  sector     String?     @db.VarChar(100)
+  created_at DateTime?   @default(now()) @db.Timestamp(6)
+  updated_at DateTime?   @default(now()) @db.Timestamp(6)
+  companies  companies[]
+}
+
+model language_proficiency_levels {
+  id                 Int                  @id @default(autoincrement())
+  level              String               @unique @db.VarChar(50)
+  cefr_code          String               @unique @db.VarChar(10)
+  description        String?
+  numeric_value      Int                  @unique
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?            @default(now()) @db.Timestamp(6)
+  employee_languages employee_languages[]
+}
+
+model languages {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @unique @db.VarChar(100)
+  iso_code_639_1     String?              @db.VarChar(2)
+  iso_code_639_3     String?              @db.VarChar(3)
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at         DateTime?            @default(now()) @db.Timestamp(6)
+  employee_languages employee_languages[]
 }
 
 enum ScheduleStatus {
@@ -1323,33 +1595,6 @@ enum Trend {
   DECLINING
 }
 
-// ========================================
-// CERTIFICATIONS MANAGEMENT
-// ========================================
-
-model Certification {
-  id            String                    @id @default(uuid())
-  code          String                    @unique
-  name          String
-  category      CertificationCategory
-  level         CertificationLevel?
-  provider      String?
-  description   String?
-  url           String?
-  validity_years Int?                     @map("validity_years")
-  is_active     Boolean                  @default(true)
-  created_at    DateTime                 @default(now())
-  updated_at    DateTime                 @updatedAt
-  created_by    Int?
-
-  tenant_certifications TenantCertification[]
-
-  @@index([category])
-  @@index([is_active])
-  @@index([name])
-  @@map("certifications")
-}
-
 enum CertificationCategory {
   CLOUD
   PROJECT
@@ -1365,21 +1610,4 @@ enum CertificationLevel {
   ASSOCIATE
   PROFESSIONAL
   EXPERT
-}
-
-model TenantCertification {
-  id              String        @id @default(uuid())
-  tenant_id       String
-  certification_id String
-  custom_name     String?
-  is_required     Boolean       @default(false)
-  priority        Int           @default(0)
-  notes           String?
-  created_at      DateTime      @default(now())
-
-  tenant          tenants       @relation(fields: [tenant_id], references: [id])
-  certification   Certification @relation(fields: [certification_id], references: [id])
-
-  @@unique([tenant_id, certification_id])
-  @@map("tenant_certifications")
 }

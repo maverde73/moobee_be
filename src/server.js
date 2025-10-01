@@ -14,6 +14,8 @@ const unifiedAuthRoutes = require('./routes/unifiedAuthRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const assessmentRoutes = require('./routes/assessmentRoutes');
 const engagementRoutes = require('./routes/engagementRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+const cvRoutes = require('./routes/cvRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -174,6 +176,12 @@ app.use('/api/assessments/analytics', analyticsRoutes);
 // Engagement routes
 app.use('/api/engagement', engagementRoutes);
 
+// AI routes (integration with Python backend)
+app.use('/api/ai', aiRoutes);
+
+// CV Extractor routes
+app.use('/api/cv', cvRoutes);
+
 // Campaign routes
 const campaignRoutes = require('./routes/campaignRoutes');
 app.use('/api/engagement', campaignRoutes);
@@ -214,6 +222,10 @@ app.use('/api', matchingRoutes);
 // Certification routes
 const certificationRoutes = require('./routes/certificationRoutes');
 app.use('/api/certifications', certificationRoutes);
+
+// Skills routes
+const skillsRoutes = require('./routes/skillsRoutes');
+app.use('/api/skills', skillsRoutes);
 
 // 404 handler
 app.use((req, res) => {
