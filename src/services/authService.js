@@ -55,9 +55,7 @@ class AuthService {
       where: { email },
       include: {
         departments: true,
-        employee_roles: {
-          where: { is_current: true }
-        }
+        employee_roles: true
       }
     });
 
@@ -120,9 +118,7 @@ class AuthService {
         where: { id: decoded.id },
         include: {
           departments: true,
-          employee_roles: {
-            where: { is_current: true }
-          }
+          employee_roles: true
         }
       });
 

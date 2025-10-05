@@ -28,6 +28,9 @@ class AssessmentAIController {
         suggestedRoles,
         description,
         name,
+        // NEW: Job Family parameters
+        job_family_id,
+        selected_soft_skill_ids,
         // AI configuration parameters
         provider,
         model,
@@ -42,6 +45,16 @@ class AssessmentAIController {
         });
       }
 
+      // NEW: Validate job family parameters
+      if (job_family_id) {
+        if (!selected_soft_skill_ids || !Array.isArray(selected_soft_skill_ids) || selected_soft_skill_ids.length === 0) {
+          return res.status(400).json({
+            success: false,
+            error: 'selected_soft_skill_ids array is required when using job_family_id'
+          });
+        }
+      }
+
       // Normalize type: convert big_five to big-five for compatibility
       if (type === 'big_five') {
         type = 'big-five';
@@ -50,13 +63,89 @@ class AssessmentAIController {
       console.log('Generating questions for assessment:', {
         type,
         name,
-        count, // Added count to log
+        count,
         rolesCount: suggestedRoles ? suggestedRoles.length : 0,
+        jobFamilyId: job_family_id || null,
+        selectedSoftSkillsCount: selected_soft_skill_ids ? selected_soft_skill_ids.length : 0,
         language,
         provider: provider || 'default',
         model: model || 'default',
         hasCustomization: !!customization
       });
+
+      // NEW: Load job family soft skills if job_family_id provided
+      let jobFamilyContext = null;
+      if (job_family_id && selected_soft_skill_ids) {
+        const jobFamilyData = await prisma.job_family_soft_skills.findMany({
+          where: {
+            job_family_id: parseInt(job_family_id),
+            soft_skill_id: { in: selected_soft_skill_ids.map(id => parseInt(id)) }
+          },
+          include: {
+            job_family: {
+              select: {
+                id: true,
+                name: true,
+                description: true
+              }
+            },
+            soft_skills: {
+              select: {
+                id: true,
+                name: true,
+                nameEn: true,
+                description: true,
+                category: true
+              }
+            }
+          },
+          orderBy: { priority: 'asc' }
+        });
+
+        if (jobFamilyData.length === 0) {
+          return res.status(404).json({
+            success: false,
+            error: 'No soft skills found for the selected job family and skill IDs'
+          });
+        }
+
+        const jobFamily = jobFamilyData[0].job_family;
+
+        // Build soft skills text for AI prompt
+        const softSkillsText = jobFamilyData.map((mapping, idx) => {
+          const required = mapping.is_required ? 'obbligatoria' : 'opzionale';
+          return `${idx + 1}. ${mapping.soft_skills.name} (${required}, weight: ${mapping.weight}, target: ${mapping.target_score}/5)
+   - Descrizione: ${mapping.description || mapping.soft_skills.description}
+   - Score minimo: ${mapping.min_score}/5
+   - Priorità: ${mapping.priority}`;
+        }).join('\n\n');
+
+        // Build job family context for AI
+        jobFamilyContext = `Job Family: "${jobFamily.name}"
+Descrizione: ${jobFamily.description || 'N/A'}
+
+Soft Skills da valutare (selezionate dall'utente, in ordine di priorità):
+${softSkillsText}
+
+IMPORTANTE:
+- Distribuisci le ${count} domande proporzionalmente ai weights delle soft skills
+- Copri TUTTE le soft skills selezionate
+- NON includere domande per soft skills non elencate sopra
+- Ogni domanda deve mappare chiaramente a una soft skill specifica`;
+
+        // Use job family context as customization if not already provided
+        if (!customization) {
+          customization = jobFamilyContext;
+        } else {
+          customization = jobFamilyContext + '\n\n' + customization;
+        }
+
+        console.log('✅ Job family context built:', {
+          jobFamilyName: jobFamily.name,
+          softSkillsCount: jobFamilyData.length,
+          contextLength: jobFamilyContext.length
+        });
+      }
 
       // Check if custom configuration is provided
       let questions;
@@ -108,7 +197,8 @@ class AssessmentAIController {
         type,
         customization || description || '',
         count,
-        req.body.roleSoftSkills || null
+        req.body.roleSoftSkills || null,
+        language  // Pass the language parameter to the prompt
       );
 
       // Get AI configuration used (either custom or default)

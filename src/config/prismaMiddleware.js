@@ -11,11 +11,10 @@ function setupPrismaMiddleware(prisma) {
       'assessmentTemplate',
       'assessmentQuestion',
       'assessmentOption',
-      'assessment_template_roles',
       'assessment_generation_logs',
       'tenant_assessment_selections',
       'question_soft_skill_mappings',
-      'template_soft_skill_mappings'
+      'assessment_template_soft_skill'
     ];
 
     // Se il modello usa ID integer

@@ -23,11 +23,7 @@ router.get('/personal', authenticateTenantUser, async (req, res) => {
       include: {
         departments: true, // Fixed relation name
         // employee_skills: true, // This table might not exist, comment for now
-        employee_roles: {
-          where: {
-            is_current: true
-          }
-        },
+        employee_roles: true, // Removed 'is_current' filter (field removed in Migration 014)
         // Temporarily comment out problematic relations
         // project_assignments: {
         //   where: {

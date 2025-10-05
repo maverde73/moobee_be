@@ -172,9 +172,7 @@ class MatchingController {
             skills: true
           }
         },
-        employee_roles: {
-          where: { is_current: true }
-        },
+        employee_roles: true,
         project_assignments: {
           where: {
             OR: [

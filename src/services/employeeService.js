@@ -190,9 +190,7 @@ class EmployeeService {
             }
           },
           departments_employees_department_idTodepartments: true,
-          employee_roles: {
-            where: { is_current: true }
-          }
+          employee_roles: true
         }
       });
     } catch (error) {

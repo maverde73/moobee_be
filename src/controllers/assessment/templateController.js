@@ -73,8 +73,7 @@ class TemplateController {
           duration: template.type === 'BIG_FIVE' ? 30 :
                    template.type === 'DISC' ? 25 :
                    template.type === 'BELBIN' ? 20 : 15,
-          targetRoles: template.suggestedRoles || [],
-          skills: template.targetSoftSkillIds || []
+          job_family_id: template.job_family_id || null
         },
         version: template.version || 1,
         createdBy: { email: template.createdBy || 'System' },
@@ -85,7 +84,7 @@ class TemplateController {
         // AI config defaults
         aiProvider: template.aiProvider || 'openai',
         aiModel: template.aiModel || 'gpt-4-turbo',
-        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? template.aiTemperature : 0.7,
+        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? (typeof template.aiTemperature === 'number' ? template.aiTemperature : parseFloat(template.aiTemperature)) : 0.7,
         aiMaxTokens: template.aiMaxTokens || 4000,
         aiLanguage: template.aiLanguage || 'it'
       }));
@@ -129,47 +128,33 @@ class TemplateController {
           assessment_questions: {
             orderBy: { order: 'asc' },
             include: { assessment_options: { orderBy: { orderIndex: 'asc' } } }
+          },
+          assessment_template_soft_skill: {
+            include: {
+              soft_skills: true
+            }
+          },
+          job_family: {
+            include: {
+              job_family_soft_skills: {
+                include: {
+                  soft_skills: true
+                },
+                orderBy: { priority: 'asc' }
+              }
+            }
           }
         }
       });
 
-      // Get soft skills for suggested roles if they exist
-      let roleSoftSkills = [];
-      if (template && template.suggestedRoles && template.suggestedRoles.length > 0) {
-        // Extract role IDs from suggestedRoles array
-        const roleIds = template.suggestedRoles
-          .map(role => {
-            if (typeof role === 'string' && role.includes(':')) {
-              return parseInt(role.split(':')[0]);
-            }
-            return null;
-          })
-          .filter(id => id !== null);
-
-        if (roleIds.length > 0) {
-          // Fetch roles with their associated soft skills
-          const roles = await prisma.roles.findMany({
-            where: {
-              id: { in: roleIds }
-            },
-            include: {
-              role_soft_skills: {
-                include: {
-                  soft_skills: true
-                }
-              }
-            }
-          });
-
-          // Create a map of soft skills by role
-          roleSoftSkills = roles.map(role => ({
-            roleId: role.id,
-            roleName: role.name,
-            softSkills: role.role_soft_skills
-              .map(rs => rs.soft_skills?.name)
-              .filter(Boolean)
-          }));
-        }
+      // Get selected soft skills from assessment_template_soft_skill
+      let selectedSoftSkills = [];
+      if (template && template.assessment_template_soft_skill) {
+        selectedSoftSkills = template.assessment_template_soft_skill.map(mapping => ({
+          id: mapping.soft_skills.id,
+          name: mapping.soft_skills.name,
+          category: mapping.soft_skills.category
+        }));
       }
 
       if (!template) {
@@ -193,10 +178,11 @@ class TemplateController {
             value: opt.value
           }))
         })), // Add alias for frontend compatibility
-        roleSoftSkills: roleSoftSkills, // Add soft skills for each role
+        selected_soft_skill_ids: selectedSoftSkills.map(s => s.id), // IDs of selected soft skills
+        selectedSoftSkills: selectedSoftSkills, // Full soft skill objects
         aiProvider: template.aiProvider || 'openai',
         aiModel: template.aiModel || 'gpt-4-turbo',
-        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? template.aiTemperature : 0.7,
+        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? (typeof template.aiTemperature === 'number' ? template.aiTemperature : parseFloat(template.aiTemperature)) : 0.7,
         aiMaxTokens: template.aiMaxTokens || 4000,
         aiLanguage: template.aiLanguage || 'it'
       };
@@ -215,7 +201,18 @@ class TemplateController {
    */
   async createTemplate(req, res) {
     try {
+      // Debug log to check what's being received
+      console.log('🔍 CREATE TEMPLATE REQUEST BODY:', JSON.stringify({
+        jobFamilyId: req.body.jobFamilyId,
+        job_family_id: req.body.job_family_id,
+        selectedSoftSkillIds: req.body.selectedSoftSkillIds,
+        selected_soft_skill_ids: req.body.selected_soft_skill_ids,
+        name: req.body.name
+      }, null, 2));
+
       const templateData = this._prepareTemplateData(req.body);
+      console.log('📦 PREPARED TEMPLATE DATA:', JSON.stringify(templateData, null, 2));
+
       const questionsData = req.body.questions || [];
 
       const template = await prisma.assessment_templates.create({
@@ -248,12 +245,28 @@ class TemplateController {
         }
       });
 
+      // Save selected soft skills in assessment_template_soft_skill
+      // Support both snake_case and camelCase
+      const selectedSoftSkillIds = req.body.selected_soft_skill_ids || req.body.selectedSoftSkillIds;
+      if (selectedSoftSkillIds && Array.isArray(selectedSoftSkillIds) && selectedSoftSkillIds.length > 0) {
+        const softSkillMappings = selectedSoftSkillIds.map(skillId => ({
+          templateId: template.id,
+          softSkillId: parseInt(skillId, 10),
+          questionMappings: {}, // Empty for now, can be populated later
+          updatedAt: new Date()
+        }));
+
+        await prisma.assessment_template_soft_skill.createMany({
+          data: softSkillMappings
+        });
+      }
+
       // Ensure template has AI config defaults in response
       const templateWithDefaults = {
         ...template,
         aiProvider: template.aiProvider || 'openai',
         aiModel: template.aiModel || 'gpt-4-turbo',
-        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? template.aiTemperature : 0.7,
+        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? (typeof template.aiTemperature === 'number' ? template.aiTemperature : parseFloat(template.aiTemperature)) : 0.7,
         aiMaxTokens: template.aiMaxTokens || 4000,
         aiLanguage: template.aiLanguage || 'it'
       };
@@ -286,12 +299,36 @@ class TemplateController {
         }
       });
 
+      // Update selected soft skills in assessment_template_soft_skill
+      // Support both snake_case and camelCase
+      const selectedSoftSkillIds = req.body.selected_soft_skill_ids || req.body.selectedSoftSkillIds;
+      if (selectedSoftSkillIds !== undefined) {
+        // Delete existing mappings
+        await prisma.assessment_template_soft_skill.deleteMany({
+          where: { templateId: template.id }
+        });
+
+        // Create new mappings if soft skills are selected
+        if (Array.isArray(selectedSoftSkillIds) && selectedSoftSkillIds.length > 0) {
+          const softSkillMappings = selectedSoftSkillIds.map(skillId => ({
+            templateId: template.id,
+            softSkillId: parseInt(skillId, 10),
+            questionMappings: {}, // Empty for now, can be populated later
+            updatedAt: new Date()
+          }));
+
+          await prisma.assessment_template_soft_skill.createMany({
+            data: softSkillMappings
+          });
+        }
+      }
+
       // Ensure template has AI config defaults in response
       const templateWithDefaults = {
         ...template,
         aiProvider: template.aiProvider || 'openai',
         aiModel: template.aiModel || 'gpt-4-turbo',
-        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? template.aiTemperature : 0.7,
+        aiTemperature: template.aiTemperature !== null && template.aiTemperature !== undefined ? (typeof template.aiTemperature === 'number' ? template.aiTemperature : parseFloat(template.aiTemperature)) : 0.7,
         aiMaxTokens: template.aiMaxTokens || 4000,
         aiLanguage: template.aiLanguage || 'it'
       };
@@ -332,13 +369,6 @@ class TemplateController {
 
         // Poi elimina le domande
         await tx.assessment_questions.deleteMany({
-          where: {
-            templateId: templateId
-          }
-        });
-
-        // Elimina le relazioni con i ruoli
-        await tx.assessment_template_roles.deleteMany({
           where: {
             templateId: templateId
           }
@@ -388,7 +418,8 @@ class TemplateController {
         include: {
           assessment_questions: {
             include: { assessment_options: true }
-          }
+          },
+          assessment_template_soft_skill: true
         }
       });
 
@@ -407,10 +438,10 @@ class TemplateController {
           type: original.type,
           description: original.description,
           instructions: original.instructions,
-          suggestedRoles: original.suggestedRoles,
           suggestedFrequency: original.suggestedFrequency,
           aiPrompt: original.aiPrompt,
           aiModel: original.aiModel,
+          job_family_id: original.job_family_id,
           isActive: false,
           assessment_questions: {
             create: original.assessment_questions.map(q => ({
@@ -437,6 +468,20 @@ class TemplateController {
         }
       });
 
+      // Duplicate soft skill mappings
+      if (original.assessment_template_soft_skill && original.assessment_template_soft_skill.length > 0) {
+        const softSkillMappings = original.assessment_template_soft_skill.map(mapping => ({
+          templateId: duplicate.id,
+          softSkillId: mapping.softSkillId,
+          questionMappings: mapping.questionMappings,
+          updatedAt: new Date()
+        }));
+
+        await prisma.assessment_template_soft_skill.createMany({
+          data: softSkillMappings
+        });
+      }
+
       res.status(201).json({ success: true, data: duplicate });
     } catch (error) {
       res.status(500).json({
@@ -455,7 +500,6 @@ class TemplateController {
       type,
       description,
       instructions,
-      suggestedRoles,
       suggestedFrequency,
       aiPrompt,
       aiModel,
@@ -463,7 +507,9 @@ class TemplateController {
       aiTemperature,
       aiMaxTokens,
       aiLanguage,
-      isActive
+      isActive,
+      job_family_id,
+      jobFamilyId  // Support camelCase from frontend
     } = body;
 
     const data = {};
@@ -472,11 +518,6 @@ class TemplateController {
     if (type !== undefined) data.type = type;
     if (description !== undefined) data.description = description;
     if (instructions !== undefined) data.instructions = instructions;
-    if (suggestedRoles !== undefined) {
-      data.suggestedRoles = Array.isArray(suggestedRoles)
-        ? suggestedRoles
-        : [];
-    }
     if (suggestedFrequency !== undefined) data.suggestedFrequency = suggestedFrequency;
     if (aiPrompt !== undefined) data.aiPrompt = aiPrompt;
     if (aiModel !== undefined) data.aiModel = aiModel;
@@ -485,6 +526,12 @@ class TemplateController {
     if (aiMaxTokens !== undefined) data.aiMaxTokens = aiMaxTokens;
     if (aiLanguage !== undefined) data.aiLanguage = aiLanguage;
     if (isActive !== undefined) data.isActive = isActive;
+
+    // Job Family integration - support both snake_case and camelCase
+    const jobFamilyValue = job_family_id !== undefined ? job_family_id : jobFamilyId;
+    if (jobFamilyValue !== undefined) {
+      data.job_family_id = jobFamilyValue ? parseInt(jobFamilyValue, 10) : null;
+    }
 
     return data;
   }

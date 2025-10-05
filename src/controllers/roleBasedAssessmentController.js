@@ -192,11 +192,7 @@ const getEmployeeRoleSkillsAssessment = async (req, res) => {
     const employee = await prisma.employees.findUnique({
       where: { id: parseInt(employeeId) },
       include: {
-        employee_roles: {
-          where: {
-            is_current: true
-          }
-        }
+        employee_roles: true
       }
     });
 
@@ -408,9 +404,7 @@ const getSoftSkillsDashboard = async (req, res) => {
     const employee = await prisma.employees.findUnique({
       where: { id: parseInt(employeeId) },
       include: {
-        employee_roles: {
-          where: { is_current: true }
-        }
+        employee_roles: true
       }
     });
 

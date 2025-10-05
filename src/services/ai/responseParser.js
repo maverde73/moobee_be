@@ -9,6 +9,18 @@
  * @class ResponseParser
  */
 class ResponseParser {
+  constructor() {
+    // Store language for default options
+    this.currentLanguage = 'it';
+  }
+
+  /**
+   * Set the language for default options
+   * @param {string} language - Language code (it, en, es, fr, de)
+   */
+  setLanguage(language) {
+    this.currentLanguage = language || 'it';
+  }
   /**
    * Parsa la risposta AI per estrarre le domande
    * @param {string} response - Risposta AI grezza
@@ -198,13 +210,45 @@ class ResponseParser {
    * @returns {Array} Opzioni di default
    */
   generateDefaultOptions() {
-    return [
-      { text: "Fortemente in disaccordo", value: 1, isCorrect: false },
-      { text: "In disaccordo", value: 2, isCorrect: false },
-      { text: "Neutrale", value: 3, isCorrect: false },
-      { text: "D'accordo", value: 4, isCorrect: false },
-      { text: "Fortemente d'accordo", value: 5, isCorrect: false }
-    ];
+    const optionsByLanguage = {
+      it: [
+        { text: "Fortemente in disaccordo", value: 1, isCorrect: false },
+        { text: "In disaccordo", value: 2, isCorrect: false },
+        { text: "Neutrale", value: 3, isCorrect: false },
+        { text: "D'accordo", value: 4, isCorrect: false },
+        { text: "Fortemente d'accordo", value: 5, isCorrect: false }
+      ],
+      en: [
+        { text: "Strongly Disagree", value: 1, isCorrect: false },
+        { text: "Disagree", value: 2, isCorrect: false },
+        { text: "Neutral", value: 3, isCorrect: false },
+        { text: "Agree", value: 4, isCorrect: false },
+        { text: "Strongly Agree", value: 5, isCorrect: false }
+      ],
+      es: [
+        { text: "Totalmente en desacuerdo", value: 1, isCorrect: false },
+        { text: "En desacuerdo", value: 2, isCorrect: false },
+        { text: "Neutral", value: 3, isCorrect: false },
+        { text: "De acuerdo", value: 4, isCorrect: false },
+        { text: "Totalmente de acuerdo", value: 5, isCorrect: false }
+      ],
+      fr: [
+        { text: "Tout à fait en désaccord", value: 1, isCorrect: false },
+        { text: "En désaccord", value: 2, isCorrect: false },
+        { text: "Neutre", value: 3, isCorrect: false },
+        { text: "D'accord", value: 4, isCorrect: false },
+        { text: "Tout à fait d'accord", value: 5, isCorrect: false }
+      ],
+      de: [
+        { text: "Stimme überhaupt nicht zu", value: 1, isCorrect: false },
+        { text: "Stimme nicht zu", value: 2, isCorrect: false },
+        { text: "Neutral", value: 3, isCorrect: false },
+        { text: "Stimme zu", value: 4, isCorrect: false },
+        { text: "Stimme voll und ganz zu", value: 5, isCorrect: false }
+      ]
+    };
+
+    return optionsByLanguage[this.currentLanguage] || optionsByLanguage.it;
   }
 
   /**

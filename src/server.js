@@ -10,6 +10,7 @@ const rateLimit = require('express-rate-limit');
 const authRoutes = require('./routes/authRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const roleRoutes = require('./routes/roleRoutes');
+const subRolesRoutes = require('./routes/subRolesRoutes');
 const unifiedAuthRoutes = require('./routes/unifiedAuthRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const assessmentRoutes = require('./routes/assessmentRoutes');
@@ -152,6 +153,7 @@ const tenantUserRoutes = require('./routes/tenantUserRoutes');
 app.use('/api/auth', authRoutes); // Legacy employee auth
 app.use('/api/employees', employeeRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/sub-roles', subRolesRoutes); // Sub-roles search and retrieval
 app.use('/api/admin', adminRoutes); // Legacy admin auth
 app.use('/api/tenants', tenantRoutes);
 app.use('/api', tenantUserRoutes); // Mounted at /api because routes include /tenants/:id/users
@@ -226,6 +228,10 @@ app.use('/api/certifications', certificationRoutes);
 // Skills routes
 const skillsRoutes = require('./routes/skillsRoutes');
 app.use('/api/skills', skillsRoutes);
+
+// Job Family routes
+const jobFamilyRoutes = require('./routes/jobFamilyRoutes');
+app.use('/api/job-families', jobFamilyRoutes);
 
 // 404 handler
 app.use((req, res) => {

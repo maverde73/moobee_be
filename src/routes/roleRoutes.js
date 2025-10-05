@@ -181,7 +181,6 @@ router.get('/:id',
             }
           },
           employee_roles: {
-            where: { is_current: true },
             include: {
               employees: true
             }

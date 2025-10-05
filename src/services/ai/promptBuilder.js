@@ -146,6 +146,27 @@ Return ONLY the JSON array, no additional text or explanations.`;
       {"text": "Neutral", "value": 3, "isCorrect": false},
       {"text": "Agree", "value": 4, "isCorrect": false},
       {"text": "Strongly Agree", "value": 5, "isCorrect": false}
+    ]`,
+        es: `[
+      {"text": "Totalmente en desacuerdo", "value": 1, "isCorrect": false},
+      {"text": "En desacuerdo", "value": 2, "isCorrect": false},
+      {"text": "Neutral", "value": 3, "isCorrect": false},
+      {"text": "De acuerdo", "value": 4, "isCorrect": false},
+      {"text": "Totalmente de acuerdo", "value": 5, "isCorrect": false}
+    ]`,
+        fr: `[
+      {"text": "Tout à fait en désaccord", "value": 1, "isCorrect": false},
+      {"text": "En désaccord", "value": 2, "isCorrect": false},
+      {"text": "Neutre", "value": 3, "isCorrect": false},
+      {"text": "D'accord", "value": 4, "isCorrect": false},
+      {"text": "Tout à fait d'accord", "value": 5, "isCorrect": false}
+    ]`,
+        de: `[
+      {"text": "Stimme überhaupt nicht zu", "value": 1, "isCorrect": false},
+      {"text": "Stimme nicht zu", "value": 2, "isCorrect": false},
+      {"text": "Neutral", "value": 3, "isCorrect": false},
+      {"text": "Stimme zu", "value": 4, "isCorrect": false},
+      {"text": "Stimme voll und ganz zu", "value": 5, "isCorrect": false}
     ]`
       },
       'disc': {
@@ -162,6 +183,27 @@ Return ONLY the JSON array, no additional text or explanations.`;
       {"text": "Neutral", "value": 3, "isCorrect": false},
       {"text": "Agree", "value": 4, "isCorrect": false},
       {"text": "Strongly Agree", "value": 5, "isCorrect": false}
+    ]`,
+        es: `[
+      {"text": "Totalmente en desacuerdo", "value": 1, "isCorrect": false},
+      {"text": "En desacuerdo", "value": 2, "isCorrect": false},
+      {"text": "Neutral", "value": 3, "isCorrect": false},
+      {"text": "De acuerdo", "value": 4, "isCorrect": false},
+      {"text": "Totalmente de acuerdo", "value": 5, "isCorrect": false}
+    ]`,
+        fr: `[
+      {"text": "Tout à fait en désaccord", "value": 1, "isCorrect": false},
+      {"text": "En désaccord", "value": 2, "isCorrect": false},
+      {"text": "Neutre", "value": 3, "isCorrect": false},
+      {"text": "D'accord", "value": 4, "isCorrect": false},
+      {"text": "Tout à fait d'accord", "value": 5, "isCorrect": false}
+    ]`,
+        de: `[
+      {"text": "Stimme überhaupt nicht zu", "value": 1, "isCorrect": false},
+      {"text": "Stimme nicht zu", "value": 2, "isCorrect": false},
+      {"text": "Neutral", "value": 3, "isCorrect": false},
+      {"text": "Stimme zu", "value": 4, "isCorrect": false},
+      {"text": "Stimme voll und ganz zu", "value": 5, "isCorrect": false}
     ]`
       }
     };

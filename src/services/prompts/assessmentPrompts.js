@@ -17,10 +17,20 @@ const assessmentPrompts = {
     - Apertura mentale`,
 
     generateQuestions: (params) => {
+      // Map language codes to full names
+      const languageNames = {
+        'it': 'italiano',
+        'en': 'inglese',
+        'es': 'spagnolo',
+        'fr': 'francese',
+        'de': 'tedesco'
+      };
+      const languageName = languageNames[params.language] || params.language || 'italiano';
+
       let prompt = `Sei un esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sui Big Five per contesti di selezione e sviluppo professionale.
 
 REQUISITI BASE:
-- Lingua: italiano, registro professionale, livello B1–B2.
+- Lingua: ${languageName}, registro professionale, livello B1–B2.
 - Tratti: Estroversione, Amicalità, Stabilità emotiva, Coscienziosità, Apertura mentale.
 - Scala di risposta (Likert a 5 punti):
   1 = Per niente d'accordo
@@ -110,10 +120,20 @@ Ogni domanda deve avere i campi: text, category (uno dei 5 tratti), type: "multi
     - Coscienziosità (C): Analitico, accurato, orientato ai dettagli`,
 
     generateQuestions: (params) => {
+      // Map language codes to full names
+      const languageNames = {
+        'it': 'italiano',
+        'en': 'inglese',
+        'es': 'spagnolo',
+        'fr': 'francese',
+        'de': 'tedesco'
+      };
+      const languageName = languageNames[params.language] || params.language || 'italiano';
+
       let prompt = `Sei un/a esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sul modello DISC per contesti di selezione e sviluppo professionale.
 
 REQUISITI BASE:
-- Lingua: italiano, registro professionale, livello B1–B2.
+- Lingua: ${languageName}, registro professionale, livello B1–B2.
 - Dimensioni DISC: Dominanza, Influenza, Stabilità, Coscienziosità.
 - Scala di risposta (Likert a 5 punti):
   1 = Per niente d'accordo
@@ -184,10 +204,20 @@ Ogni domanda deve avere i campi: text, category (una delle 4 dimensioni DISC), t
     - Orientati al pensiero: Plant, Monitor-Evaluator, Specialist`,
 
     generateQuestions: (params) => {
+      // Map language codes to full names
+      const languageNames = {
+        'it': 'italiano',
+        'en': 'inglese',
+        'es': 'spagnolo',
+        'fr': 'francese',
+        'de': 'tedesco'
+      };
+      const languageName = languageNames[params.language] || params.language || 'italiano';
+
       let prompt = `Sei un esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sui Ruoli di Belbin per contesti di selezione e sviluppo professionale.
 
 REQUISITI BASE:
-- Lingua: italiano, registro professionale, livello B1–B2.
+- Lingua: ${languageName}, registro professionale, livello B1–B2.
 - Ruoli: Plant (Creativo), Monitor Valutatore, Coordinatore, Risolutore di risorse, Implementatore, Completer Finisher, Teamworker, Shaper (Modellatore), Specialista.
 - Scala di risposta (Likert a 5 punti):
   1 = Per niente d'accordo
@@ -387,15 +417,16 @@ function getStandardOptions(type) {
  * @param {string} customization - Custom text to add to prompt
  * @param {number} count - Number of questions
  * @param {array} roleSoftSkills - Array of role soft skills
+ * @param {string} language - Language for questions (it, en, es, fr, de)
  * @returns {string} Generated prompt
  */
-function getAssessmentPrompt(type, customization = '', count = null, roleSoftSkills = null) {
+function getAssessmentPrompt(type, customization = '', count = null, roleSoftSkills = null, language = 'it') {
   // Build params object for new interface
   const params = {
     customization,
     count,
     roleSoftSkills,
-    language: 'it' // Default to Italian
+    language: language || 'it' // Use provided language or default to Italian
   };
 
   // Map type formats (big-five -> bigFive)

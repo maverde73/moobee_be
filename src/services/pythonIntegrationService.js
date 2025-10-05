@@ -229,11 +229,8 @@ class PythonIntegrationService {
                                 data: {
                                     employee_id: employeeId,
                                     role_id: role.id,
-                                    anni_esperienza: Math.round(seniority.years_experience),
-                                    is_current: true,
-                                    competenze_tecniche_trasversali: analysisData.skills
-                                        ?.filter(s => s.skill_type === 'Technical Tools and Technologies')
-                                        ?.map(s => s.skill_name) || []
+                                    anni_esperienza: Math.round(seniority.years_experience)
+                                    // Removed: is_current (Migration 014), competenze_tecniche_trasversali (Migration 013)
                                 }
                             });
                             savedData.rolesSaved++;

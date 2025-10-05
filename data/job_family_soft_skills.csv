@@ -1,0 +1,41 @@
+jobFamily,softSkill,priority,minScore,isRequired,weight,targetScore,description,createdAt,updatedAt
+Developer / Engineer,Problem Solving Analitico,1,3,True,0.25,4,Risolvere problemi tecnici complessi con approccio logico.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Developer / Engineer,Teamworking e Collaborazione,2,3,True,0.2,4,Collaborare in team di sviluppo Agile.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Developer / Engineer,Creatività e Innovazione,3,2,False,0.15,3,Proporre soluzioni tecniche nuove.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Developer / Engineer,Gestione del Tempo e delle Priorità,4,3,True,0.2,4,Rispettare scadenze e sprint di progetto.,2025-10-03 22:25:28,2025-10-03 22:25:28
+QA / DevOps / SysAdmin,Adattabilità e Flessibilità,1,3,True,0.2,4,Gestire cambiamenti e incidenti in produzione.,2025-10-03 22:25:28,2025-10-03 22:25:28
+QA / DevOps / SysAdmin,Resilienza e Gestione dello Stress,2,2,True,0.2,3,Mantenere calma in situazioni critiche.,2025-10-03 22:25:28,2025-10-03 22:25:28
+QA / DevOps / SysAdmin,Comunicazione Efficace,3,3,True,0.2,4,"Segnalare bug, incidenti e soluzioni in modo chiaro.",2025-10-03 22:25:28,2025-10-03 22:25:28
+QA / DevOps / SysAdmin,Problem Solving Analitico,4,3,True,0.2,4,Analizzare cause radice e proporre fix rapidi.,2025-10-03 22:25:28,2025-10-03 22:25:28
+PM / Scrum Master,Leadership e Influenza,1,3,True,0.25,5,Motivare e guidare il team.,2025-10-03 22:25:28,2025-10-03 22:25:28
+PM / Scrum Master,Comunicazione Efficace,2,3,True,0.25,4,Comunicare obiettivi e feedback agli stakeholder.,2025-10-03 22:25:28,2025-10-03 22:25:28
+PM / Scrum Master,Gestione dei Conflitti,3,2,True,0.2,3,Mediare divergenze interne ed esterne.,2025-10-03 22:25:28,2025-10-03 22:25:28
+PM / Scrum Master,Gestione del Tempo e delle Priorità,4,3,True,0.2,4,Garantire la consegna nei tempi previsti.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Business Consultant,Empatia e Ascolto Attivo,1,3,True,0.25,4,Capire esigenze e punti di vista del cliente.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Business Consultant,Orientamento ai Risultati,2,3,True,0.25,4,Garantire che i progetti portino valore concreto.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Business Consultant,Capacità Decisionale,3,2,True,0.2,3,Prendere decisioni informate anche con dati incompleti.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Business Consultant,Comunicazione Efficace,4,3,True,0.2,4,Presentare soluzioni a clienti e stakeholder.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Architect / Presales,Creatività e Innovazione,1,3,True,0.25,4,Progettare soluzioni innovative e scalabili.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Architect / Presales,Comunicazione Efficace,2,3,True,0.25,4,Spiegare soluzioni tecniche in modo semplice.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Architect / Presales,Problem Solving Analitico,3,3,True,0.25,4,Risolvere sfide architetturali complesse.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Architect / Presales,Orientamento ai Risultati,4,3,True,0.25,4,Disegnare soluzioni che supportino obiettivi di business.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Product Manager / UX,Adattabilità e Flessibilità,1,3,True,0.25,4,Adattare roadmap a esigenze di mercato.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Product Manager / UX,Comunicazione Efficace,2,3,True,0.25,4,"Coordinare con Dev, QA, Marketing, Stakeholder.",2025-10-03 22:25:28,2025-10-03 22:25:28
+Product Manager / UX,Teamworking e Collaborazione,3,3,True,0.2,4,Lavorare con diversi team cross-funzionali.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Product Manager / UX,Creatività e Innovazione,4,2,False,0.15,3,Sviluppare nuove funzionalità e UX efficaci.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Sales / Account,Orientamento ai Risultati,1,3,True,0.3,5,Raggiungere obiettivi di vendita.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Sales / Account,Empatia e Ascolto Attivo,2,3,True,0.25,4,Comprendere bisogni del cliente.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Sales / Account,Comunicazione Efficace,3,3,True,0.25,4,Negoziare e convincere clienti.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Sales / Account,Resilienza e Gestione dello Stress,4,2,True,0.2,3,Gestire rifiuti e pressione sugli obiettivi.,2025-10-03 22:25:28,2025-10-03 22:25:28
+HR / Support Functions,Empatia e Ascolto Attivo,1,3,True,0.25,4,Supportare e comprendere le persone.,2025-10-03 22:25:28,2025-10-03 22:25:28
+HR / Support Functions,Comunicazione Efficace,2,3,True,0.25,4,Comunicare policy HR in modo chiaro.,2025-10-03 22:25:28,2025-10-03 22:25:28
+HR / Support Functions,Gestione del Tempo e delle Priorità,3,3,True,0.2,4,Gestire pratiche e scadenze amministrative.,2025-10-03 22:25:28,2025-10-03 22:25:28
+HR / Support Functions,Adattabilità e Flessibilità,4,2,True,0.2,3,Adattarsi a normative o esigenze aziendali.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Data & Analytics,Problem Solving Analitico,1,3,True,0.3,5,Interpretare dati complessi per insight chiari.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Data & Analytics,Creatività e Innovazione,2,2,False,0.2,3,Proporre approcci innovativi all'analisi.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Data & Analytics,Orientamento ai Risultati,3,3,True,0.25,4,Trasformare analisi in azioni concrete.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Data & Analytics,Capacità Decisionale,4,2,True,0.25,4,Scegliere metodi analitici corretti.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Finance / Legal / Admin,Capacità Decisionale,1,3,True,0.25,4,Prendere decisioni in linea con le normative.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Finance / Legal / Admin,Gestione del Tempo e delle Priorità,2,3,True,0.25,4,Rispettare scadenze fiscali e legali.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Finance / Legal / Admin,Resilienza e Gestione dello Stress,3,2,True,0.2,3,Gestire picchi di lavoro e scadenze.,2025-10-03 22:25:28,2025-10-03 22:25:28
+Finance / Legal / Admin,Orientamento ai Risultati,4,3,True,0.2,4,Supportare il business con efficienza.,2025-10-03 22:25:28,2025-10-03 22:25:28

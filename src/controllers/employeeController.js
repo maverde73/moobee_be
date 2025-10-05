@@ -57,7 +57,6 @@ class EmployeeController {
         include: {
           departments: true,
           employee_roles: {
-            where: { is_current: true },
             include: {
               roles: true,
               sub_roles: true
@@ -123,7 +122,6 @@ class EmployeeController {
         include: {
           departments: true,
           employee_roles: {
-            where: { is_current: true },
             include: {
               roles: true,
               sub_roles: true

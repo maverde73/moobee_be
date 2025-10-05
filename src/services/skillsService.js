@@ -25,6 +25,13 @@ class SkillsService {
       employeeRoleIds = null  // Nuovo: array di sub_role_id per calcolo max grading
     } = filters;
 
+    // DEBUG: Log parametri ricevuti
+    console.log('=== getSkills DEBUG ===');
+    console.log('tenantId:', tenantId);
+    console.log('subRoleId:', subRoleId);
+    console.log('employeeRoleIds:', employeeRoleIds);
+    console.log('search:', search);
+
     const skip = (page - 1) * limit;
 
     let skills;
@@ -124,6 +131,13 @@ class SkillsService {
         grading = maxEntry.grading || null;
         value = maxEntry.value || null;
         maxGradingSource = maxEntry.subRoleId;
+
+        // DEBUG: Log calcolo MAX grading per node.js
+        if (skill.Skill === 'node.js' || skill.id === 1132) {
+          console.log('=== MAX Grading Calculation for node.js ===');
+          console.log('All gradings:', gradings);
+          console.log('MAX grading:', maxEntry);
+        }
       }
 
       // Determina quale campo ha fatto match per mostrare badge "Sinonimo"

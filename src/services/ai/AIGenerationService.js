@@ -74,7 +74,7 @@ class AIGenerationService {
 
       // Use fixed prompt with customization
       const { getAssessmentPrompt } = require('../prompts/assessmentPrompts');
-      const prompt = getAssessmentPrompt(type.replace('_', '-'), customization, count) +
+      const prompt = getAssessmentPrompt(type.replace('_', '-'), customization, count, null, language) +
         this.promptBuilder.getJSONInstructions(type, language);
 
       // Log del prompt completo per debug
@@ -100,6 +100,9 @@ class AIGenerationService {
       } else {
         response = this.mockProvider.getMockAIResponse(prompt);
       }
+
+      // Set parser language for default options
+      this.parser.setLanguage(language);
 
       // Parse response
       const questions = this.parser.parseQuestionsResponse(response, type);
@@ -160,7 +163,7 @@ class AIGenerationService {
       }
 
       // Get fixed prompt with customization
-      const basePrompt = getAssessmentPrompt(type, fullCustomization, count);
+      const basePrompt = getAssessmentPrompt(type, fullCustomization, count, null, language);
       const jsonInstructions = this.promptBuilder.getJSONInstructions(type, language);
       const finalPrompt = basePrompt + jsonInstructions;
 
@@ -197,6 +200,9 @@ class AIGenerationService {
         console.warn(`Provider ${provider} not available, falling back to default`);
         return this.generateAssessmentQuestions(type, options);
       }
+
+      // Set parser language for default options
+      this.parser.setLanguage(language);
 
       // Parse and return questions
       const questions = this.parser.parseQuestionsResponse(response, type);

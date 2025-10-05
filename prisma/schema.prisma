@@ -120,12 +120,8 @@ model assessment_soft_skill_scores {
   @@index([softSkillId])
 }
 
-model assessment_template_roles {
-  id                   Int                  @id @default(autoincrement())
-  templateId           Int
-  roleId               Int
-  assessment_templates assessment_templates @relation(fields: [templateId], references: [id])
-}
+// assessment_template_roles removed - no longer needed
+// Templates are now associated with job_family, not individual roles
 
 model assessment_templates {
   id                                                                                          Int                            @id @default(autoincrement())
@@ -133,15 +129,12 @@ model assessment_templates {
   type                                                                                        String?
   description                                                                                 String?
   isActive                                                                                    Boolean                        @default(true)
-  suggestedRoles                                                                              String[]
-  targetSoftSkillIds                                                                          Int[]
   createdBy                                                                                   String?
   version                                                                                     String?
   createdAt                                                                                   DateTime                       @default(now())
   updatedAt                                                                                   DateTime
   scoringAlgorithm                                                                            String                         @default("weighted")
   softSkillsEnabled                                                                           Boolean                        @default(false)
-  aiModelUsed                                                                                 String?
   aiProvider                                                                                  String?
   generationLogId                                                                             String?                        @unique
   generationStatus                                                                            String?
@@ -154,14 +147,17 @@ model assessment_templates {
   aiTemperature                                                                               Decimal?                       @default(0.7) @db.Decimal(3, 2)
   aiMaxTokens                                                                                 Int?                           @default(4000)
   aiLanguage                                                                                  String?                        @default("it") @db.VarChar(10)
+  job_family_id                                                                               Int?
+  job_family                                                                                  job_family?                    @relation(fields: [job_family_id], references: [id], onDelete: SetNull)
   campaigns                                                                                   assessment_campaigns[]
   assessment_generation_logs_assessment_generation_logs_templateIdToassessment_templates      assessment_generation_logs[]   @relation("assessment_generation_logs_templateIdToassessment_templates")
   assessment_questions                                                                        assessment_questions[]
-  assessment_template_roles                                                                   assessment_template_roles[]
   assessment_generation_logs_assessment_templates_generationLogIdToassessment_generation_logs assessment_generation_logs?    @relation("assessment_templates_generationLogIdToassessment_generation_logs", fields: [generationLogId], references: [id])
-  template_soft_skill_mappings                                                                template_soft_skill_mappings[]
+  assessment_template_soft_skill                                                              assessment_template_soft_skill[]
   tenant_assessment_selections                                                                tenant_assessment_selections[]
   assessment_generation_logs_TemplateGenerationLog                                            assessment_generation_logs[]   @relation("TemplateGenerationLog")
+
+  @@index([job_family_id], map: "idx_assessment_templates_job_family")
 }
 
 model assessments {
@@ -207,34 +203,58 @@ model departments {
 }
 
 model employee_roles {
-  id                              Int       @id @default(autoincrement())
-  employee_id                     Int
-  role_id                         Int
-  sub_role_id                     Int?
-  start_date                      DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
-  end_date                        DateTime? @db.Date
-  is_current                      Boolean?  @default(true)
-  created_at                      DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id                       String    @db.Uuid
-  competenze_tecniche_trasversali Json?     @default("[]")
-  anni_esperienza                 Int?      @default(0)
-  employees                       employees @relation(fields: [employee_id], references: [id])
+  id              Int       @id @default(autoincrement())
+  employee_id     Int
+  role_id         Int
+  sub_role_id     Int?
+  anni_esperienza Int?      @default(0)
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id       String    @db.Uuid
+  employees       employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@unique([employee_id, role_id, sub_role_id], map: "idx_employee_roles_unique")
+  @@index([employee_id])
+  @@index([role_id])
+  @@index([tenant_id])
 }
 
 model employee_skills {
-  id                      Int       @id @default(autoincrement())
-  employee_id             Int
-  skill_id                Int
-  proficiency_level       Int?
-  years_experience        Decimal?  @db.Decimal(3, 1)
-  last_used_date          DateTime? @db.Date
-  is_certified            Boolean?  @default(false)
-  certification_date      DateTime? @db.Date
-  certification_authority String?   @db.VarChar(200)
-  notes                   String?
-  created_at              DateTime? @default(now()) @db.Timestamp(6)
-  updated_at              DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id               String    @db.Uuid
+  id                Int       @id @default(autoincrement())
+  employee_id       Int
+  skill_id          Int
+  proficiency_level Float?    // 0.0-1.0 grading scale
+  years_experience  Decimal?  @db.Decimal(3, 1)
+  last_used_date    DateTime? @db.Date
+  notes             String?
+  source            String?   @default("manual") @db.VarChar(50) // 'manual', 'cv_extracted', 'assessment'
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id         String    @db.Uuid
+  employees         employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  skills            skills    @relation(fields: [skill_id], references: [id])
+
+  @@unique([employee_id, skill_id])
+  @@index([employee_id])
+  @@index([skill_id])
+  @@index([tenant_id])
+}
+
+model employee_competenze_trasversali {
+  id               Int       @id @default(autoincrement())
+  employee_id      Int
+  competenza       String    // Full-text searchable
+  categoria        String?   @db.VarChar(50) // 'bancaria', 'automotive', 'pubblica_amministrazione', etc.
+  anni_esperienza  Int?
+  livello          String?   @db.VarChar(20) // 'base', 'intermedio', 'avanzato', 'esperto'
+  note             String?
+  created_at       DateTime? @default(now()) @db.Timestamp(6)
+  updated_at       DateTime? @default(now()) @db.Timestamp(6)
+  tenant_id        String    @db.Uuid
+  employees        employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+
+  @@index([employee_id])
+  @@index([tenant_id])
+  @@index([categoria])
 }
 
 model employees {
@@ -256,19 +276,21 @@ model employees {
   lastAssessmentDate              DateTime?
   nextAssessmentDue               DateTime?
   softSkillProfileId              Int?
-  competenze_trasversali          Json?                             @default("[]")
-  assessment_campaign_assignments assessment_campaign_assignments[]
-  assessment_results              assessment_results[]
-  cv_extractions                  cv_extractions[]
-  employee_additional_info        employee_additional_info?
-  employee_awards                 employee_awards[]
-  employee_certifications         employee_certifications[]
-  employee_education              employee_education[]
-  employee_languages              employee_languages[]
-  employee_projects               employee_projects[]
-  employee_publications           employee_publications[]
-  employee_roles                  employee_roles[]
-  employee_work_experiences       employee_work_experiences[]
+  competenze_trasversali           Json?                                  @default("[]")
+  assessment_campaign_assignments  assessment_campaign_assignments[]
+  assessment_results               assessment_results[]
+  cv_extractions                   cv_extractions[]
+  employee_additional_info         employee_additional_info?
+  employee_awards                  employee_awards[]
+  employee_certifications          employee_certifications[]
+  employee_education               employee_education[]
+  employee_languages               employee_languages[]
+  employee_projects                employee_projects[]
+  employee_publications            employee_publications[]
+  employee_roles                   employee_roles[]
+  employee_skills                  employee_skills[]
+  employee_competenze_trasversali  employee_competenze_trasversali[]
+  employee_work_experiences        employee_work_experiences[]
   departments                     departments?                      @relation(fields: [department_id], references: [id])
   engagement_campaign_assignments engagement_campaign_assignments[]
   engagement_results              engagement_results[]
@@ -543,6 +565,7 @@ model skills {
   updated_at             DateTime?                @default(now()) @db.Timestamp(6)
   tenants                tenants?                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   skills_sub_roles_value skills_sub_roles_value[]
+  employee_skills        employee_skills[]
 
   @@unique([Skill, tenant_id], map: "unique_skill_per_tenant")
   @@index([is_active], map: "idx_skills_active")
@@ -564,10 +587,11 @@ model soft_skills {
   descriptionEn                String?
   evaluationCriteria           Json?
   orderIndex                   Int                            @default(0)
-  question_soft_skill_mappings question_soft_skill_mappings[]
-  role_soft_skills             role_soft_skills[]
-  template_soft_skill_mappings template_soft_skill_mappings[]
-  user_soft_skills             user_soft_skills[]
+  job_family_soft_skills         job_family_soft_skills[]
+  question_soft_skill_mappings   question_soft_skill_mappings[]
+  role_soft_skills               role_soft_skills[]
+  assessment_template_soft_skill assessment_template_soft_skill[]
+  user_soft_skills               user_soft_skills[]
 }
 
 model soft_skills_assessments {
@@ -588,16 +612,59 @@ model soft_skills_assessments {
 }
 
 model sub_roles {
-  id                     Int                      @id
+  id                     Int                      @id @default(autoincrement())
   Sub_Role               String?
   NameKnown_Sub_Role     String?
   Synonyms_Sub_Role      String[]
+  tenant_id              String?                  // NULL = global, value = custom
+  is_custom              Boolean?                 @default(false)
+  created_by             String?                  // User email/ID who created it
+  created_at             DateTime?                @default(now())
   project_roles          project_roles[]
   role_sub_role          role_sub_role[]
   skills_sub_roles_value skills_sub_roles_value[]
+
+  @@unique([tenant_id, Sub_Role], map: "unique_subrole_per_tenant")
+  @@index([tenant_id], map: "idx_sub_roles_tenant_id")
 }
 
-model template_soft_skill_mappings {
+model job_family {
+  id                      Int                       @id @default(autoincrement())
+  name                    String                    @unique @db.VarChar(100)
+  description             String?                   @db.Text
+  is_active               Boolean                   @default(true)
+  created_at              DateTime                  @default(now())
+  updated_at              DateTime                  @default(now()) @updatedAt
+  job_family_soft_skills  job_family_soft_skills[]
+  assessment_templates    assessment_templates[]
+
+  @@index([name], map: "idx_job_family_name")
+  @@index([is_active], map: "idx_job_family_is_active")
+}
+
+model job_family_soft_skills {
+  id             Int         @id @default(autoincrement())
+  job_family_id  Int
+  soft_skill_id  Int
+  priority       Int
+  min_score      Int
+  is_required    Boolean     @default(false)
+  weight         Decimal     @db.Decimal(3, 2)
+  target_score   Int
+  description    String?     @db.Text
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @default(now()) @updatedAt
+  job_family     job_family  @relation(fields: [job_family_id], references: [id], onDelete: Cascade)
+  soft_skills    soft_skills @relation(fields: [soft_skill_id], references: [id], onDelete: Cascade)
+
+  @@unique([job_family_id, soft_skill_id], map: "unique_job_family_soft_skill")
+  @@index([job_family_id], map: "idx_jfss_job_family")
+  @@index([soft_skill_id], map: "idx_jfss_soft_skill")
+  @@index([is_required], map: "idx_jfss_required")
+  @@index([priority], map: "idx_jfss_priority")
+}
+
+model assessment_template_soft_skill {
   id                   Int                  @id @default(autoincrement())
   templateId           Int
   softSkillId          Int
