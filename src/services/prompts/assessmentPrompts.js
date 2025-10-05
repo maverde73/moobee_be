@@ -8,13 +8,14 @@ const assessmentPrompts = {
    * Prompts per Big Five personality assessment
    */
   bigFive: {
-    system: `Sei un esperto/a di psicometria e assessment del personale specializzato nel modello Big Five (OCEAN).
-    Genera domande di assessment scientificamente valide che misurano:
-    - Estroversione
-    - Amicalità (Gradevolezza)
-    - Stabilità emotiva (Nevroticismo inverso)
-    - Coscienziosità
-    - Apertura mentale`,
+    systemPrompts: {
+      it: `Sei un esperto/a di psicometria e assessment del personale specializzato nel modello Big Five (OCEAN). Genera domande di assessment scientificamente valide che misurano: Estroversione, Amicalità, Stabilità emotiva, Coscienziosità, Apertura mentale. IMPORTANTE: Genera tutte le domande in italiano.`,
+      en: `You are an expert in psychometrics and personnel assessment specialized in the Big Five (OCEAN) model. Generate scientifically valid assessment questions that measure: Extraversion, Agreeableness, Emotional Stability, Conscientiousness, Openness to Experience. IMPORTANT: Generate all questions in English.`,
+      es: `Eres un experto en psicometría y evaluación de personal especializado en el modelo Big Five (OCEAN). Genera preguntas de evaluación científicamente válidas que miden: Extraversión, Amabilidad, Estabilidad Emocional, Responsabilidad, Apertura a la Experiencia. IMPORTANTE: Genera todas las preguntas en español.`,
+      fr: `Vous êtes un expert en psychométrie et évaluation du personnel spécialisé dans le modèle Big Five (OCEAN). Générez des questions d'évaluation scientifiquement valides qui mesurent: Extraversion, Agréabilité, Stabilité Émotionnelle, Conscience, Ouverture à l'Expérience. IMPORTANT: Générez toutes les questions en français.`,
+      de: `Sie sind Experte für Psychometrie und Personalbeurteilung, spezialisiert auf das Big-Five-Modell (OCEAN). Erstellen Sie wissenschaftlich fundierte Bewertungsfragen, die messen: Extraversion, Verträglichkeit, Emotionale Stabilität, Gewissenhaftigkeit, Offenheit für Erfahrungen. WICHTIG: Erstellen Sie alle Fragen auf Deutsch.`
+    },
+    system: `You are an expert in psychometrics and personnel assessment specialized in the Big Five (OCEAN) model.`,
 
     generateQuestions: (params) => {
       // Map language codes to full names
@@ -27,19 +28,60 @@ const assessmentPrompts = {
       };
       const languageName = languageNames[params.language] || params.language || 'italiano';
 
-      let prompt = `Sei un esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sui Big Five per contesti di selezione e sviluppo professionale.
+      // Build prompt in the target language for better AI compliance
+      const promptTemplates = {
+        it: `Sei un esperto/a di psicometria e assessment del personale. Genera un questionario breve basato sui Big Five per contesti di selezione e sviluppo professionale.
+
+⚠️ IMPORTANTE: Genera TUTTE le domande in ITALIANO.
 
 REQUISITI BASE:
-- Lingua: ${languageName}, registro professionale, livello B1–B2.
+- Lingua: italiano, registro professionale, livello B1–B2.
 - Tratti: Estroversione, Amicalità, Stabilità emotiva, Coscienziosità, Apertura mentale.
-- Scala di risposta (Likert a 5 punti):
-  1 = Per niente d'accordo
-  2 = Poco d'accordo
-  3 = Né d'accordo né in disaccordo
-  4 = Abbastanza d'accordo
-  5 = Completamente d'accordo
 - Qualità degli item: una sola idea per frase; evitare negazioni doppie; 8–18 parole; contesto lavorativo; nessun riferimento a età, genere, origine, salute o altri aspetti protetti.
-- Controllo bias di acquiescenza: per ciascun tratto inserisci esattamente 2 item in direzione inversa (cioè punteggio alto = livello basso del tratto).`;
+- Controllo bias di acquiescenza: per ciascun tratto inserisci esattamente 2 item in direzione inversa.`,
+
+        en: `You are an expert in psychometrics and personnel assessment. Generate a brief Big Five questionnaire for professional selection and development contexts.
+
+⚠️ IMPORTANT: Generate ALL questions in ENGLISH.
+
+BASE REQUIREMENTS:
+- Language: English, professional register, B1–B2 level.
+- Traits: Extraversion, Agreeableness, Emotional Stability, Conscientiousness, Openness to Experience.
+- Item quality: one idea per sentence; avoid double negatives; 8–18 words; work context; no references to age, gender, origin, health or other protected aspects.
+- Acquiescence bias control: for each trait include exactly 2 reverse-scored items.`,
+
+        es: `Eres un experto en psicometría y evaluación de personal. Genera un cuestionario breve basado en los Big Five para contextos de selección y desarrollo profesional.
+
+⚠️ IMPORTANTE: Genera TODAS las preguntas en ESPAÑOL.
+
+REQUISITOS BASE:
+- Idioma: español, registro profesional, nivel B1–B2.
+- Rasgos: Extraversión, Amabilidad, Estabilidad Emocional, Responsabilidad, Apertura a la Experiencia.
+- Calidad de ítems: una idea por frase; evitar dobles negaciones; 8–18 palabras; contexto laboral; sin referencias a edad, género, origen, salud u otros aspectos protegidos.
+- Control de sesgo de aquiescencia: para cada rasgo incluye exactamente 2 ítems inversos.`,
+
+        fr: `Vous êtes un expert en psychométrie et évaluation du personnel. Générez un bref questionnaire Big Five pour les contextes de sélection et de développement professionnel.
+
+⚠️ IMPORTANT: Générez TOUTES les questions en FRANÇAIS.
+
+EXIGENCES DE BASE:
+- Langue: français, registre professionnel, niveau B1–B2.
+- Traits: Extraversion, Agréabilité, Stabilité Émotionnelle, Conscience, Ouverture à l'Expérience.
+- Qualité des items: une idée par phrase; éviter les doubles négations; 8–18 mots; contexte professionnel; aucune référence à l'âge, au genre, à l'origine, à la santé ou à d'autres aspects protégés.
+- Contrôle du biais d'acquiescement: pour chaque trait incluez exactement 2 items inversés.`,
+
+        de: `Sie sind Experte für Psychometrie und Personalbeurteilung. Erstellen Sie einen kurzen Big-Five-Fragebogen für berufliche Auswahl- und Entwicklungskontexte.
+
+⚠️ WICHTIG: Erstellen Sie ALLE Fragen auf DEUTSCH.
+
+GRUNDANFORDERUNGEN:
+- Sprache: Deutsch, professionelles Register, B1–B2 Niveau.
+- Merkmale: Extraversion, Verträglichkeit, Emotionale Stabilität, Gewissenhaftigkeit, Offenheit für Erfahrungen.
+- Item-Qualität: eine Idee pro Satz; doppelte Verneinungen vermeiden; 8–18 Wörter; Arbeitskontext; keine Bezugnahme auf Alter, Geschlecht, Herkunft, Gesundheit oder andere geschützte Aspekte.
+- Kontrolle des Zustimmungsbias: für jedes Merkmal genau 2 umgekehrt bewertete Items einbeziehen.`
+      };
+
+      let prompt = promptTemplates[params.language] || promptTemplates.it;
 
       // Aggiungi personalizzazione se presente
       if (params.customization) {

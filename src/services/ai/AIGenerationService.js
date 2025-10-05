@@ -176,6 +176,10 @@ class AIGenerationService {
 
       console.log('📝 Final prompt length:', finalPrompt.length);
 
+      // Get system prompt in correct language
+      const systemPrompt = this.promptBuilder.getSystemPrompt(type, language);
+      console.log('🎭 System Prompt:', systemPrompt);
+
       // Generate with selected provider
       let response;
       if (provider === 'openai' && this.providers.openai) {
@@ -183,7 +187,7 @@ class AIGenerationService {
         const isGPT5 = model && model.toLowerCase().includes('gpt-5');
         response = await this.providers.generateWithOpenAI(
           finalPrompt,
-          'You are an expert in creating assessment questions. Generate questions in valid JSON array format.',
+          systemPrompt,
           isGPT5 ? undefined : temperature,
           isGPT5 ? undefined : maxTokens,
           model || 'gpt-5'
@@ -191,7 +195,7 @@ class AIGenerationService {
       } else if (provider === 'anthropic' && this.providers.anthropic) {
         response = await this.providers.generateWithAnthropic(
           finalPrompt,
-          'You are an expert in creating assessment questions. Generate questions in valid JSON array format.',
+          systemPrompt,
           temperature,
           maxTokens,
           model || 'claude-opus-4-1-20250805'

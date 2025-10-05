@@ -216,18 +216,38 @@ Return ONLY the JSON array, no additional text or explanations.`;
   }
 
   /**
-   * Ottiene system prompt per tipo
+   * Ottiene system prompt per tipo e lingua
    * @param {string} type - Tipo di assessment
+   * @param {string} language - Lingua (it, en, es, fr, de)
    * @returns {string} System prompt
    */
-  getSystemPrompt(type) {
+  getSystemPrompt(type, language = 'en') {
     const prompts = {
-      'big-five': 'You are an expert psychometrician specializing in Big Five personality assessments.',
-      'disc': 'You are an expert in DISC behavioral assessments and workplace dynamics.',
-      'belbin': 'You are an expert in Belbin team roles and team dynamics.'
+      'big-five': {
+        it: 'Sei un esperto psicomentrista specializzato in valutazioni di personalità Big Five. IMPORTANTE: Genera tutte le domande in italiano.',
+        en: 'You are an expert psychometrician specializing in Big Five personality assessments. IMPORTANT: Generate all questions in English.',
+        es: 'Eres un experto psicometrista especializado en evaluaciones de personalidad Big Five. IMPORTANTE: Genera todas las preguntas en español.',
+        fr: 'Vous êtes un expert psychométricien spécialisé dans les évaluations de personnalité Big Five. IMPORTANT: Générez toutes les questions en français.',
+        de: 'Sie sind ein Experte für Psychometrie, spezialisiert auf Big-Five-Persönlichkeitsbewertungen. WICHTIG: Erstellen Sie alle Fragen auf Deutsch.'
+      },
+      'disc': {
+        it: 'Sei un esperto in valutazioni comportamentali DISC e dinamiche lavorative. IMPORTANTE: Genera tutte le domande in italiano.',
+        en: 'You are an expert in DISC behavioral assessments and workplace dynamics. IMPORTANT: Generate all questions in English.',
+        es: 'Eres un experto en evaluaciones de comportamiento DISC y dinámicas laborales. IMPORTANTE: Genera todas las preguntas en español.',
+        fr: 'Vous êtes un expert en évaluations comportementales DISC et dynamiques de travail. IMPORTANT: Générez toutes les questions en français.',
+        de: 'Sie sind Experte für DISC-Verhaltensbeurteilungen und Arbeitsplatzdynamiken. WICHTIG: Erstellen Sie alle Fragen auf Deutsch.'
+      },
+      'belbin': {
+        it: 'Sei un esperto in ruoli di team Belbin e dinamiche di squadra. IMPORTANTE: Genera tutte le domande in italiano.',
+        en: 'You are an expert in Belbin team roles and team dynamics. IMPORTANT: Generate all questions in English.',
+        es: 'Eres un experto en roles de equipo Belbin y dinámicas de grupo. IMPORTANTE: Genera todas las preguntas en español.',
+        fr: 'Vous êtes un expert en rôles d\'équipe Belbin et dynamiques d\'équipe. IMPORTANT: Générez toutes les questions en français.',
+        de: 'Sie sind Experte für Belbin-Teamrollen und Teamdynamiken. WICHTIG: Erstellen Sie alle Fragen auf Deutsch.'
+      }
     };
 
-    return prompts[type] || prompts['big-five'];
+    const typePrompts = prompts[type] || prompts['big-five'];
+    return typePrompts[language] || typePrompts['en'];
   }
 
   /**
