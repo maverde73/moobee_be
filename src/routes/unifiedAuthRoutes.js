@@ -31,7 +31,16 @@ router.post('/login',
           is_active: true
         },
         include: {
-          tenants: true
+          tenants: true,
+          employees: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              position: true,
+              department_id: true
+            }
+          }
         }
       });
 
@@ -120,26 +129,24 @@ router.post('/login',
       // IMPORTANT: Exclude logo from tenant to avoid JWT size issues (431 error)
       const { logo, ...tenantWithoutLogo } = user.tenants || {};
 
+      // Get employee data from relation (Prisma returns single object, not array)
+      const employeeData = user.employees || {};
+      console.log('[UNIFIED_AUTH] employee_id:', user.employee_id);
+      console.log('[UNIFIED_AUTH] employees relation:', employeeData);
+      console.log('[UNIFIED_AUTH] first_name:', employeeData.first_name);
+
       const payload = {
         id: user.id,
         email: user.email,
         // Prioritize employee data (single source of truth)
-        firstName: user.employee?.first_name || user.first_name,
-        lastName: user.employee?.last_name || user.last_name,
+        firstName: employeeData.first_name || user.first_name || '',
+        lastName: employeeData.last_name || user.last_name || '',
         role: user.role,
         tenantId: user.tenant_id,
         tenant: tenantWithoutLogo, // Tenant without logo to keep JWT small
-        employeeId: user.employee_id,
-        // Include employee data if available
-        ...(user.employee && {
-          employee: {
-            id: user.employee.id,
-            position: user.employee.position,
-            departmentId: user.employee.department_id,
-            department: user.employee.departments_employees_department_idTodepartments?.department_name,
-            roles: user.employee.employee_roles
-          }
-        })
+        employeeId: employeeData.id || user.employee_id || null,
+        position: employeeData.position || null,
+        departmentId: employeeData.department_id || null
       };
 
       const accessToken = jwt.sign(
@@ -174,16 +181,14 @@ router.post('/login',
         user: {
           id: user.id,
           email: user.email,
-          firstName: user.employee?.first_name || '',
-          lastName: user.employee?.last_name || '',
+          firstName: employeeData.first_name || '',
+          lastName: employeeData.last_name || '',
           role: user.role,
           tenantId: user.tenant_id,
           tenant: tenantWithoutLogo, // Use tenant without logo
-          employeeId: user.employee_id,
-          ...(user.employee && {
-            position: user.employee.position,
-            department: user.employee.departments_employees_department_idTodepartments?.department_name
-          })
+          employeeId: employeeData.id || user.employee_id || null,
+          position: employeeData.position || null,
+          departmentId: employeeData.department_id || null
         }
       });
     } catch (error) {
@@ -229,9 +234,13 @@ router.post('/refresh',
         where: { id: decoded.id },
         include: {
           tenants: true,
-          employee: {
-            include: {
-              departments_employees_department_idTodepartments: true
+          employees: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              position: true,
+              department_id: true
             }
           }
         }
@@ -256,23 +265,20 @@ router.post('/refresh',
       // IMPORTANT: Exclude logo from tenant to avoid JWT size issues (431 error)
       const { logo, ...tenantWithoutLogo } = user.tenants || {};
 
+      // Get employee data from relation
+      const employeeData = user.employees || {};
+
       const payload = {
         id: user.id,
         email: user.email,
-        firstName: user.employee?.first_name || '',
-        lastName: user.employee?.last_name || '',
+        firstName: employeeData.first_name || '',
+        lastName: employeeData.last_name || '',
         role: user.role,
         tenantId: user.tenant_id,
         tenant: tenantWithoutLogo, // Tenant without logo to keep JWT small
-        employeeId: user.employee_id,
-        ...(user.employee && {
-          employee: {
-            id: user.employee.id,
-            position: user.employee.position,
-            departmentId: user.employee.department_id,
-            department: user.employee.departments_employees_department_idTodepartments?.department_name
-          }
-        })
+        employeeId: employeeData.id || user.employee_id || null,
+        position: employeeData.position || null,
+        departmentId: employeeData.department_id || null
       };
 
       const newAccessToken = jwt.sign(

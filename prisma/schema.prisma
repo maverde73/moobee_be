@@ -120,42 +120,39 @@ model assessment_soft_skill_scores {
   @@index([softSkillId])
 }
 
-// assessment_template_roles removed - no longer needed
-// Templates are now associated with job_family, not individual roles
-
 model assessment_templates {
-  id                                                                                          Int                            @id @default(autoincrement())
+  id                                                                                          Int                              @id @default(autoincrement())
   name                                                                                        String
   type                                                                                        String?
   description                                                                                 String?
-  isActive                                                                                    Boolean                        @default(true)
+  isActive                                                                                    Boolean                          @default(true)
   createdBy                                                                                   String?
   version                                                                                     String?
-  createdAt                                                                                   DateTime                       @default(now())
+  createdAt                                                                                   DateTime                         @default(now())
   updatedAt                                                                                   DateTime
-  scoringAlgorithm                                                                            String                         @default("weighted")
-  softSkillsEnabled                                                                           Boolean                        @default(false)
+  scoringAlgorithm                                                                            String                           @default("weighted")
+  softSkillsEnabled                                                                           Boolean                          @default(false)
   aiProvider                                                                                  String?
-  generationLogId                                                                             String?                        @unique
+  generationLogId                                                                             String?                          @unique
   generationStatus                                                                            String?
   createdByAdmin                                                                              String?
-  isGlobal                                                                                    Boolean                        @default(false)
+  isGlobal                                                                                    Boolean                          @default(false)
   aiPrompt                                                                                    String?
   instructions                                                                                String?
-  suggestedFrequency                                                                          String?                        @db.VarChar(255)
-  aiModel                                                                                     String?                        @default("gpt-4-turbo") @db.VarChar(255)
-  aiTemperature                                                                               Decimal?                       @default(0.7) @db.Decimal(3, 2)
-  aiMaxTokens                                                                                 Int?                           @default(4000)
-  aiLanguage                                                                                  String?                        @default("it") @db.VarChar(10)
+  suggestedFrequency                                                                          String?                          @db.VarChar(255)
+  aiModel                                                                                     String?                          @default("gpt-4-turbo") @db.VarChar(255)
+  aiTemperature                                                                               Decimal?                         @default(0.7) @db.Decimal(3, 2)
+  aiMaxTokens                                                                                 Int?                             @default(4000)
+  aiLanguage                                                                                  String?                          @default("it") @db.VarChar(10)
   job_family_id                                                                               Int?
-  job_family                                                                                  job_family?                    @relation(fields: [job_family_id], references: [id], onDelete: SetNull)
   campaigns                                                                                   assessment_campaigns[]
-  assessment_generation_logs_assessment_generation_logs_templateIdToassessment_templates      assessment_generation_logs[]   @relation("assessment_generation_logs_templateIdToassessment_templates")
+  assessment_generation_logs_assessment_generation_logs_templateIdToassessment_templates      assessment_generation_logs[]     @relation("assessment_generation_logs_templateIdToassessment_templates")
   assessment_questions                                                                        assessment_questions[]
-  assessment_generation_logs_assessment_templates_generationLogIdToassessment_generation_logs assessment_generation_logs?    @relation("assessment_templates_generationLogIdToassessment_generation_logs", fields: [generationLogId], references: [id])
   assessment_template_soft_skill                                                              assessment_template_soft_skill[]
+  assessment_generation_logs_assessment_templates_generationLogIdToassessment_generation_logs assessment_generation_logs?      @relation("assessment_templates_generationLogIdToassessment_generation_logs", fields: [generationLogId], references: [id])
+  job_family                                                                                  job_family?                      @relation(fields: [job_family_id], references: [id], onUpdate: NoAction, map: "fk_assessment_job_family")
   tenant_assessment_selections                                                                tenant_assessment_selections[]
-  assessment_generation_logs_TemplateGenerationLog                                            assessment_generation_logs[]   @relation("TemplateGenerationLog")
+  assessment_generation_logs_TemplateGenerationLog                                            assessment_generation_logs[]     @relation("TemplateGenerationLog")
 
   @@index([job_family_id], map: "idx_assessment_templates_job_family")
 }
@@ -202,61 +199,47 @@ model departments {
   employees            employees[]
 }
 
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model employee_roles {
   id              Int       @id @default(autoincrement())
   employee_id     Int
   role_id         Int
   sub_role_id     Int?
-  anni_esperienza Int?      @default(0)
   created_at      DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id       String    @db.Uuid
-  employees       employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  tenant_id       String
+  anni_esperienza Int?      @default(0)
+  seniority       String?   @db.VarChar(50)
+  is_current      Boolean?  @default(false)
+  employees       employees @relation(fields: [employee_id], references: [id])
+  tenants         tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_roles_tenant")
 
-  @@unique([employee_id, role_id, sub_role_id], map: "idx_employee_roles_unique")
-  @@index([employee_id])
-  @@index([role_id])
-  @@index([tenant_id])
+  @@index([seniority], map: "idx_employee_roles_seniority")
+  @@index([employee_id, sub_role_id], map: "idx_employee_roles_employee_subrole")
+  @@index([sub_role_id], map: "idx_employee_roles_sub_role_id")
 }
 
 model employee_skills {
-  id                Int       @id @default(autoincrement())
+  id                Int             @id @default(autoincrement())
   employee_id       Int
   skill_id          Int
-  proficiency_level Float?    // 0.0-1.0 grading scale
-  years_experience  Decimal?  @db.Decimal(3, 1)
-  last_used_date    DateTime? @db.Date
+  proficiency_level Float?
+  years_experience  Decimal?        @db.Decimal(3, 1)
+  last_used_date    DateTime?       @db.Date
   notes             String?
-  source            String?   @default("manual") @db.VarChar(50) // 'manual', 'cv_extracted', 'assessment'
-  created_at        DateTime? @default(now()) @db.Timestamp(6)
-  updated_at        DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id         String    @db.Uuid
-  employees         employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
-  skills            skills    @relation(fields: [skill_id], references: [id])
+  created_at        DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id         String
+  source            String?         @default("manual") @db.VarChar(50)
+  cv_extraction_id  String?         @db.Uuid
+  cv_extractions    cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onUpdate: NoAction, map: "fk_employee_skills_cv_extraction")
+  tenants           tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_skills_tenant")
 
-  @@unique([employee_id, skill_id])
-  @@index([employee_id])
-  @@index([skill_id])
-  @@index([tenant_id])
+  @@unique([employee_id, skill_id], map: "idx_employee_skills_unique")
+  @@index([cv_extraction_id], map: "idx_employee_skills_cv_extraction")
+  @@index([tenant_id, employee_id], map: "idx_employee_skills_tenant_employee")
 }
 
-model employee_competenze_trasversali {
-  id               Int       @id @default(autoincrement())
-  employee_id      Int
-  competenza       String    // Full-text searchable
-  categoria        String?   @db.VarChar(50) // 'bancaria', 'automotive', 'pubblica_amministrazione', etc.
-  anni_esperienza  Int?
-  livello          String?   @db.VarChar(20) // 'base', 'intermedio', 'avanzato', 'esperto'
-  note             String?
-  created_at       DateTime? @default(now()) @db.Timestamp(6)
-  updated_at       DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id        String    @db.Uuid
-  employees        employees @relation(fields: [employee_id], references: [id], onDelete: Cascade)
-
-  @@index([employee_id])
-  @@index([tenant_id])
-  @@index([categoria])
-}
-
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 model employees {
   id                              Int                               @id @default(autoincrement())
   employee_code                   String?                           @db.VarChar(50)
@@ -276,21 +259,20 @@ model employees {
   lastAssessmentDate              DateTime?
   nextAssessmentDue               DateTime?
   softSkillProfileId              Int?
-  competenze_trasversali           Json?                                  @default("[]")
-  assessment_campaign_assignments  assessment_campaign_assignments[]
-  assessment_results               assessment_results[]
-  cv_extractions                   cv_extractions[]
-  employee_additional_info         employee_additional_info?
-  employee_awards                  employee_awards[]
-  employee_certifications          employee_certifications[]
-  employee_education               employee_education[]
-  employee_languages               employee_languages[]
-  employee_projects                employee_projects[]
-  employee_publications            employee_publications[]
-  employee_roles                   employee_roles[]
-  employee_skills                  employee_skills[]
-  employee_competenze_trasversali  employee_competenze_trasversali[]
-  employee_work_experiences        employee_work_experiences[]
+  competenze_trasversali          Json?                             @default("[]")
+  assessment_campaign_assignments assessment_campaign_assignments[]
+  assessment_results              assessment_results[]
+  cv_extractions                  cv_extractions[]
+  employee_additional_info        employee_additional_info?
+  employee_awards                 employee_awards[]
+  employee_certifications         employee_certifications[]
+  employee_domain_knowledge       employee_domain_knowledge[]
+  employee_education              employee_education[]
+  employee_languages              employee_languages[]
+  employee_projects               employee_projects[]
+  employee_publications           employee_publications[]
+  employee_roles                  employee_roles[]
+  employee_work_experiences       employee_work_experiences[]
   departments                     departments?                      @relation(fields: [department_id], references: [id])
   engagement_campaign_assignments engagement_campaign_assignments[]
   engagement_results              engagement_results[]
@@ -565,7 +547,6 @@ model skills {
   updated_at             DateTime?                @default(now()) @db.Timestamp(6)
   tenants                tenants?                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   skills_sub_roles_value skills_sub_roles_value[]
-  employee_skills        employee_skills[]
 
   @@unique([Skill, tenant_id], map: "unique_skill_per_tenant")
   @@index([is_active], map: "idx_skills_active")
@@ -575,22 +556,22 @@ model skills {
 }
 
 model soft_skills {
-  id                           Int                            @id @default(autoincrement())
-  name                         String
-  nameEn                       String?
-  description                  String?
-  category                     String?
-  isActive                     Boolean                        @default(true)
-  createdAt                    DateTime                       @default(now())
-  updatedAt                    DateTime
-  code                         String                         @unique
-  descriptionEn                String?
-  evaluationCriteria           Json?
-  orderIndex                   Int                            @default(0)
+  id                             Int                              @id @default(autoincrement())
+  name                           String
+  nameEn                         String?
+  description                    String?
+  category                       String?
+  isActive                       Boolean                          @default(true)
+  createdAt                      DateTime                         @default(now())
+  updatedAt                      DateTime
+  code                           String                           @unique
+  descriptionEn                  String?
+  evaluationCriteria             Json?
+  orderIndex                     Int                              @default(0)
+  assessment_template_soft_skill assessment_template_soft_skill[]
   job_family_soft_skills         job_family_soft_skills[]
   question_soft_skill_mappings   question_soft_skill_mappings[]
   role_soft_skills               role_soft_skills[]
-  assessment_template_soft_skill assessment_template_soft_skill[]
   user_soft_skills               user_soft_skills[]
 }
 
@@ -616,52 +597,52 @@ model sub_roles {
   Sub_Role               String?
   NameKnown_Sub_Role     String?
   Synonyms_Sub_Role      String[]
-  tenant_id              String?                  // NULL = global, value = custom
+  tenant_id              String?                  @db.VarChar(255)
   is_custom              Boolean?                 @default(false)
-  created_by             String?                  // User email/ID who created it
-  created_at             DateTime?                @default(now())
+  created_by             String?                  @db.VarChar(255)
+  created_at             DateTime?                @default(now()) @db.Timestamp(6)
   project_roles          project_roles[]
   role_sub_role          role_sub_role[]
   skills_sub_roles_value skills_sub_roles_value[]
 
-  @@unique([tenant_id, Sub_Role], map: "unique_subrole_per_tenant")
   @@index([tenant_id], map: "idx_sub_roles_tenant_id")
 }
 
 model job_family {
-  id                      Int                       @id @default(autoincrement())
-  name                    String                    @unique @db.VarChar(100)
-  description             String?                   @db.Text
-  is_active               Boolean                   @default(true)
-  created_at              DateTime                  @default(now())
-  updated_at              DateTime                  @default(now()) @updatedAt
-  job_family_soft_skills  job_family_soft_skills[]
-  assessment_templates    assessment_templates[]
+  id                     Int                      @id @default(autoincrement())
+  name                   String                   @unique @db.VarChar(100)
+  description            String?
+  is_active              Boolean?                 @default(true)
+  created_at             DateTime?                @default(now()) @db.Timestamp(6)
+  updated_at             DateTime?                @default(now()) @updatedAt @db.Timestamp(6)
+  assessment_templates   assessment_templates[]
+  job_family_soft_skills job_family_soft_skills[]
 
   @@index([name], map: "idx_job_family_name")
   @@index([is_active], map: "idx_job_family_is_active")
 }
 
 model job_family_soft_skills {
-  id             Int         @id @default(autoincrement())
-  job_family_id  Int
-  soft_skill_id  Int
-  priority       Int
-  min_score      Int
-  is_required    Boolean     @default(false)
-  weight         Decimal     @db.Decimal(3, 2)
-  target_score   Int
-  description    String?     @db.Text
-  created_at     DateTime    @default(now())
-  updated_at     DateTime    @default(now()) @updatedAt
-  job_family     job_family  @relation(fields: [job_family_id], references: [id], onDelete: Cascade)
-  soft_skills    soft_skills @relation(fields: [soft_skill_id], references: [id], onDelete: Cascade)
+  id            Int         @id @default(autoincrement())
+  job_family_id Int
+  soft_skill_id Int
+  priority      Int
+  min_score     Int
+  is_required   Boolean     @default(false)
+  weight        Decimal     @db.Decimal(3, 2)
+  target_score  Int
+  description   String?
+  created_at    DateTime?   @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?   @default(now()) @updatedAt @db.Timestamp(6)
+  job_family    job_family  @relation(fields: [job_family_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_jfss_job_family")
+  soft_skills   soft_skills @relation(fields: [soft_skill_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_jfss_soft_skill")
 
   @@unique([job_family_id, soft_skill_id], map: "unique_job_family_soft_skill")
   @@index([job_family_id], map: "idx_jfss_job_family")
   @@index([soft_skill_id], map: "idx_jfss_soft_skill")
   @@index([is_required], map: "idx_jfss_required")
   @@index([priority], map: "idx_jfss_priority")
+  @@index([job_family_id, priority], map: "idx_jfss_job_family_priority")
 }
 
 model assessment_template_soft_skill {
@@ -671,12 +652,12 @@ model assessment_template_soft_skill {
   questionMappings     Json
   createdAt            DateTime             @default(now())
   updatedAt            DateTime
-  soft_skills          soft_skills          @relation(fields: [softSkillId], references: [id])
-  assessment_templates assessment_templates @relation(fields: [templateId], references: [id])
+  soft_skills          soft_skills          @relation(fields: [softSkillId], references: [id], map: "template_soft_skill_mappings_softSkillId_fkey")
+  assessment_templates assessment_templates @relation(fields: [templateId], references: [id], map: "template_soft_skill_mappings_templateId_fkey")
 
-  @@unique([templateId, softSkillId])
-  @@index([softSkillId])
-  @@index([templateId])
+  @@unique([templateId, softSkillId], map: "template_soft_skill_mappings_templateId_softSkillId_key")
+  @@index([softSkillId], map: "template_soft_skill_mappings_softSkillId_idx")
+  @@index([templateId], map: "template_soft_skill_mappings_templateId_idx")
 }
 
 model tenant_api_keys {
@@ -800,43 +781,54 @@ model tenant_users {
 }
 
 model tenants {
-  id                    String                @id
-  slug                  String?               @unique
-  name                  String
-  companyName           String?
-  domain                String?
-  email                 String                @unique
-  phone                 String?
-  vat_number            String?
-  tax_code              String?
-  address_street        String?
-  address_city          String?
-  address_state         String?
-  address_zip           String?
-  address_country       String?
-  subscription_plan     String?               @default("basic")
-  subscription_status   String?               @default("active")
-  max_employees         Int                   @default(50)
-  is_active             Boolean               @default(true)
-  created_by            String?
-  updated_by            String?
-  address               String?
-  city                  String?
-  country               String?
-  isActive              Boolean               @default(true)
-  is_deleted            Boolean               @default(false)
-  plan                  String?               @default("free")
-  maxUsers              Int                   @default(10)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime
-  logo                  String?
-  skills                skills[]
-  tenant_api_keys       tenant_api_keys[]
-  tenant_audit_log      tenant_audit_log[]
-  tenant_billing        tenant_billing[]
-  tenant_certifications TenantCertification[]
-  tenant_features       tenant_features[]
-  tenant_users          tenant_users[]
+  id                        String                      @id
+  slug                      String?                     @unique
+  name                      String
+  companyName               String?
+  domain                    String?
+  email                     String                      @unique
+  phone                     String?
+  vat_number                String?
+  tax_code                  String?
+  address_street            String?
+  address_city              String?
+  address_state             String?
+  address_zip               String?
+  address_country           String?
+  subscription_plan         String?                     @default("basic")
+  subscription_status       String?                     @default("active")
+  max_employees             Int                         @default(50)
+  is_active                 Boolean                     @default(true)
+  created_by                String?
+  updated_by                String?
+  address                   String?
+  city                      String?
+  country                   String?
+  isActive                  Boolean                     @default(true)
+  is_deleted                Boolean                     @default(false)
+  plan                      String?                     @default("free")
+  maxUsers                  Int                         @default(10)
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime
+  logo                      String?
+  employee_additional_info  employee_additional_info[]
+  employee_awards           employee_awards[]
+  employee_certifications   employee_certifications[]
+  employee_domain_knowledge employee_domain_knowledge[]
+  employee_education        employee_education[]
+  employee_languages        employee_languages[]
+  employee_projects         employee_projects[]
+  employee_publications     employee_publications[]
+  employee_roles            employee_roles[]
+  employee_skills           employee_skills[]
+  employee_work_experiences employee_work_experiences[]
+  skills                    skills[]
+  tenant_api_keys           tenant_api_keys[]
+  tenant_audit_log          tenant_audit_log[]
+  tenant_billing            tenant_billing[]
+  tenant_certifications     TenantCertification[]
+  tenant_features           tenant_features[]
+  tenant_users              tenant_users[]
 }
 
 model training_plans {
@@ -1416,14 +1408,19 @@ model cv_extractions {
   created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   updated_at                DateTime?                   @default(now()) @db.Timestamp(6)
   updated_by                String?
+  file_content              Bytes?
+  extracted_text            String?
+  llm_cost                  Decimal?                    @db.Decimal(10, 6)
   employees                 employees                   @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   employee_additional_info  employee_additional_info[]
   employee_awards           employee_awards[]
   employee_certifications   employee_certifications[]
+  employee_domain_knowledge employee_domain_knowledge[]
   employee_education        employee_education[]
   employee_languages        employee_languages[]
   employee_projects         employee_projects[]
   employee_publications     employee_publications[]
+  employee_skills           employee_skills[]
   employee_work_experiences employee_work_experiences[]
 
   @@index([extraction_result], map: "idx_cv_extractions_result_gin", type: Gin)
@@ -1458,10 +1455,13 @@ model employee_additional_info {
   cv_extraction_id     String?         @db.Uuid
   created_at           DateTime?       @default(now()) @db.Timestamp(6)
   updated_at           DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id            String
   cv_extractions       cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees            employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants              tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_additional_info_tenant")
 
   @@index([employee_id], map: "idx_employee_additional_info_employee")
+  @@index([tenant_id, employee_id], map: "idx_employee_additional_info_tenant_employee")
 }
 
 model employee_awards {
@@ -1473,10 +1473,13 @@ model employee_awards {
   description          String?
   cv_extraction_id     String?         @db.Uuid
   created_at           DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id            String
   cv_extractions       cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees            employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants              tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_awards_tenant")
 
   @@index([employee_id], map: "idx_employee_awards_employee")
+  @@index([tenant_id, employee_id], map: "idx_employee_awards_tenant_employee")
 }
 
 model employee_certifications {
@@ -1493,11 +1496,39 @@ model employee_certifications {
   cv_extraction_id     String?         @db.Uuid
   created_at           DateTime?       @default(now()) @db.Timestamp(6)
   updated_at           DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id            String
   certifications       Certification?  @relation(fields: [certification_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   cv_extractions       cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees            employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants              tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_certifications_tenant")
 
   @@index([employee_id], map: "idx_employee_certifications_employee")
+  @@index([tenant_id, employee_id], map: "idx_employee_certifications_tenant_employee")
+}
+
+model employee_domain_knowledge {
+  id               Int             @id @default(autoincrement())
+  employee_id      Int
+  domain_type      String          @db.VarChar(50)
+  domain_value     String          @db.VarChar(255)
+  source           String?         @default("cv_extracted") @db.VarChar(50)
+  cv_extraction_id String?         @db.Uuid
+  confidence_score Decimal?        @db.Decimal(3, 2)
+  years_experience Int?
+  created_at       DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id        String
+  employees        employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_domain_knowledge_employee")
+  cv_extractions   cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onUpdate: NoAction, map: "fk_employee_domain_knowledge_extraction")
+  tenants          tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_domain_knowledge_tenant")
+
+  @@unique([employee_id, domain_type, domain_value], map: "unique_employee_domain")
+  @@index([employee_id], map: "idx_employee_domain_knowledge_employee")
+  @@index([domain_type], map: "idx_employee_domain_knowledge_type")
+  @@index([domain_value], map: "idx_employee_domain_knowledge_value")
+  @@index([domain_type, domain_value], map: "idx_employee_domain_knowledge_type_value")
+  @@index([tenant_id, employee_id], map: "idx_employee_domain_knowledge_tenant_employee")
+  @@map("employee_domain_knowledge")
 }
 
 model employee_education {
@@ -1517,11 +1548,14 @@ model employee_education {
   cv_extraction_id     String?            @db.Uuid
   created_at           DateTime?          @default(now()) @db.Timestamp(6)
   updated_at           DateTime?          @default(now()) @db.Timestamp(6)
+  tenant_id            String
   cv_extractions       cv_extractions?    @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   education_degrees    education_degrees? @relation(fields: [degree_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees            employees          @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants              tenants            @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_education_tenant")
 
   @@index([employee_id], map: "idx_employee_education_employee")
+  @@index([tenant_id, employee_id], map: "idx_employee_education_tenant_employee")
 }
 
 model employee_languages {
@@ -1538,14 +1572,17 @@ model employee_languages {
   cv_extraction_id            String?                      @db.Uuid
   created_at                  DateTime?                    @default(now()) @db.Timestamp(6)
   updated_at                  DateTime?                    @default(now()) @db.Timestamp(6)
+  tenant_id                   String
   cv_extractions              cv_extractions?              @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees                   employees                    @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   languages                   languages                    @relation(fields: [language_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   language_proficiency_levels language_proficiency_levels? @relation(fields: [proficiency_level_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenants                     tenants                      @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_languages_tenant")
 
   @@unique([employee_id, language_id])
   @@index([employee_id], map: "idx_employee_languages_employee")
   @@index([language_id], map: "idx_employee_languages_language")
+  @@index([tenant_id, employee_id], map: "idx_employee_languages_tenant_employee")
 }
 
 model employee_projects {
@@ -1562,10 +1599,13 @@ model employee_projects {
   cv_extraction_id  String?         @db.Uuid
   created_at        DateTime?       @default(now()) @db.Timestamp(6)
   updated_at        DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id         String
   cv_extractions    cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees         employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants           tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_projects_tenant")
 
   @@index([employee_id], map: "idx_employee_projects_employee")
+  @@index([tenant_id, employee_id], map: "idx_employee_projects_tenant_employee")
 }
 
 model employee_publications {
@@ -1583,10 +1623,13 @@ model employee_publications {
   keywords         String[]
   cv_extraction_id String?         @db.Uuid
   created_at       DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id        String
   cv_extractions   cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees        employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants          tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_publications_tenant")
 
   @@index([employee_id], map: "idx_employee_publications_employee")
+  @@index([tenant_id, employee_id], map: "idx_employee_publications_tenant_employee")
 }
 
 model employee_work_experiences {
@@ -1610,11 +1653,14 @@ model employee_work_experiences {
   cv_extraction_id String?         @db.Uuid
   created_at       DateTime?       @default(now()) @db.Timestamp(6)
   updated_at       DateTime?       @default(now()) @db.Timestamp(6)
+  tenant_id        String
   companies        companies?      @relation(fields: [company_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   cv_extractions   cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   employees        employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tenants          tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_work_experiences_tenant")
 
   @@index([employee_id], map: "idx_employee_work_experiences_employee")
+  @@index([tenant_id, employee_id], map: "idx_employee_work_experiences_tenant_employee")
 }
 
 model industries {
@@ -1645,6 +1691,50 @@ model languages {
   created_at         DateTime?            @default(now()) @db.Timestamp(6)
   updated_at         DateTime?            @default(now()) @db.Timestamp(6)
   employee_languages employee_languages[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model role_soft_skills_deleted_021 {
+  id          Int?
+  roleId      Int?
+  softSkillId Int?
+  priority    Int?
+  minScore    Float?
+  createdAt   DateTime?
+  isRequired  Boolean?
+  weight      Float?
+  description String?
+  targetScore Float?
+  updatedAt   DateTime?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model roles_deleted_021 {
+  id             Int?
+  Role           String?
+  NameKnown_Role String?
+  Synonyms_Role  String[]
+  createdAt      DateTime?
+  department     String?
+  description    String?
+  isActive       Boolean?
+  level          String?
+  name           String?
+  updatedAt      DateTime?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model sub_roles_backup_022 {
+  id                 Int?
+  Sub_Role           String?
+  NameKnown_Sub_Role String?
+  Synonyms_Sub_Role  String[]
+
+  @@ignore
 }
 
 enum ScheduleStatus {

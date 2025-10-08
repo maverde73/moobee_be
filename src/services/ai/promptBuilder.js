@@ -21,11 +21,13 @@ class PromptBuilder {
       language = 'it',
       context = '',
       suggestedRoles = [],
-      description = ''
+      description = '',
+      job_family_id = null,
+      jobFamilySoftSkills = []
     } = options;
 
     const basePrompt = this.getBasePrompt(type, language);
-    const contextSection = this.buildContextSection(context, description, suggestedRoles);
+    const contextSection = this.buildContextSection(context, description, suggestedRoles, jobFamilySoftSkills);
     const requirementsSection = this.buildRequirementsSection(type, count, language);
 
     return `${basePrompt}\n\n${contextSection}\n\n${requirementsSection}`;
@@ -61,7 +63,7 @@ class PromptBuilder {
    * Costruisce sezione contesto
    * @private
    */
-  buildContextSection(context, description, suggestedRoles) {
+  buildContextSection(context, description, suggestedRoles, jobFamilySoftSkills) {
     let section = 'CONTESTO:';
 
     if (description) {
@@ -72,7 +74,18 @@ class PromptBuilder {
       section += `\n- Contesto specifico: ${context}`;
     }
 
-    if (suggestedRoles && suggestedRoles.length > 0) {
+    // Job Family Soft Skills (priorità su suggestedRoles)
+    if (jobFamilySoftSkills && jobFamilySoftSkills.length > 0) {
+      section += `\n\nSOFT SKILLS DA VALUTARE (ordine priorità):`;
+      jobFamilySoftSkills.forEach((skill, index) => {
+        const requiredLabel = skill.is_required ? '✓ OBBLIGATORIA' : '○ Opzionale';
+        section += `\n${index + 1}. ${skill.name} (${requiredLabel}, weight: ${(skill.weight * 100).toFixed(0)}%, target: ${skill.target_score}/5)`;
+        if (skill.description) {
+          section += `\n   Descrizione: ${skill.description}`;
+        }
+      });
+    } else if (suggestedRoles && suggestedRoles.length > 0) {
+      // Fallback ai ruoli se non ci sono job family soft skills
       section += `\n- Ruoli target: ${suggestedRoles.join(', ')}`;
     }
 

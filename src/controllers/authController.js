@@ -18,14 +18,23 @@ const authController = {
         });
       }
 
-      // Prima controlla se è un tenant user
+      // Prima controlla se è un tenant user (con employee data)
       const tenantUser = await prisma.tenant_users.findFirst({
         where: {
           email,
-          isActive: true
+          is_active: true
         },
         include: {
-          tenant: true
+          tenant: true,
+          employees: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              position: true,
+              department_id: true
+            }
+          }
         }
       });
 
@@ -48,13 +57,24 @@ const authController = {
           });
         }
 
-        // Genera token JWT per tenant user
+        // Get employee data from relation
+        const employeeData = tenantUser.employees || {};
+        console.log('[AUTH] tenantUser.employee_id:', tenantUser.employee_id);
+        console.log('[AUTH] tenantUser.employees:', employeeData);
+        console.log('[AUTH] first_name from employee:', employeeData.first_name);
+
+        // Genera token JWT per tenant user (with employee data)
         const token = jwt.sign(
           {
             id: tenantUser.id,
             email: tenantUser.email,
+            firstName: employeeData.first_name || tenantUser.firstName || '',
+            lastName: employeeData.last_name || tenantUser.lastName || '',
             role: tenantUser.role,
             tenantId: tenantUser.tenantId,
+            employeeId: employeeData.id || null,
+            position: employeeData.position || null,
+            departmentId: employeeData.department_id || null,
             userType: 'tenant'
           },
           process.env.JWT_SECRET || 'your-secret-key',
@@ -73,10 +93,12 @@ const authController = {
             user: {
               id: tenantUser.id,
               email: tenantUser.email,
-              firstName: tenantUser.firstName,
-              lastName: tenantUser.lastName,
+              firstName: employeeData.first_name || tenantUser.firstName || '',
+              lastName: employeeData.last_name || tenantUser.lastName || '',
               role: tenantUser.role,
               tenantId: tenantUser.tenantId,
+              employeeId: employeeData.id || null,
+              position: employeeData.position || null,
               tenantName: tenantUser.tenant.name
             },
             token
