@@ -587,21 +587,8 @@ router.post('/:id/roles',
       const result = await prisma.$transaction(async (tx) => {
         const savedRoles = [];
 
-        // Count how many roles will be marked as current
-        const currentRolesInRequest = roles.filter(r => r.is_current === true).length;
-
-        // If setting a role as current, unset all other current roles first
-        if (currentRolesInRequest > 0) {
-          const roleIdsInRequest = roles.filter(r => r.id).map(r => parseInt(r.id));
-          await tx.employee_roles.updateMany({
-            where: {
-              employee_id: employeeId,
-              id: roleIdsInRequest.length > 0 ? { notIn: roleIdsInRequest } : undefined,
-              is_current: true
-            },
-            data: { is_current: false }
-          });
-        }
+        // Note: Multiple current roles are now allowed (constraint idx_employee_roles_one_current dropped in migration 036)
+        // Employees can have multiple roles with is_current=true simultaneously
 
         for (const role of roles) {
           // Get role_id from role_sub_role mapping if sub_role_id is provided
@@ -637,33 +624,13 @@ router.post('/:id/roles',
               data: roleData
             });
           } else {
-            // Create new role (unique constraint will prevent duplicates)
-            try {
-              savedRole = await tx.employee_roles.create({
-                data: roleData
-              });
-            } catch (error) {
-              // If duplicate, find and update the existing one
-              if (error.code === 'P2002') { // Unique constraint violation
-                const existing = await tx.employee_roles.findFirst({
-                  where: {
-                    employee_id: employeeId,
-                    role_id: parseInt(role.role_id),
-                    sub_role_id: role.sub_role_id ? parseInt(role.sub_role_id) : null
-                  }
-                });
-                if (existing) {
-                  savedRole = await tx.employee_roles.update({
-                    where: { id: existing.id },
-                    data: roleData
-                  });
-                } else {
-                  throw error;
-                }
-              } else {
-                throw error;
-              }
-            }
+            // Create new role
+            // Note: Multiple current roles are now allowed (constraint idx_employee_roles_one_current dropped in migration 036)
+            // Unique constraint on (employee_id, role_id, sub_role_id) prevents true duplicates
+            // If this fails with P2002, it means user is trying to add same role twice
+            savedRole = await tx.employee_roles.create({
+              data: roleData
+            });
           }
 
           savedRoles.push(savedRole);
@@ -681,6 +648,53 @@ router.post('/:id/roles',
         } else {
           // If no existing roles were provided, don't delete anything
           // (user might be adding first role)
+        }
+
+        // AUTO-ADD SOFT SKILLS: After roles are saved, auto-populate soft skills
+        // Get sub_role_ids from saved roles that are marked as current
+        const currentSubRoleIds = savedRoles
+          .filter(r => r.is_current && r.sub_role_id)
+          .map(r => r.sub_role_id);
+
+        if (currentSubRoleIds.length > 0) {
+          try {
+            console.log(`[Auto-Add Soft Skills] Found ${currentSubRoleIds.length} current sub-roles`);
+
+            // Find soft skills for these sub_roles
+            const softSkillsToAdd = await findSoftSkillsForSubRoles(currentSubRoleIds, tenantId);
+
+            console.log(`[Auto-Add Soft Skills] Found ${softSkillsToAdd.length} soft skills to add`);
+
+            // Upsert soft skills within the same transaction
+            for (const ss of softSkillsToAdd) {
+              await tx.employee_soft_skills.upsert({
+                where: {
+                  employee_id_soft_skill_id_sub_role_id: {
+                    employee_id: employeeId,
+                    soft_skill_id: ss.soft_skill_id,
+                    sub_role_id: ss.sub_role_id
+                  }
+                },
+                update: {
+                  importance: ss.importance,
+                  updated_at: new Date()
+                },
+                create: {
+                  employee_id: employeeId,
+                  soft_skill_id: ss.soft_skill_id,
+                  sub_role_id: ss.sub_role_id,
+                  importance: ss.importance,
+                  source: 'auto_from_role',
+                  tenant_id: tenantId
+                }
+              });
+            }
+
+            console.log(`[Auto-Add Soft Skills] Successfully added/updated ${softSkillsToAdd.length} soft skills`);
+          } catch (error) {
+            console.error('[Auto-Add Soft Skills] Error:', error);
+            // Don't block role saving if soft skills fail
+          }
         }
 
         return savedRoles;
@@ -759,6 +773,25 @@ router.put('/:id/roles/:roleId',
         role_id = mapping.id_role;
       }
 
+      // BUSINESS RULE: Employee must have AT LEAST 1 current role
+      // If user is trying to set is_current=false, check if this is the ONLY current role
+      if (is_current === false) {
+        const currentRolesCount = await prisma.employee_roles.count({
+          where: {
+            employee_id: employeeId,
+            is_current: true
+          }
+        });
+
+        if (currentRolesCount === 1) {
+          // This is the ONLY current role - don't allow setting it to false
+          return res.status(400).json({
+            success: false,
+            message: 'Non puoi rimuovere l\'unico ruolo attuale. Un dipendente deve avere almeno un ruolo attuale.'
+          });
+        }
+      }
+
       // Build update data object - only include fields that are being updated
       const updateData = {};
 
@@ -774,52 +807,13 @@ router.put('/:id/roles/:roleId',
         updateData.tenant_id = tenantId;
       }
 
-      // Use transaction to handle "one current role" constraint
-      const updatedRole = await prisma.$transaction(async (tx) => {
-        // Only enforce constraint if is_current is being modified
-        if (is_current !== undefined) {
-          // If setting this role as current, unset all other current roles for this employee
-          if (is_current === true) {
-            await tx.employee_roles.updateMany({
-              where: {
-                employee_id: employeeId,
-                id: { not: roleId },
-                is_current: true
-              },
-              data: { is_current: false }
-            });
-          }
+      // Note: Multiple current roles are now allowed (constraint idx_employee_roles_one_current dropped in migration 036)
+      // BUSINESS RULE: Employee must have AT LEAST 1 current role (validated above)
 
-          // If unsetting current and this is the only role, prevent the update
-          if (is_current === false) {
-            const roleCount = await tx.employee_roles.count({
-              where: { employee_id: employeeId }
-            });
-
-            if (roleCount === 1) {
-              throw new Error('Cannot unset current status: employee must have at least one current role');
-            }
-
-            // Check if there will be another current role after this update
-            const otherCurrentRoles = await tx.employee_roles.count({
-              where: {
-                employee_id: employeeId,
-                id: { not: roleId },
-                is_current: true
-              }
-            });
-
-            if (otherCurrentRoles === 0) {
-              throw new Error('Cannot unset current status: employee must have at least one current role');
-            }
-          }
-        }
-
-        // Update the role
-        return await tx.employee_roles.update({
-          where: { id: roleId },
-          data: updateData
-        });
+      // Update the role directly (no transaction needed)
+      const updatedRole = await prisma.employee_roles.update({
+        where: { id: roleId },
+        data: updateData
       });
 
       res.json({
@@ -865,6 +859,29 @@ router.delete('/:id/roles/:roleId',
         });
       }
 
+      // BUSINESS RULE: Employee must have AT LEAST 1 current role
+      // Check if we're deleting the ONLY current role
+      const roleToDelete = await prisma.employee_roles.findUnique({
+        where: { id: roleId }
+      });
+
+      if (roleToDelete && roleToDelete.is_current) {
+        const currentRolesCount = await prisma.employee_roles.count({
+          where: {
+            employee_id: employeeId,
+            is_current: true
+          }
+        });
+
+        if (currentRolesCount === 1) {
+          // This is the ONLY current role - don't allow deletion
+          return res.status(400).json({
+            success: false,
+            message: 'Non puoi eliminare l\'unico ruolo attuale. Un dipendente deve avere almeno un ruolo attuale.'
+          });
+        }
+      }
+
       // Hard delete the role
       await prisma.employee_roles.delete({
         where: { id: roleId }
@@ -885,43 +902,173 @@ router.delete('/:id/roles/:roleId',
   }
 );
 
-// GET /api/employees/:id/skills - Get employee skills
-router.get('/:id/skills',
+// GET /api/employees/:id/top-skills - Get top skills by grading for dashboard
+// Priority logic:
+// 1. Get all skills ordered by grading DESC
+// 2. Filter skills with grading >= 0.85 (highly relevant for role)
+// 3. If >= limit skills with grading >= 0.85, use those
+// 4. Otherwise, fallback to top skills by grading regardless of threshold
+router.get('/:id/top-skills',
   authenticate,
   [
-    param('id').isInt()
+    param('id').isInt(),
+    query('limit').optional().isInt({ min: 1, max: 20 })
   ],
   handleValidationErrors,
   async (req, res) => {
     try {
       const employeeId = parseInt(req.params.id);
+      const limit = parseInt(req.query.limit) || 7;
+      const gradingThreshold = 0.85;
 
-      // Get hard skills from employee_skills table
-      const hardSkillsRaw = await prisma.$queryRaw`
+      // Get ALL skills ordered by grading (no LIMIT initially)
+      const allSkills = await prisma.$queryRaw`
         SELECT
-          es.id,
-          es.skill_id,
+          s."NameKnown_Skill" as skill_name,
           es.proficiency_level,
-          es.years_experience,
-          es.source,
-          es.last_used_date,
-          s."Skill" as skill_name,
-          s."NameKnown_Skill" as name_known_skill
+          ssv."Grading",
+          er.sub_role_id,
+          sr."Sub_Role" as sub_role_name
         FROM employee_skills es
-        LEFT JOIN skills s ON es.skill_id = s.id
+        JOIN skills s ON es.skill_id = s.id
+        JOIN employee_roles er ON er.employee_id = es.employee_id
+          AND er.is_current = true
+        JOIN skills_sub_roles_value ssv ON ssv.id_skill = es.skill_id
+          AND ssv.id_sub_role = er.sub_role_id
+        JOIN sub_roles sr ON sr.id = er.sub_role_id
         WHERE es.employee_id = ${employeeId}
-        ORDER BY es.proficiency_level DESC
+          AND es.proficiency_level > 0
+        ORDER BY ssv."Grading" DESC NULLS LAST
       `;
 
-      // Transform to frontend format
+      // Convert to array with proper typing
+      const skillsArray = allSkills.map(skill => ({
+        skill_name: skill.skill_name,
+        proficiency_level: skill.proficiency_level || 0,
+        grading: skill.Grading ? Number(skill.Grading) : null,
+        sub_role_name: skill.sub_role_name
+      }));
+
+      // Filter skills with grading >= threshold
+      const relevantSkills = skillsArray.filter(s => s.grading !== null && s.grading >= gradingThreshold);
+
+      // Decision: use relevant skills if we have enough, otherwise fallback to all
+      let selectedSkills;
+      if (relevantSkills.length >= limit) {
+        // Use top N skills with grading >= 0.85
+        selectedSkills = relevantSkills.slice(0, limit);
+        console.log(`[Top Skills] Employee ${employeeId}: Found ${relevantSkills.length} skills with grading >= ${gradingThreshold}, using top ${limit}`);
+      } else {
+        // Fallback: use top N skills regardless of grading
+        selectedSkills = skillsArray.slice(0, limit);
+        console.log(`[Top Skills] Employee ${employeeId}: Only ${relevantSkills.length} skills with grading >= ${gradingThreshold}, using top ${limit} overall`);
+      }
+
+      res.json({
+        success: true,
+        data: selectedSkills
+      });
+    } catch (error) {
+      console.error('Error fetching top skills:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching top skills',
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET /api/employees/:id/skills - Get employee skills with grading
+router.get('/:id/skills',
+  authenticate,
+  [
+    param('id').isInt(),
+    query('subRoleId').optional().isInt()
+  ],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+      const subRoleId = req.query.subRoleId ? parseInt(req.query.subRoleId) : null;
+
+      // If subRoleId is provided, filter by that specific role
+      // Otherwise, get skills with grading from first current role
+      let hardSkillsRaw;
+
+      if (subRoleId) {
+        // Filter by specific sub_role_id
+        hardSkillsRaw = await prisma.$queryRaw`
+          SELECT
+            es.id,
+            es.skill_id,
+            es.proficiency_level,
+            es.years_experience,
+            es.source,
+            es.last_used_date,
+            s."Skill" as skill_name,
+            s."NameKnown_Skill" as name_known_skill,
+            ssv."Grading",
+            ${subRoleId}::int as sub_role_id,
+            sr."Sub_Role" as sub_role_name
+          FROM employee_skills es
+          LEFT JOIN skills s ON es.skill_id = s.id
+          LEFT JOIN skills_sub_roles_value ssv ON ssv.id_skill = es.skill_id
+            AND ssv.id_sub_role = ${subRoleId}
+          LEFT JOIN sub_roles sr ON sr.id = ${subRoleId}
+          WHERE es.employee_id = ${employeeId}
+          ORDER BY
+            ssv."Grading" DESC NULLS LAST,
+            s."Skill" ASC
+        `;
+      } else {
+        // When no subRoleId specified: use DISTINCT ON to avoid duplicates
+        // when employee has multiple current roles. Select row with highest grading.
+        hardSkillsRaw = await prisma.$queryRaw`
+          SELECT DISTINCT ON (es.id)
+            es.id,
+            es.skill_id,
+            es.proficiency_level,
+            es.years_experience,
+            es.source,
+            es.last_used_date,
+            s."Skill" as skill_name,
+            s."NameKnown_Skill" as name_known_skill,
+            ssv."Grading",
+            er.sub_role_id,
+            sr."Sub_Role" as sub_role_name
+          FROM employee_skills es
+          LEFT JOIN skills s ON es.skill_id = s.id
+          LEFT JOIN employee_roles er ON er.employee_id = es.employee_id
+            AND er.is_current = true
+          LEFT JOIN skills_sub_roles_value ssv ON ssv.id_skill = es.skill_id
+            AND ssv.id_sub_role = er.sub_role_id
+          LEFT JOIN sub_roles sr ON sr.id = er.sub_role_id
+          WHERE es.employee_id = ${employeeId}
+          ORDER BY
+            es.id,
+            ssv."Grading" DESC NULLS LAST,
+            s."Skill" ASC
+        `;
+      }
+
+      // Transform to frontend format with grading
+      // IMPORTANT: Use skill_id (skills.id) as the main 'id' field for frontend
+      // This ensures the PUT endpoint receives the correct skill_id for upsert
       const hardSkills = hardSkillsRaw.map(skill => ({
-        id: skill.skill_id.toString(),
+        id: skill.skill_id, // ✅ PRIMARY: Use skills.id so PUT gets correct value
+        employee_skill_id: skill.id.toString(), // Junction table PK (for reference)
+        skill_id: skill.skill_id, // ✅ BACKUP: Also send skill_id explicitly
         name: skill.name_known_skill || skill.skill_name || 'Unknown Skill',
+        skill_name: skill.skill_name,
         level: skill.proficiency_level || 0,
-        category: 'Technical Skills', // Default category since not stored in DB
+        grading: skill.Grading !== null ? Number(skill.Grading) : null, // ⭐ Grading per il ruolo corrente
+        category: 'Technical Skills',
         source: skill.source || 'manual',
         lastAssessedDate: skill.last_used_date ? skill.last_used_date.toISOString() : null,
-        yearsOfExperience: skill.years_experience || 0
+        yearsOfExperience: skill.years_experience || 0,
+        sub_role_id: skill.sub_role_id,
+        sub_role_name: skill.sub_role_name
       }));
 
       // Get soft skills from employee_soft_skills table (if it exists)
@@ -985,6 +1132,26 @@ router.put('/:id/skills',
       const { hard, soft = [] } = req.body;
       const tenantId = req.tenantId || req.user?.tenantId;
 
+      // 🔍 DEBUG LOGGING
+      console.log('='.repeat(80));
+      console.log('🔍 [PUT /api/employees/:id/skills] INCOMING REQUEST DEBUG');
+      console.log('='.repeat(80));
+      console.log('Employee ID:', employeeId);
+      console.log('Tenant ID:', tenantId);
+      console.log('Hard Skills Received:', JSON.stringify(hard, null, 2));
+      console.log('Number of hard skills:', hard?.length || 0);
+
+      if (hard && hard.length > 0) {
+        hard.forEach((skill, index) => {
+          console.log(`\nSkill ${index + 1}:`);
+          console.log('  - skill.id:', skill.id, '(type:', typeof skill.id, ')');
+          console.log('  - skill.skill_id:', skill.skill_id, '(type:', typeof skill.skill_id, ')');
+          console.log('  - skill.name:', skill.name);
+          console.log('  - skill.level:', skill.level);
+        });
+      }
+      console.log('='.repeat(80));
+
       if (!tenantId) {
         return res.status(400).json({
           success: false,
@@ -993,12 +1160,21 @@ router.put('/:id/skills',
       }
 
       // Upsert hard skills
-      const hardSkillOps = hard.map(skill =>
-        prisma.employee_skills.upsert({
+      // FIX: Use skill_id if available (from GET response), otherwise use id (for backward compatibility)
+      const hardSkillOps = hard.map((skill, index) => {
+        const skillId = parseInt(skill.skill_id || skill.id);
+
+        console.log(`\n🔧 [Skill ${index + 1}] Upsert preparation:`);
+        console.log('  - Original skill.id:', skill.id);
+        console.log('  - Original skill.skill_id:', skill.skill_id);
+        console.log('  - Computed skillId for upsert:', skillId);
+        console.log(`  - Will upsert with where: { employee_id: ${employeeId}, skill_id: ${skillId} }`);
+
+        return prisma.employee_skills.upsert({
           where: {
             employee_id_skill_id: {
               employee_id: employeeId,
-              skill_id: parseInt(skill.id)
+              skill_id: skillId
             }
           },
           update: {
@@ -1011,7 +1187,7 @@ router.put('/:id/skills',
           },
           create: {
             employee_id: employeeId,
-            skill_id: parseInt(skill.id),
+            skill_id: skillId,
             proficiency_level: skill.level || 0,
             years_experience: skill.yearsOfExperience || 0,
             source: skill.source || 'assessment',
@@ -1021,8 +1197,8 @@ router.put('/:id/skills',
             created_at: new Date(),
             updated_at: new Date()
           }
-        })
-      );
+        });
+      });
 
       await Promise.all(hardSkillOps);
 
@@ -1518,6 +1694,7 @@ router.get('/:id/cv-extraction-status', authenticate, async (req, res) => {
     };
 
     // If completed, include stats from extraction_result JSON
+    // Note: Data is automatically saved to tables by the background job in cvRoutes.js
     if (latestExtraction.status === 'completed' && latestExtraction.extraction_result) {
       const result = latestExtraction.extraction_result;
       response.stats = {
@@ -2090,6 +2267,195 @@ router.delete('/:id/languages/:langId',
     } catch (error) {
       console.error('Error deleting language:', error);
       res.status(500).json({ success: false, message: 'Error deleting language', error: error.message });
+    }
+  }
+);
+
+// ============================================================================
+// SOFT SKILLS ENDPOINTS
+// ============================================================================
+
+/**
+ * Helper function: Find soft skills for given sub_role_ids
+ * Relationship: sub_roles → role_sub_role → roles → role_soft_skills → soft_skills
+ */
+async function findSoftSkillsForSubRoles(subRoleIds, tenantId) {
+  if (!subRoleIds || subRoleIds.length === 0) {
+    return [];
+  }
+
+  const softSkills = await prisma.$queryRaw`
+    SELECT DISTINCT
+      rss."softSkillId" as soft_skill_id,
+      sr.id as sub_role_id,
+      rss.priority as importance,
+      rss."isRequired" as is_required
+    FROM sub_roles sr
+    JOIN role_sub_role rsr ON sr.id = rsr.id_sub_role
+    JOIN roles r ON rsr.id_role = r.id
+    JOIN role_soft_skills rss ON r.id = rss."roleId"
+    WHERE sr.id = ANY(${subRoleIds}::int[])
+    ORDER BY sr.id, rss.priority ASC
+  `;
+
+  return softSkills;
+}
+
+// POST /api/employees/:id/soft-skills/auto-populate
+// Auto-populate soft skills based on employee's current roles
+router.post('/:id/soft-skills/auto-populate',
+  authenticate,
+  determineTenant,
+  [param('id').isInt()],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+      const tenantId = req.tenantId;
+
+      console.log(`[Auto-Populate Soft Skills] Employee ${employeeId}`);
+
+      // Get current roles for employee
+      const currentRoles = await prisma.employee_roles.findMany({
+        where: {
+          employee_id: employeeId,
+          is_current: true
+        },
+        select: {
+          sub_role_id: true
+        }
+      });
+
+      if (currentRoles.length === 0) {
+        return res.json({
+          success: true,
+          message: 'No current roles found',
+          data: { soft_skills_added: 0 }
+        });
+      }
+
+      const subRoleIds = currentRoles
+        .map(r => r.sub_role_id)
+        .filter(id => id !== null);
+
+      if (subRoleIds.length === 0) {
+        return res.json({
+          success: true,
+          message: 'No sub_roles found in current roles',
+          data: { soft_skills_added: 0 }
+        });
+      }
+
+      // Find soft skills for these sub_roles
+      const softSkillsForRoles = await findSoftSkillsForSubRoles(subRoleIds, tenantId);
+
+      console.log(`[Auto-Populate] Found ${softSkillsForRoles.length} soft skills for ${subRoleIds.length} sub-roles`);
+
+      // Upsert soft skills for employee
+      const operations = softSkillsForRoles.map(ss =>
+        prisma.employee_soft_skills.upsert({
+          where: {
+            employee_id_soft_skill_id_sub_role_id: {
+              employee_id: employeeId,
+              soft_skill_id: ss.soft_skill_id,
+              sub_role_id: ss.sub_role_id
+            }
+          },
+          update: {
+            importance: ss.importance,
+            updated_at: new Date()
+          },
+          create: {
+            employee_id: employeeId,
+            soft_skill_id: ss.soft_skill_id,
+            sub_role_id: ss.sub_role_id,
+            importance: ss.importance,
+            source: 'auto_from_role',
+            tenant_id: tenantId
+          }
+        })
+      );
+
+      const result = await prisma.$transaction(operations);
+
+      res.json({
+        success: true,
+        message: `Auto-populated ${result.length} soft skills`,
+        data: { soft_skills_added: result.length }
+      });
+    } catch (error) {
+      console.error('Error auto-populating soft skills:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error auto-populating soft skills',
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET /api/employees/:id/soft-skills
+// Get employee soft skills with role importance
+router.get('/:id/soft-skills',
+  authenticate,
+  [param('id').isInt()],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+
+      const softSkills = await prisma.employee_soft_skills.findMany({
+        where: { employee_id: employeeId },
+        include: {
+          soft_skills: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              category: true
+            }
+          },
+          sub_roles: {
+            select: {
+              id: true,
+              Sub_Role: true,
+              NameKnown_Sub_Role: true
+            }
+          }
+        }
+      });
+
+      // Group by soft_skill_id and aggregate role importance
+      const grouped = {};
+      softSkills.forEach(ss => {
+        const skillId = ss.soft_skill_id;
+        if (!grouped[skillId]) {
+          grouped[skillId] = {
+            id: skillId,
+            name: ss.soft_skills.name,
+            description: ss.soft_skills.description,
+            category: ss.soft_skills.category,
+            roleImportance: []
+          };
+        }
+        grouped[skillId].roleImportance.push({
+          subRoleId: ss.sub_role_id,
+          subRoleName: ss.sub_roles.NameKnown_Sub_Role || ss.sub_roles.Sub_Role,
+          importance: ss.importance
+        });
+      });
+
+      res.json({
+        success: true,
+        data: Object.values(grouped)
+      });
+    } catch (error) {
+      console.error('Error fetching soft skills:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching soft skills',
+        error: error.message
+      });
     }
   }
 );

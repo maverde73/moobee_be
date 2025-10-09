@@ -97,6 +97,7 @@ async function processExtractionInBackground(extraction, prisma) {
 
     console.log(`[Background Job ${extractionId}] Python extraction completed`);
     console.log(`[Background Job ${extractionId}] Extracted text length: ${cvData.extracted_text?.length || 0} chars`);
+    console.log(`[Background Job ${extractionId}] 📊 Role data received from Python:`, JSON.stringify(cvData.role, null, 2));
 
     // Prepare extraction_result JSON with all extracted data
     const extractionResult = {
@@ -116,6 +117,8 @@ async function processExtractionInBackground(extraction, prisma) {
         extracted_text_length: cvData.extracted_text?.length || 0
       }
     };
+
+    console.log(`[Background Job ${extractionId}] 📝 Extraction result prepared - role data:`, JSON.stringify(extractionResult.role, null, 2));
 
     // Update cv_extractions with results (save all data in extraction_result JSON)
     await prisma.cv_extractions.update({
@@ -141,13 +144,20 @@ async function processExtractionInBackground(extraction, prisma) {
     console.log(`[Background Job ${extractionId}] ✅ COMPLETED in ${processingTime}s`);
 
     // Save extracted data to employee tables
-    console.log(`[Background Job ${extractionId}] Saving extracted data to employee tables...`);
+    console.log(`[Background Job ${extractionId}] 💾 Calling CVDataSaveService.saveExtractedDataToTables(${extractionId})...`);
     const saveResult = await CVDataSaveService.saveExtractedDataToTables(extractionId);
 
     if (saveResult.success) {
-      console.log(`[Background Job ${extractionId}] Data saved successfully:`, saveResult.stats);
+      console.log(`[Background Job ${extractionId}] ✅ Data saved successfully:`, JSON.stringify(saveResult.stats, null, 2));
+
+      // Log role save specifically
+      if (saveResult.stats.role_saved) {
+        console.log(`[Background Job ${extractionId}] 🎯 ROLE SAVED SUCCESSFULLY`);
+      } else {
+        console.log(`[Background Job ${extractionId}] ⚠️ ROLE NOT SAVED - Check logs above for reason`);
+      }
     } else {
-      console.error(`[Background Job ${extractionId}] Failed to save data:`, saveResult.error);
+      console.error(`[Background Job ${extractionId}] ❌ Failed to save data:`, saveResult.error);
     }
 
   } catch (error) {

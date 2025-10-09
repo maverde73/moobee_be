@@ -231,12 +231,35 @@ model employee_skills {
   tenant_id         String
   source            String?         @default("manual") @db.VarChar(50)
   cv_extraction_id  String?         @db.Uuid
+  employees         employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_skills_employee")
   cv_extractions    cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onUpdate: NoAction, map: "fk_employee_skills_cv_extraction")
   tenants           tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_skills_tenant")
 
-  @@unique([employee_id, skill_id], map: "idx_employee_skills_unique")
+  @@unique([employee_id, skill_id], map: "employee_skills_employee_id_skill_id_key")
   @@index([cv_extraction_id], map: "idx_employee_skills_cv_extraction")
   @@index([tenant_id, employee_id], map: "idx_employee_skills_tenant_employee")
+}
+
+model employee_soft_skills {
+  id             Int         @id @default(autoincrement())
+  employee_id    Int
+  soft_skill_id  Int
+  sub_role_id    Int
+  importance     Int?
+  source         String?     @default("auto_from_role") @db.VarChar(50)
+  created_at     DateTime?   @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?   @default(now()) @db.Timestamp(6)
+  tenant_id      String
+  employees      employees   @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_soft_skills_employee")
+  soft_skills    soft_skills @relation(fields: [soft_skill_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_soft_skills_soft_skill")
+  sub_roles      sub_roles   @relation(fields: [sub_role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_soft_skills_sub_role")
+  tenants        tenants     @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_soft_skills_tenant")
+
+  @@unique([employee_id, soft_skill_id, sub_role_id], map: "unique_employee_soft_skill_role")
+  @@index([employee_id], map: "idx_employee_soft_skills_employee")
+  @@index([soft_skill_id], map: "idx_employee_soft_skills_soft_skill")
+  @@index([sub_role_id], map: "idx_employee_soft_skills_sub_role")
+  @@index([tenant_id, employee_id], map: "idx_employee_soft_skills_tenant_employee")
 }
 
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
@@ -272,6 +295,8 @@ model employees {
   employee_projects               employee_projects[]
   employee_publications           employee_publications[]
   employee_roles                  employee_roles[]
+  employee_skills                 employee_skills[]
+  employee_soft_skills            employee_soft_skills[]
   employee_work_experiences       employee_work_experiences[]
   departments                     departments?                      @relation(fields: [department_id], references: [id])
   engagement_campaign_assignments engagement_campaign_assignments[]
@@ -569,6 +594,7 @@ model soft_skills {
   evaluationCriteria             Json?
   orderIndex                     Int                              @default(0)
   assessment_template_soft_skill assessment_template_soft_skill[]
+  employee_soft_skills           employee_soft_skills[]
   job_family_soft_skills         job_family_soft_skills[]
   question_soft_skill_mappings   question_soft_skill_mappings[]
   role_soft_skills               role_soft_skills[]
@@ -601,6 +627,7 @@ model sub_roles {
   is_custom              Boolean?                 @default(false)
   created_by             String?                  @db.VarChar(255)
   created_at             DateTime?                @default(now()) @db.Timestamp(6)
+  employee_soft_skills   employee_soft_skills[]
   project_roles          project_roles[]
   role_sub_role          role_sub_role[]
   skills_sub_roles_value skills_sub_roles_value[]
@@ -821,6 +848,7 @@ model tenants {
   employee_publications     employee_publications[]
   employee_roles            employee_roles[]
   employee_skills           employee_skills[]
+  employee_soft_skills      employee_soft_skills[]
   employee_work_experiences employee_work_experiences[]
   skills                    skills[]
   tenant_api_keys           tenant_api_keys[]

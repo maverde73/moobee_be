@@ -160,6 +160,57 @@ async function findSkillIdByName(skillName) {
 
 class CVDataSaveService {
   /**
+   * Normalize company name for duplicate detection
+   * Handles: case, legal suffixes, special chars, multiple companies
+   *
+   * Examples:
+   *   "Taal Srl" → "taal"
+   *   "RINGMASTER - Lottomatica" → "ringmaster lottomatica"
+   *   "CheBanca! e KBCI" → "chebanca kbci"
+   *
+   * @param {string} companyName - Original company name
+   * @returns {string} - Normalized name
+   */
+  normalizeCompanyName(companyName) {
+    if (!companyName) return '';
+
+    let normalized = companyName
+      .toLowerCase()
+      .trim();
+
+    // Remove legal suffixes (Italian and international)
+    const legalSuffixes = [
+      'srl', 's.r.l.', 's.r.l', 'spa', 's.p.a.', 's.p.a',
+      'ltd', 'ltd.', 'inc', 'inc.', 'llc', 'llc.',
+      'gmbh', 'sa', 's.a.', 'ag', 'nv', 'bv',
+      'corporation', 'corp', 'corp.', 'limited',
+      'company', 'co.', 'co'
+    ];
+
+    // Remove suffixes (with word boundaries)
+    legalSuffixes.forEach(suffix => {
+      const regex = new RegExp(`\\b${suffix}\\b`, 'gi');
+      normalized = normalized.replace(regex, '');
+    });
+
+    // Remove special characters but keep spaces
+    normalized = normalized
+      .replace(/[&!.,\-()]/g, ' ')  // Replace special chars with space
+      .replace(/\s+/g, ' ')          // Collapse multiple spaces
+      .trim();
+
+    // Handle multiple companies separated by "e", "and", "/"
+    // "CheBanca e KBCI" → "chebanca kbci"
+    normalized = normalized
+      .replace(/\b(e|and|et)\b/g, ' ')
+      .replace(/\//g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return normalized;
+  }
+
+  /**
    * Save all extracted data from cv_extraction to employee tables
    * @param {string} cvExtractionId - UUID of cv_extraction record
    * @returns {Promise<{success: boolean, stats: object}>}
@@ -275,29 +326,91 @@ class CVDataSaveService {
             console.log(`[CV Data Save] No personal info fields to update (all fields already populated)`);
           }
 
-          // Save personal_email and personal_phone to employee_additional_info
-          if (personalInfo.email || personalInfo.phone || personalInfo.location) {
-            console.log(`[CV Data Save] Saving personal contact info to employee_additional_info`);
+          // Save all additional personal info to employee_additional_info
+          if (personalInfo.email || personalInfo.phone || personalInfo.location ||
+              personalInfo.date_of_birth || personalInfo.place_of_birth ||
+              personalInfo.nationality || personalInfo.marital_status ||
+              personalInfo.personal_email || personalInfo.personal_phone ||
+              personalInfo.linkedin_url || personalInfo.github_url ||
+              personalInfo.portfolio_url || personalInfo.hobbies_interests ||
+              personalInfo.volunteer_experience) {
+            console.log(`[CV Data Save] Saving comprehensive personal info to employee_additional_info`);
+
+            // Parse date_of_birth if present
+            let dateOfBirth = null;
+            if (personalInfo.date_of_birth) {
+              try {
+                dateOfBirth = new Date(personalInfo.date_of_birth);
+                if (isNaN(dateOfBirth.getTime())) {
+                  console.warn(`[CV Data Save] Invalid date_of_birth: ${personalInfo.date_of_birth}`);
+                  dateOfBirth = null;
+                }
+              } catch (e) {
+                console.warn(`[CV Data Save] Error parsing date_of_birth: ${e.message}`);
+                dateOfBirth = null;
+              }
+            }
+
+            // Parse hobbies_interests to array (Prisma String[] field)
+            let hobbiesArray = [];
+            if (personalInfo.hobbies_interests) {
+              if (typeof personalInfo.hobbies_interests === 'string') {
+                // Split by comma, semicolon, or newline
+                hobbiesArray = personalInfo.hobbies_interests
+                  .split(/[,;\n]+/)
+                  .map(s => s.trim())
+                  .filter(s => s.length > 0);
+              } else if (Array.isArray(personalInfo.hobbies_interests)) {
+                hobbiesArray = personalInfo.hobbies_interests;
+              }
+            }
 
             await prisma.employee_additional_info.upsert({
               where: { employee_id: employeeId },
               update: {
-                personal_email: personalInfo.email || undefined,
-                personal_phone: personalInfo.phone || undefined,
-                cv_extraction_id: cvExtractionId,
+                personal_email: personalInfo.personal_email || personalInfo.email || undefined,
+                personal_phone: personalInfo.personal_phone || personalInfo.phone || undefined,
+                date_of_birth: dateOfBirth || undefined,
+                place_of_birth: personalInfo.place_of_birth || undefined,
+                nationality: personalInfo.nationality || undefined,
+                marital_status: personalInfo.marital_status || undefined,
+                linkedin_url: personalInfo.linkedin_url || undefined,
+                github_url: personalInfo.github_url || undefined,
+                portfolio_url: personalInfo.portfolio_url || undefined,
+                hobbies_interests: hobbiesArray.length > 0 ? hobbiesArray : undefined,
+                volunteer_experience: personalInfo.volunteer_experience || undefined,
+                cv_extractions: cvExtractionId ? {
+                  connect: { id: cvExtractionId }
+                } : undefined,
                 updated_at: new Date()
               },
               create: {
-                employee_id: employeeId,
-                personal_email: personalInfo.email || null,
-                personal_phone: personalInfo.phone || null,
-                cv_extraction_id: cvExtractionId,
+                employees: {
+                  connect: { id: employeeId }
+                },
+                tenants: {
+                  connect: { id: finalTenantId }
+                },
+                personal_email: personalInfo.personal_email || personalInfo.email || null,
+                personal_phone: personalInfo.personal_phone || personalInfo.phone || null,
+                date_of_birth: dateOfBirth,
+                place_of_birth: personalInfo.place_of_birth || null,
+                nationality: personalInfo.nationality || null,
+                marital_status: personalInfo.marital_status || null,
+                linkedin_url: personalInfo.linkedin_url || null,
+                github_url: personalInfo.github_url || null,
+                portfolio_url: personalInfo.portfolio_url || null,
+                hobbies_interests: hobbiesArray,
+                volunteer_experience: personalInfo.volunteer_experience || null,
+                cv_extractions: cvExtractionId ? {
+                  connect: { id: cvExtractionId }
+                } : undefined,
                 created_at: new Date(),
                 updated_at: new Date()
               }
             });
 
-            console.log(`[CV Data Save] Personal contact info saved: email=${personalInfo.email}, phone=${personalInfo.phone}`);
+            console.log(`[CV Data Save] Comprehensive personal info saved: date_of_birth=${dateOfBirth ? 'YES' : 'NO'}, nationality=${personalInfo.nationality || 'N/A'}, linkedin=${personalInfo.linkedin_url ? 'YES' : 'NO'}`);
           }
         }
       }
@@ -327,7 +440,9 @@ class CVDataSaveService {
                 end_date: eduEndDate || existingEducation.end_date,
                 is_current: edu.is_current !== undefined ? edu.is_current : existingEducation.is_current,
                 grade: edu.grade || existingEducation.grade,
-                cv_extraction_id: cvExtractionId,
+                cv_extractions: cvExtractionId ? {
+                  connect: { id: cvExtractionId }
+                } : undefined,
                 updated_at: new Date()
               }
             });
@@ -337,7 +452,9 @@ class CVDataSaveService {
             // CREATE new record
             await prisma.employee_education.create({
               data: {
-                employee_id: employeeId,
+                employees: {
+                  connect: { id: employeeId }
+                },
                 degree_name: edu.degree_name || 'Unknown',
                 institution_name: edu.institution_name || 'Unknown',
                 field_of_study: edu.field_of_study || null,
@@ -365,7 +482,8 @@ class CVDataSaveService {
 
           // Check if company exists, create if not
           if (work.company_name && work.company_name !== 'Unknown') {
-            const companyNameNormalized = work.company_name.toLowerCase().trim();
+            // Advanced company name normalization
+            const companyNameNormalized = this.normalizeCompanyName(work.company_name);
 
             let company = await prisma.companies.findFirst({
               where: {
@@ -383,7 +501,9 @@ class CVDataSaveService {
                   website: null
                 }
               });
-              console.log(`[CV Data Save] Created new company: ${work.company_name}`);
+              console.log(`[CV Data Save] Created new company: ${work.company_name} (normalized: ${companyNameNormalized})`);
+            } else {
+              console.log(`[CV Data Save] Found existing company: ${company.name} (normalized: ${companyNameNormalized})`);
             }
 
             companyId = company.id;
@@ -407,14 +527,16 @@ class CVDataSaveService {
             await prisma.employee_work_experiences.update({
               where: { id: existingWorkExp.id },
               data: {
-                company_id: companyId || existingWorkExp.company_id,
+                companies: (companyId && companyId !== existingWorkExp.company_id) ? {
+                  connect: { id: companyId }
+                } : undefined,
                 company_location: work.company_location || existingWorkExp.company_location,
                 end_date: endDate || existingWorkExp.end_date,
                 is_current: work.is_current !== undefined ? work.is_current : existingWorkExp.is_current,
                 description: work.description || existingWorkExp.description,
                 responsibilities: work.responsibilities?.length > 0 ? work.responsibilities : existingWorkExp.responsibilities,
                 achievements: work.achievements?.length > 0 ? work.achievements : existingWorkExp.achievements,
-                cv_extraction_id: cvExtractionId,
+                cv_extractions: cvExtractionId ? { connect: { id: cvExtractionId } } : undefined,
                 updated_at: new Date()
               }
             });
@@ -424,8 +546,12 @@ class CVDataSaveService {
             // CREATE new record
             await prisma.employee_work_experiences.create({
               data: {
-                employee_id: employeeId,
-                company_id: companyId,
+                employees: {
+                  connect: { id: employeeId }
+                },
+                companies: companyId ? {
+                  connect: { id: companyId }
+                } : undefined,
                 company_name: work.company_name || 'Unknown',
                 company_location: work.company_location || null,
                 job_title: work.job_title || 'Unknown',
@@ -506,7 +632,9 @@ class CVDataSaveService {
               } else {
                 await prisma.employee_skills.create({
                   data: {
-                    employee_id: employeeId,
+                    employees: {
+                      connect: { id: employeeId }
+                    },
                     skill_id: skillId,
                     proficiency_level: 0, // Default, can be updated later
                     source: 'cv_extracted',
@@ -610,7 +738,7 @@ class CVDataSaveService {
                     spoken_production_level: cefLevel || existing.spoken_production_level,
                     writing_level: cefLevel || existing.writing_level,
                     is_native: (lang.proficiency === 'Native') || existing.is_native,
-                    cv_extraction_id: cvExtractionId,
+                    cv_extractions: cvExtractionId ? { connect: { id: cvExtractionId } } : undefined,
                     updated_at: new Date()
                   }
                 });
@@ -621,8 +749,12 @@ class CVDataSaveService {
                 // CREATE new language
                 await prisma.employee_languages.create({
                 data: {
-                  employee_id: employeeId,
-                  language_id: languageRecord.id,
+                  employees: {
+                    connect: { id: employeeId }
+                  },
+                  languages: {
+                    connect: { id: languageRecord.id }
+                  },
                   listening_level: cefLevel || null,
                   reading_level: cefLevel || null,
                   spoken_interaction_level: cefLevel || null,
@@ -675,7 +807,7 @@ class CVDataSaveService {
                 credential_id: cert.credential_id || existingCertification.credential_id,
                 credential_url: cert.credential_url || existingCertification.credential_url,
                 is_active: true,
-                cv_extraction_id: cvExtractionId,
+                cv_extractions: cvExtractionId ? { connect: { id: cvExtractionId } } : undefined,
                 updated_at: new Date()
               }
             });
@@ -685,7 +817,9 @@ class CVDataSaveService {
             // CREATE new record
             await prisma.employee_certifications.create({
               data: {
-                employee_id: employeeId,
+                employees: {
+                  connect: { id: employeeId }
+                },
                 certification_name: cert.certification_name || 'Unknown',
                 issuing_organization: cert.issuing_organization || null,
                 issue_date: cert.issue_date ? new Date(cert.issue_date) : null,
@@ -741,15 +875,20 @@ class CVDataSaveService {
                 },
                 update: {
                   updated_at: new Date(),
-                  cv_extraction_id: cvExtractionId,
+                  cv_extractions: cvExtractionId ? { connect: { id: cvExtractionId } } : undefined,
                   source: 'cv_extracted'
                 },
                 create: {
-                  employee_id: employeeId,
+                  employees: {
+                    connect: { id: employeeId }
+                  },
                   domain_type: category.type,
                   domain_value: domainValue,
                   source: 'cv_extracted',
-                  cv_extraction_id: cvExtractionId
+                  cv_extractions: cvExtractionId ? { connect: { id: cvExtractionId } } : undefined,
+                  tenants: {
+                    connect: { id: finalTenantId }
+                  }
                 }
               });
 
@@ -765,101 +904,190 @@ class CVDataSaveService {
       }
 
       // Save Role and Seniority
+      console.log(`\n========================================`);
+      console.log(`[CV Data Save] 🎯 ROLE SAVE SECTION START`);
+      console.log(`========================================`);
       console.log(`[CV Data Save] Checking role data...`);
       console.log(`[CV Data Save] data.role exists: ${!!data.role}`);
-      console.log(`[CV Data Save] role data:`, JSON.stringify(data.role, null, 2));
+      console.log(`[CV Data Save] role data received:`, JSON.stringify(data.role, null, 2));
+      console.log(`[CV Data Save] role data type: ${typeof data.role}`);
 
+      // Support both single role object and array of roles
+      let rolesArray = [];
       if (data.role && Object.keys(data.role).length > 0) {
-        console.log(`[CV Data Save] Processing role data...`);
-        const roleData = data.role;
-
-        let subRoleId = null;
-        let roleId = null;
-
-        // Priority 1: Use IDs directly from extraction result if available
-        if (roleData.id_sub_role && roleData.id_role) {
-          subRoleId = roleData.id_sub_role;
-          roleId = roleData.id_role;
-          console.log(`[CV Data Save] ✅ Using extracted IDs: role_id=${roleId}, sub_role_id=${subRoleId}`);
-        }
-        // Priority 2: Try to find matching sub_role by name
-        else if (roleData.matched_sub_role) {
-          const subRole = await prisma.sub_roles.findFirst({
-            where: {
-              OR: [
-                { Sub_Role: { contains: roleData.matched_sub_role, mode: 'insensitive' } },
-                { NameKnown_Sub_Role: { contains: roleData.matched_sub_role, mode: 'insensitive' } }
-              ]
-            }
-          });
-
-          if (subRole) {
-            subRoleId = subRole.id;
-
-            // Find parent role_id from role_sub_role mapping
-            const roleMapping = await prisma.role_sub_role.findFirst({
-              where: {
-                id_sub_role: subRoleId
-              },
-              select: {
-                id_role: true
-              }
-            });
-
-            if (roleMapping) {
-              roleId = roleMapping.id_role;
-              console.log(`[CV Data Save] Found parent role_id ${roleId} for sub_role_id ${subRoleId}`);
-            } else {
-              console.log(`[CV Data Save] Warning: No parent role found for sub_role_id ${subRoleId}`);
-              roleId = null;
-            }
-          } else {
-            console.log(`[CV Data Save] Sub-role not found: ${roleData.matched_sub_role}`);
-          }
-        }
-
-        // Extract years of experience
-        const anniEsperienza = roleData.years_experience || roleData.total_years_experience || 0;
-        console.log(`[CV Data Save] Years of experience: ${anniEsperienza}`);
-
-        // Check if role already exists (to avoid duplicates)
-        console.log(`[CV Data Save] Checking for existing role: employee_id=${employeeId}, sub_role_id=${subRoleId}`);
-
-        try {
-          const existingRole = await prisma.employee_roles.findFirst({
-            where: {
-              employee_id: employeeId,
-              sub_role_id: subRoleId
-            }
-          });
-
-          if (existingRole) {
-            console.log(`[CV Data Save] ⚠️ Role already exists for employee ${employeeId}, sub_role_id ${subRoleId} - skipping`);
-          } else if (subRoleId && roleId) {
-            console.log(`[CV Data Save] Creating new employee_role record...`);
-            await prisma.employee_roles.create({
-              data: {
-                employee_id: employeeId,
-                role_id: roleId,  // Parent role from role_sub_role mapping
-                sub_role_id: subRoleId,
-                anni_esperienza: anniEsperienza,
-                seniority: roleData.seniority || null,  // Seniority from CV extraction (Junior, Mid, Senior, etc.)
-                tenants: {
-                  connect: { id: finalTenantId }
-                }
-              }
-            });
-            stats.role_saved = true;
-            console.log(`[CV Data Save] ✅ Role saved: ${roleData.matched_sub_role || roleData.role} (role_id: ${roleId}, sub_role_id: ${subRoleId}, ${anniEsperienza} years, seniority: ${roleData.seniority || 'N/A'})`);
-          } else {
-            console.log(`[CV Data Save] ❌ Could not save role: role_id=${roleId}, sub_role_id=${subRoleId}`);
-          }
-        } catch (error) {
-          console.error(`[CV Data Save] ❌ Error saving role:`, error.message);
-        }
-      } else {
-        console.log(`[CV Data Save] ⚠️ No role data to process`);
+        rolesArray = [data.role]; // Single role as array
+      } else if (data.roles && Array.isArray(data.roles) && data.roles.length > 0) {
+        rolesArray = data.roles; // Multiple roles
       }
+
+      if (rolesArray.length > 0) {
+        console.log(`[CV Data Save] ✅ Role data is present and not empty`);
+        console.log(`[CV Data Save] Processing ${rolesArray.length} role(s)...`);
+
+        /**
+         * Select which role should be marked as is_current based on priority:
+         * 1. Highest seniority (Senior > Mid > Junior > null)
+         * 2. Highest anni_esperienza
+         * 3. First in array
+         */
+        function selectCurrentRoleIndex(roles) {
+          if (roles.length === 1) {
+            console.log(`[CV Data Save] Single role detected - will be set as is_current`);
+            return 0;
+          }
+
+          const seniorityOrder = { 'Senior': 3, 'Mid': 2, 'Junior': 1 };
+
+          const rolesWithIndex = roles.map((role, index) => ({
+            ...role,
+            originalIndex: index,
+            seniorityValue: seniorityOrder[role.seniority] || 0,
+            experience: role.years_experience || role.total_years_experience || 0
+          }));
+
+          // Sort by seniority DESC, then experience DESC
+          rolesWithIndex.sort((a, b) => {
+            if (a.seniorityValue !== b.seniorityValue) {
+              return b.seniorityValue - a.seniorityValue; // Higher seniority first
+            }
+            return b.experience - a.experience; // Higher experience first
+          });
+
+          const selected = rolesWithIndex[0];
+          console.log(`[CV Data Save] Multiple roles detected - selected index ${selected.originalIndex} as is_current (seniority: ${selected.seniority || 'none'}, experience: ${selected.experience} years)`);
+          return selected.originalIndex;
+        }
+
+        const currentRoleIndex = selectCurrentRoleIndex(rolesArray);
+        let rolesProcessed = 0;
+
+        // Process each role
+        for (let i = 0; i < rolesArray.length; i++) {
+          const roleData = rolesArray[i];
+          const isCurrent = (i === currentRoleIndex);
+
+          console.log(`\n[CV Data Save] --- Processing role ${i + 1}/${rolesArray.length} (is_current: ${isCurrent}) ---`);
+          console.log(`[CV Data Save] Role data fields:`, Object.keys(roleData));
+          console.log(`[CV Data Save] id_sub_role: ${roleData.id_sub_role}`);
+          console.log(`[CV Data Save] id_role: ${roleData.id_role}`);
+          console.log(`[CV Data Save] matched_sub_role: ${roleData.matched_sub_role}`);
+          console.log(`[CV Data Save] matched_role: ${roleData.matched_role}`);
+          console.log(`[CV Data Save] seniority: ${roleData.seniority || 'N/A'}`);
+
+          let subRoleId = null;
+          let roleId = null;
+
+          // Priority 1: Use IDs directly from extraction result if available
+          if (roleData.id_sub_role && roleData.id_role) {
+            subRoleId = roleData.id_sub_role;
+            roleId = roleData.id_role;
+            console.log(`[CV Data Save] ✅ Using extracted IDs: role_id=${roleId}, sub_role_id=${subRoleId}`);
+          }
+          // Priority 2: Try to find matching sub_role by name
+          else if (roleData.matched_sub_role) {
+            console.log(`[CV Data Save] ⚠️ Extracted IDs not available (id_sub_role: ${roleData.id_sub_role}, id_role: ${roleData.id_role}) - trying fallback...`);
+            const subRole = await prisma.sub_roles.findFirst({
+              where: {
+                OR: [
+                  { Sub_Role: { contains: roleData.matched_sub_role, mode: 'insensitive' } },
+                  { NameKnown_Sub_Role: { contains: roleData.matched_sub_role, mode: 'insensitive' } }
+                ]
+              }
+            });
+
+            if (subRole) {
+              subRoleId = subRole.id;
+
+              // Find parent role_id from role_sub_role mapping
+              const roleMapping = await prisma.role_sub_role.findFirst({
+                where: {
+                  id_sub_role: subRoleId
+                },
+                select: {
+                  id_role: true
+                }
+              });
+
+              if (roleMapping) {
+                roleId = roleMapping.id_role;
+                console.log(`[CV Data Save] Found parent role_id ${roleId} for sub_role_id ${subRoleId}`);
+              } else {
+                console.log(`[CV Data Save] Warning: No parent role found for sub_role_id ${subRoleId}`);
+                roleId = null;
+              }
+            } else {
+              console.log(`[CV Data Save] ❌ Sub-role not found: ${roleData.matched_sub_role}`);
+            }
+          } else {
+            console.log(`[CV Data Save] ⚠️ No matched_sub_role available for fallback lookup`);
+          }
+
+          // Extract years of experience
+          const anniEsperienza = roleData.years_experience || roleData.total_years_experience || 0;
+          console.log(`[CV Data Save] Years of experience: ${anniEsperienza}`);
+
+          // Check if role already exists (to avoid duplicates)
+          console.log(`[CV Data Save] Checking for existing role: employee_id=${employeeId}, sub_role_id=${subRoleId}`);
+
+          try {
+            const existingRole = await prisma.employee_roles.findFirst({
+              where: {
+                employee_id: employeeId,
+                sub_role_id: subRoleId
+              }
+            });
+
+            if (existingRole) {
+              console.log(`[CV Data Save] ⚠️ Role already exists for employee ${employeeId}, sub_role_id ${subRoleId} - updating is_current if needed`);
+
+              // Update is_current if this is the selected current role
+              if (isCurrent && !existingRole.is_current) {
+                await prisma.employee_roles.update({
+                  where: { id: existingRole.id },
+                  data: { is_current: true }
+                });
+                console.log(`[CV Data Save] ✅ Updated existing role to is_current=true`);
+              }
+              rolesProcessed++;
+            } else if (subRoleId && roleId) {
+              console.log(`[CV Data Save] Creating new employee_role record...`);
+              await prisma.employee_roles.create({
+                data: {
+                  employees: {
+                    connect: { id: employeeId }
+                  },
+                  role_id: roleId,
+                  sub_role_id: subRoleId,
+                  anni_esperienza: anniEsperienza,
+                  seniority: roleData.seniority || null,
+                  is_current: isCurrent,  // Set based on selection logic
+                  tenants: {
+                    connect: { id: finalTenantId }
+                  }
+                }
+              });
+              rolesProcessed++;
+              console.log(`[CV Data Save] ✅ Role saved: ${roleData.matched_sub_role || roleData.role} (role_id: ${roleId}, sub_role_id: ${subRoleId}, ${anniEsperienza} years, seniority: ${roleData.seniority || 'N/A'}, is_current: ${isCurrent})`);
+            } else {
+              console.log(`[CV Data Save] ❌ Could not save role: role_id=${roleId}, sub_role_id=${subRoleId}`);
+              console.log(`[CV Data Save] ❌ Reason: Missing role_id or sub_role_id after all fallback attempts`);
+            }
+          } catch (error) {
+            console.error(`[CV Data Save] ❌ Error saving role:`, error);
+            console.error(`[CV Data Save] ❌ Error stack:`, error.stack);
+          }
+        }
+
+        stats.roles_saved = rolesProcessed;
+        console.log(`[CV Data Save] ✅ Processed ${rolesProcessed} role(s)`);
+      } else {
+        console.log(`[CV Data Save] ❌ No role data to process`);
+        console.log(`[CV Data Save] ❌ Condition check: data.role=${!!data.role}, Object.keys length=${data.role ? Object.keys(data.role).length : 'N/A'}`);
+      }
+
+      console.log(`========================================`);
+      console.log(`[CV Data Save] 🎯 ROLE SAVE SECTION END`);
+      console.log(`========================================\n`);
 
       console.log(`[CV Data Save] Completed for extraction ${cvExtractionId}:`, stats);
 
