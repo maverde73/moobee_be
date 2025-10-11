@@ -5,6 +5,7 @@
  */
 
 const axios = require('axios');
+const LLMAuditService = require('../llmAuditService');
 
 /**
  * Gestione dei provider AI
@@ -223,41 +224,125 @@ class AIProviders {
    * @param {number} temperature - Temperature (0-1)
    * @param {number} maxTokens - Max tokens
    * @param {string} model - Model ID
+   * @param {Object} auditContext - Context for LLM audit logging
+   * @param {string} auditContext.tenantId - Tenant UUID
+   * @param {string} auditContext.operationType - Operation type (e.g., 'assessment_generation')
+   * @param {string} [auditContext.userId] - User ID
+   * @param {string} [auditContext.entityType] - Entity type
+   * @param {string} [auditContext.entityId] - Entity ID
    * @returns {Promise<string>}
    */
-  async generateWithOpenAI(prompt, systemPrompt, temperature, maxTokens, model = 'gpt-5') {
+  async generateWithOpenAI(prompt, systemPrompt, temperature, maxTokens, model = 'gpt-5', auditContext = null) {
     if (!this.openai) {
       throw new Error('OpenAI provider not initialized');
     }
 
-    // GPT-5 specific handling
-    const isGPT5 = model.includes('gpt-5');
-    const requestParams = {
-      model: model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: prompt }
-      ]
-    };
+    const startTime = Date.now();
 
-    if (isGPT5) {
-      // GPT-5 doesn't support temperature, maxTokens, or top_p
-      // Only add max_completion_tokens if maxTokens is defined
-      if (maxTokens !== undefined) {
-        requestParams.max_completion_tokens = maxTokens;
+    try {
+      // GPT-5 specific handling
+      const isGPT5 = model.includes('gpt-5');
+      const requestParams = {
+        model: model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: prompt }
+        ]
+      };
+
+      if (isGPT5) {
+        // GPT-5 doesn't support temperature, maxTokens, or top_p
+        // Only add max_completion_tokens if maxTokens is defined
+        if (maxTokens !== undefined) {
+          requestParams.max_completion_tokens = maxTokens;
+        }
+      } else {
+        // For other models, add parameters only if defined
+        if (maxTokens !== undefined) {
+          requestParams.max_tokens = maxTokens;
+        }
+        if (temperature !== undefined) {
+          requestParams.temperature = temperature;
+        }
       }
-    } else {
-      // For other models, add parameters only if defined
-      if (maxTokens !== undefined) {
-        requestParams.max_tokens = maxTokens;
+
+      const completion = await this.openai.chat.completions.create(requestParams);
+      const responseTime = Date.now() - startTime;
+      const responseText = completion.choices[0].message.content;
+
+      // Log usage to llm_usage_logs if audit context provided
+      if (auditContext && auditContext.tenantId) {
+        try {
+          await LLMAuditService.logUsage({
+            tenantId: auditContext.tenantId,
+            operationType: auditContext.operationType || 'ai_generation',
+            provider: 'openai',
+            model: model,
+            usage: completion.usage,
+            status: 'success',
+            responseTime,
+            entityType: auditContext.entityType || null,
+            entityId: auditContext.entityId || null,
+            userId: auditContext.userId || null,
+            requestParams: {
+              model,
+              temperature,
+              maxTokens,
+              systemPromptLength: systemPrompt?.length || 0,
+              userPromptLength: prompt?.length || 0
+            },
+            responseSummary: {
+              responseLength: responseText?.length || 0,
+              finishReason: completion.choices[0].finish_reason
+            },
+            metadata: auditContext.metadata || {}
+          });
+        } catch (auditError) {
+          console.error('[OpenAI] Failed to log LLM usage:', auditError.message);
+          // Don't throw - audit logging failure shouldn't break generation
+        }
       }
-      if (temperature !== undefined) {
-        requestParams.temperature = temperature;
+
+      return responseText;
+
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+
+      // Log failure if audit context provided
+      if (auditContext && auditContext.tenantId) {
+        try {
+          await LLMAuditService.logUsage({
+            tenantId: auditContext.tenantId,
+            operationType: auditContext.operationType || 'ai_generation',
+            provider: 'openai',
+            model: model,
+            usage: error.response?.data?.usage || null,
+            status: 'failed',
+            responseTime,
+            entityType: auditContext.entityType || null,
+            entityId: auditContext.entityId || null,
+            userId: auditContext.userId || null,
+            errorMessage: error.message,
+            requestParams: {
+              model,
+              temperature,
+              maxTokens,
+              systemPromptLength: systemPrompt?.length || 0,
+              userPromptLength: prompt?.length || 0
+            },
+            metadata: {
+              ...(auditContext.metadata || {}),
+              error_code: error.code,
+              error_type: error.type
+            }
+          });
+        } catch (auditError) {
+          console.error('[OpenAI] Failed to log LLM error:', auditError.message);
+        }
       }
+
+      throw error;
     }
-
-    const completion = await this.openai.chat.completions.create(requestParams);
-    return completion.choices[0].message.content;
   }
 
   /**
@@ -267,24 +352,116 @@ class AIProviders {
    * @param {number} temperature - Temperature (0-1)
    * @param {number} maxTokens - Max tokens
    * @param {string} model - Model ID
+   * @param {Object} auditContext - Context for LLM audit logging
+   * @param {string} auditContext.tenantId - Tenant UUID
+   * @param {string} auditContext.operationType - Operation type (e.g., 'assessment_generation')
+   * @param {string} [auditContext.userId] - User ID
+   * @param {string} [auditContext.entityType] - Entity type
+   * @param {string} [auditContext.entityId] - Entity ID
    * @returns {Promise<string>}
    */
-  async generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens, model = 'claude-opus-4-1-20250805') {
+  async generateWithAnthropic(prompt, systemPrompt, temperature, maxTokens, model = 'claude-opus-4-1-20250805', auditContext = null) {
     if (!this.anthropic) {
       throw new Error('Anthropic provider not initialized');
     }
 
-    const message = await this.anthropic.messages.create({
-      model: model,
-      max_tokens: maxTokens,
-      temperature: temperature,
-      system: systemPrompt,
-      messages: [
-        { role: 'user', content: prompt }
-      ]
-    });
+    const startTime = Date.now();
 
-    return message.content[0].text;
+    try {
+      const message = await this.anthropic.messages.create({
+        model: model,
+        max_tokens: maxTokens,
+        temperature: temperature,
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: prompt }
+        ]
+      });
+
+      const responseTime = Date.now() - startTime;
+      const responseText = message.content[0].text;
+
+      // Log usage to llm_usage_logs if audit context provided
+      if (auditContext && auditContext.tenantId) {
+        try {
+          // Convert Anthropic usage format to standard format
+          const usage = {
+            prompt_tokens: message.usage?.input_tokens || 0,
+            completion_tokens: message.usage?.output_tokens || 0,
+            total_tokens: (message.usage?.input_tokens || 0) + (message.usage?.output_tokens || 0)
+          };
+
+          await LLMAuditService.logUsage({
+            tenantId: auditContext.tenantId,
+            operationType: auditContext.operationType || 'ai_generation',
+            provider: 'anthropic',
+            model: model,
+            usage,
+            status: 'success',
+            responseTime,
+            entityType: auditContext.entityType || null,
+            entityId: auditContext.entityId || null,
+            userId: auditContext.userId || null,
+            requestParams: {
+              model,
+              temperature,
+              maxTokens,
+              systemPromptLength: systemPrompt?.length || 0,
+              userPromptLength: prompt?.length || 0
+            },
+            responseSummary: {
+              responseLength: responseText?.length || 0,
+              stopReason: message.stop_reason,
+              stopSequence: message.stop_sequence
+            },
+            metadata: auditContext.metadata || {}
+          });
+        } catch (auditError) {
+          console.error('[Anthropic] Failed to log LLM usage:', auditError.message);
+          // Don't throw - audit logging failure shouldn't break generation
+        }
+      }
+
+      return responseText;
+
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+
+      // Log failure if audit context provided
+      if (auditContext && auditContext.tenantId) {
+        try {
+          await LLMAuditService.logUsage({
+            tenantId: auditContext.tenantId,
+            operationType: auditContext.operationType || 'ai_generation',
+            provider: 'anthropic',
+            model: model,
+            usage: error.usage || null,
+            status: 'failed',
+            responseTime,
+            entityType: auditContext.entityType || null,
+            entityId: auditContext.entityId || null,
+            userId: auditContext.userId || null,
+            errorMessage: error.message,
+            requestParams: {
+              model,
+              temperature,
+              maxTokens,
+              systemPromptLength: systemPrompt?.length || 0,
+              userPromptLength: prompt?.length || 0
+            },
+            metadata: {
+              ...(auditContext.metadata || {}),
+              error_type: error.type,
+              error_code: error.error?.code
+            }
+          });
+        } catch (auditError) {
+          console.error('[Anthropic] Failed to log LLM error:', auditError.message);
+        }
+      }
+
+      throw error;
+    }
   }
 }
 

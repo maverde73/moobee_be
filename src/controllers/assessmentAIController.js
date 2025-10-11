@@ -17,7 +17,22 @@ class AssessmentAIController {
    * @param {Response} res - Express response
    */
   async generateQuestionsWithAI(req, res) {
+    // FORCE LOG TO FILE FOR DEBUGGING
+    const fs = require('fs');
+    fs.appendFileSync('/tmp/moobee_debug.log', `\n[${new Date().toISOString()}] generateQuestionsWithAI CALLED\n`);
+
     try {
+      // Extract audit context from authenticated request
+      const tenantId = req.user?.tenantId || req.user?.tenant_id;
+      const userId = req.user?.id;  // tenant_users.id
+
+      fs.appendFileSync('/tmp/moobee_debug.log', `  tenantId: ${tenantId}\n  userId: ${userId}\n`);
+
+      if (!tenantId) {
+        console.warn('[Assessment AI] ⚠️ No tenantId found in request - LLM audit logging will be skipped');
+        fs.appendFileSync('/tmp/moobee_debug.log', `  WARNING: No tenantId found!\n`);
+      }
+
       let {
         type,
         count = 10,
@@ -147,6 +162,24 @@ IMPORTANTE:
         });
       }
 
+      // Build audit context for LLM logging
+      const auditContext = tenantId ? {
+        tenantId,
+        operationType: 'assessment_generation',
+        userId,
+        entityType: 'assessment',
+        entityId: name || type,
+        metadata: {
+          assessment_type: type,
+          language,
+          question_count: count,
+          has_job_family: !!job_family_id,
+          has_customization: !!customization,
+          provider: provider || 'default',
+          model: model || 'default'
+        }
+      } : null;
+
       // Check if custom configuration is provided
       let questions;
       if (provider && model) {
@@ -165,7 +198,8 @@ IMPORTANTE:
             model,
             temperature: temperature || 0.7,
             maxTokens: maxTokens || 4000,
-            customization
+            customization,
+            auditContext  // Pass audit context for LLM logging
           }
         );
       } else {
@@ -179,7 +213,8 @@ IMPORTANTE:
             category,
             context: context || description,
             suggestedRoles,
-            description
+            description,
+            auditContext  // Pass audit context for LLM logging
           }
         );
       }
@@ -254,6 +289,8 @@ IMPORTANTE:
   async evaluateResponsesWithAI(req, res) {
     try {
       const { responses, type, templateId } = req.body;
+      const tenantId = req.user?.tenantId || req.user?.tenant_id;
+      const userId = req.user?.id;
 
       if (!responses || !type) {
         return res.status(400).json({
@@ -261,9 +298,23 @@ IMPORTANTE:
         });
       }
 
+      // Build audit context for LLM logging
+      const auditContext = tenantId ? {
+        tenantId,
+        operationType: 'assessment_evaluation',
+        userId,
+        entityType: 'assessment_template',
+        entityId: templateId ? String(templateId) : null,
+        metadata: {
+          assessment_type: type,
+          response_count: responses?.length || 0
+        }
+      } : null;
+
       const evaluation = await AIGenerationService.evaluateResponses(
         responses,
-        type
+        type,
+        auditContext
       );
 
       // Salva valutazione nel database se richiesto
@@ -309,6 +360,8 @@ IMPORTANTE:
         scores,
         employeeId
       } = req.body;
+      const tenantId = req.user?.tenantId || req.user?.tenant_id;
+      const userId = req.user?.id;
 
       if (!type || !responses) {
         return res.status(400).json({
@@ -330,6 +383,20 @@ IMPORTANTE:
         });
       }
 
+      // Build audit context for LLM logging
+      const auditContext = tenantId ? {
+        tenantId,
+        operationType: 'assessment_report_generation',
+        userId,
+        entityType: 'assessment',
+        entityId: assessmentId ? String(assessmentId) : null,
+        metadata: {
+          assessment_type: type,
+          employee_id: employeeId ? String(employeeId) : null,
+          has_scores: !!scores
+        }
+      } : null;
+
       const report = await AIGenerationService.generateReport({
         type,
         responses,
@@ -338,7 +405,8 @@ IMPORTANTE:
           name: `${employee.first_name} ${employee.last_name}`,
           email: employee.email,
           role: employee.job_title
-        } : null
+        } : null,
+        auditContext
       });
 
       res.status(200).json({
@@ -366,6 +434,8 @@ IMPORTANTE:
   async getImprovementSuggestions(req, res) {
     try {
       const { questions } = req.body;
+      const tenantId = req.user?.tenantId || req.user?.tenant_id;
+      const userId = req.user?.id;
 
       if (!questions || !Array.isArray(questions)) {
         return res.status(400).json({
@@ -373,8 +443,21 @@ IMPORTANTE:
         });
       }
 
+      // Build audit context for LLM logging
+      const auditContext = tenantId ? {
+        tenantId,
+        operationType: 'assessment_improvement_suggestions',
+        userId,
+        entityType: 'assessment_questions',
+        entityId: null,
+        metadata: {
+          question_count: questions?.length || 0
+        }
+      } : null;
+
       const suggestions = await AIGenerationService.improveSuggestions(
-        questions
+        questions,
+        auditContext
       );
 
       res.status(200).json({
@@ -454,6 +537,8 @@ IMPORTANTE:
     try {
       const { id } = req.params;
       const { useStoredPrompt = true, customPrompt } = req.body;
+      const tenantId = req.user?.tenantId || req.user?.tenant_id;
+      const userId = req.user?.id;
 
       const template = await prisma.assessmentTemplate.findUnique({
         where: { id },
@@ -473,13 +558,29 @@ IMPORTANTE:
         language: template.aiLanguage || 'it'
       };
 
+      // Build audit context for LLM logging
+      const auditContext = tenantId ? {
+        tenantId,
+        operationType: 'assessment_regeneration',
+        userId,
+        entityType: 'assessment_template',
+        entityId: id,
+        metadata: {
+          assessment_type: template.type,
+          use_stored_prompt: useStoredPrompt,
+          provider: template.aiProvider,
+          model: template.aiModel
+        }
+      } : null;
+
       const questions = await AIGenerationService.generateWithCustomConfig({
         prompt: useStoredPrompt ? template.aiPrompt : customPrompt,
         config,
         provider: template.aiProvider,
         model: template.aiModel,
         temperature: template.aiTemperature,
-        maxTokens: template.aiMaxTokens
+        maxTokens: template.aiMaxTokens,
+        auditContext
       });
 
       // Transaction per aggiornare domande
@@ -644,12 +745,29 @@ IMPORTANTE:
         targetRoles,
         competencies
       } = req.body;
+      const tenantId = req.user?.tenantId || req.user?.tenant_id;
+      const userId = req.user?.id;
 
       if (!name || !type) {
         return res.status(400).json({
           error: 'Name and type are required'
         });
       }
+
+      // Build audit context for LLM logging
+      const auditContext = tenantId ? {
+        tenantId,
+        operationType: 'assessment_complete_generation',
+        userId,
+        entityType: 'assessment_template',
+        entityId: name,
+        metadata: {
+          assessment_type: type,
+          question_count: questionCount,
+          target_roles: targetRoles,
+          competencies
+        }
+      } : null;
 
       // Genera domande
       const questions = await AIGenerationService.generateAssessmentQuestions(
@@ -658,7 +776,8 @@ IMPORTANTE:
           count: questionCount,
           language,
           context: targetRoles ? `Target roles: ${targetRoles.join(', ')}` : null,
-          category: competencies ? competencies[0] : null
+          category: competencies ? competencies[0] : null,
+          auditContext
         }
       );
 

@@ -1018,8 +1018,43 @@ class CVDataSaveService {
             } else {
               console.log(`[CV Data Save] ❌ Sub-role not found: ${roleData.matched_sub_role}`);
             }
+          }
+          // Priority 3: LLM Fallback - Use AI to match role when both extraction and name lookup fail
+          else if (!subRoleId && !roleId && roleData.role) {
+            console.log(`[CV Data Save] 🤖 Trying LLM fallback for role matching...`);
+
+            try {
+              const LLMRoleMatchingService = require('./llmRoleMatchingService');
+
+              const llmMatch = await LLMRoleMatchingService.findBestSubRoleMatch(
+                {
+                  free_role: roleData.role || roleData.free_role,
+                  seniority: roleData.seniority,
+                  track: roleData.track,
+                  grade: roleData.grade
+                },
+                finalTenantId,
+                employeeId,
+                null // userId (not available in this context)
+              );
+
+              if (llmMatch) {
+                subRoleId = llmMatch.sub_role_id;
+                roleId = llmMatch.role_id;
+                console.log(`[CV Data Save] ✅ LLM matched: "${roleData.role}" → "${llmMatch.sub_role_name}" (confidence: ${llmMatch.confidence}%)`);
+
+                // Store LLM metadata for audit
+                roleData.llm_fallback_used = true;
+                roleData.llm_confidence = llmMatch.confidence;
+                roleData.llm_reasoning = llmMatch.reasoning;
+              } else {
+                console.log(`[CV Data Save] ⚠️ LLM fallback returned no match (confidence too low or error)`);
+              }
+            } catch (llmError) {
+              console.error(`[CV Data Save] ❌ LLM fallback error:`, llmError.message);
+            }
           } else {
-            console.log(`[CV Data Save] ⚠️ No matched_sub_role available for fallback lookup`);
+            console.log(`[CV Data Save] ⚠️ No matched_sub_role or role name available for fallback lookup`);
           }
 
           // Extract years of experience
@@ -1090,6 +1125,9 @@ class CVDataSaveService {
       console.log(`========================================\n`);
 
       console.log(`[CV Data Save] Completed for extraction ${cvExtractionId}:`, stats);
+
+      // LLM logging now handled centrally in cvExtractionBackgroundJob.js
+      // No longer needed here to avoid duplicate logging
 
       return {
         success: true,

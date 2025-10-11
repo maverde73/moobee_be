@@ -3,6 +3,7 @@ const prisma = require('../config/database');
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
 const { determineTenant, requireTenant } = require('../middlewares/tenantMiddleware');
 const { body, param, query, validationResult } = require('express-validator');
+const LLMRoleMatchingService = require('../services/llmRoleMatchingService');
 
 const router = express.Router();
 
@@ -593,27 +594,82 @@ router.post('/:id/roles',
         for (const role of roles) {
           // Get role_id from role_sub_role mapping if sub_role_id is provided
           let role_id = parseInt(role.role_id) || null;
-          if (role.sub_role_id && (!role_id || role_id === 0)) {
+          let sub_role_id = role.sub_role_id ? parseInt(role.sub_role_id) : null;
+          let llm_metadata = null; // Track if role was matched via LLM
+
+          if (sub_role_id && (!role_id || role_id === 0)) {
             const mapping = await tx.role_sub_role.findFirst({
-              where: { id_sub_role: parseInt(role.sub_role_id) }
+              where: { id_sub_role: sub_role_id }
             });
 
             if (!mapping) {
-              throw new Error(`Invalid sub_role_id ${role.sub_role_id} - no mapping found`);
+              throw new Error(`Invalid sub_role_id ${sub_role_id} - no mapping found`);
             }
 
             role_id = mapping.id_role;
           }
 
+          // ⚠️ LLM FALLBACK: If role_id or sub_role_id are missing/null, use LLM to find best match
+          if (!role_id || !sub_role_id) {
+            console.log(`[LLM Fallback] Role missing IDs (role_id: ${role_id}, sub_role_id: ${sub_role_id})`);
+
+            // Check if we have enough info for LLM matching
+            if (role.free_role || role.role_name || role.position) {
+              try {
+                const extractedRole = {
+                  free_role: role.free_role || role.role_name || role.position,
+                  seniority: role.seniority || null,
+                  track: role.track || null,
+                  grade: role.grade || null
+                };
+
+                console.log(`[LLM Fallback] Attempting match for: "${extractedRole.free_role}"`);
+
+                const llmMatch = await LLMRoleMatchingService.findBestSubRoleMatch(
+                  extractedRole,
+                  tenantId,
+                  employeeId,
+                  req.user?.id || null
+                );
+
+                if (llmMatch && llmMatch.sub_role_id) {
+                  console.log(`[LLM Fallback] ✅ Match found: ${llmMatch.sub_role_name} (confidence: ${llmMatch.confidence}%)`);
+                  sub_role_id = llmMatch.sub_role_id;
+                  role_id = llmMatch.role_id;
+                  llm_metadata = {
+                    source: 'llm_fallback',
+                    confidence: llmMatch.confidence,
+                    reasoning: llmMatch.reasoning,
+                    matched_at: new Date().toISOString()
+                  };
+                } else {
+                  console.warn(`[LLM Fallback] ⚠️ No confident match found (confidence < 70%)`);
+                  // Continue without IDs - will fail at DB constraint
+                }
+              } catch (llmError) {
+                console.error('[LLM Fallback] Error during matching:', llmError);
+                // Continue without fallback - original error will occur
+              }
+            } else {
+              console.warn('[LLM Fallback] ⚠️ Insufficient role info for LLM matching');
+            }
+          }
+
           const roleData = {
             employee_id: employeeId,
             role_id: role_id,
-            sub_role_id: role.sub_role_id ? parseInt(role.sub_role_id) : null,
+            sub_role_id: sub_role_id,
             tenant_id: tenantId,
             anni_esperienza: parseInt(role.anni_esperienza) || 0,
             seniority: role.seniority || null,
             is_current: role.is_current !== undefined ? role.is_current : false
           };
+
+          // Add LLM metadata if role was matched via fallback
+          if (llm_metadata) {
+            roleData.source = llm_metadata.source;
+            roleData.metadata = llm_metadata;
+          }
 
           let savedRole;
 
@@ -1608,8 +1664,10 @@ router.post('/:id/cv',
 
           // Only save the CV file metadata to cv_extractions table (no extraction yet)
           const prisma = require('../config/database');
+          const { getCVStorageService } = require('../services/cvStorageService');
+          const storageService = getCVStorageService();
 
-          // Create a cv_extraction record with file info (extraction will happen separately)
+          // STEP 1: Create cv_extraction record FIRST (to get the ID)
           const cvExtraction = await prisma.cv_extractions.create({
             data: {
               employee_id: parseInt(employeeId),
@@ -1618,21 +1676,50 @@ router.post('/:id/cv',
               original_filename: req.file.originalname,
               file_size_bytes: BigInt(req.file.size),
               file_type: req.file.mimetype,
-              file_content: req.file.buffer, // Save binary file (BYTEA)
               status: 'pending', // Pending extraction (allowed by constraint)
               created_at: new Date(),
               updated_at: new Date()
             }
           });
 
-          console.log(`[Employee CV Upload] CV file saved with ID ${cvExtraction.id}`);
+          console.log(`[Employee CV Upload] CV extraction record created with ID ${cvExtraction.id}`);
+
+          // STEP 2: Save file to volume storage with extraction ID
+          const fileInfo = await storageService.saveFile(
+            req.file.buffer,
+            req.file.originalname,
+            {
+              extractionId: cvExtraction.id,
+              tenantId: tenantId,
+              employeeId: parseInt(employeeId),
+              uploadedBy: userId
+            }
+          );
+
+          console.log(`[Employee CV Upload] File saved to volume: ${fileInfo.filename}`);
+
+          // STEP 3: Create cv_files record
+          await prisma.cv_files.create({
+            data: {
+              extraction_id: cvExtraction.id,
+              tenant_id: tenantId,
+              file_path: fileInfo.filePath,
+              file_size: req.file.size, // INTEGER (not BigInt)
+              mime_type: req.file.mimetype,
+              original_filename: req.file.originalname
+              // Note: uploaded_at has DEFAULT NOW() in schema
+            }
+          });
+
+          console.log(`[Employee CV Upload] cv_files record created for extraction ${cvExtraction.id}`);
 
           return res.json({
             success: true,
             data: {
               fileName: req.file.originalname,
               uploadDate: new Date().toISOString(),
-              cvExtractionId: cvExtraction.id
+              cvExtractionId: cvExtraction.id,
+              storageType: fileInfo.storageType
             }
           });
 

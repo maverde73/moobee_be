@@ -45,7 +45,8 @@ class AIGenerationService {
       language = 'it',
       context,
       suggestedRoles = [],
-      description = ''
+      description = '',
+      auditContext = null
     } = parameters;
 
     try {
@@ -96,7 +97,7 @@ class AIGenerationService {
       // Generate with AI
       let response;
       if (this.providers.hasProviders()) {
-        response = await this.generateWithAI(prompt, type);
+        response = await this.generateWithAI(prompt, type, auditContext);
       } else {
         response = this.mockProvider.getMockAIResponse(prompt);
       }
@@ -135,7 +136,8 @@ class AIGenerationService {
       count = 10,
       language = 'it',
       suggestedRoles = [],
-      description = ''
+      description = '',
+      auditContext = null
     } = options;
 
     console.log('🎨 Generating with custom configuration:', {
@@ -190,7 +192,8 @@ class AIGenerationService {
           systemPrompt,
           isGPT5 ? undefined : temperature,
           isGPT5 ? undefined : maxTokens,
-          model || 'gpt-5'
+          model || 'gpt-5',
+          auditContext
         );
       } else if (provider === 'anthropic' && this.providers.anthropic) {
         response = await this.providers.generateWithAnthropic(
@@ -198,7 +201,8 @@ class AIGenerationService {
           systemPrompt,
           temperature,
           maxTokens,
-          model || 'claude-opus-4-1-20250805'
+          model || 'claude-opus-4-1-20250805',
+          auditContext
         );
       } else {
         console.warn(`Provider ${provider} not available, falling back to default`);
@@ -318,9 +322,10 @@ class AIGenerationService {
    * @private
    * @param {string} prompt - Prompt completo
    * @param {string} type - Tipo di assessment
+   * @param {Object} auditContext - Context for LLM audit logging
    * @returns {Promise<string>} Risposta AI
    */
-  async generateWithAI(prompt, type) {
+  async generateWithAI(prompt, type, auditContext = null) {
     const systemPrompt = this.promptBuilder.getSystemPrompt(type);
 
     // Try OpenAI first
@@ -331,7 +336,8 @@ class AIGenerationService {
           systemPrompt,
           0.7,
           4000,
-          'gpt-4-turbo'
+          'gpt-4-turbo',
+          auditContext
         );
       } catch (error) {
         console.warn('OpenAI generation failed:', error.message);
@@ -346,7 +352,8 @@ class AIGenerationService {
           systemPrompt,
           0.7,
           4000,
-          'claude-3-5-sonnet-20241022'
+          'claude-3-5-sonnet-20241022',
+          auditContext
         );
       } catch (error) {
         console.warn('Anthropic generation failed:', error.message);

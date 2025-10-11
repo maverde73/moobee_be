@@ -16,7 +16,9 @@ const path = require('path');
 const CVDataService = require('../services/cvDataService');
 const CVExtractionService = require('../services/cvExtractionService');
 const CVDataSaveService = require('../services/cvDataSaveService');
+const { processExtractionInBackground } = require('../services/cvExtractionBackgroundJob');
 const { authenticate } = require('../middlewares/authMiddleware');
+const { getCVStorageService } = require('../services/cvStorageService');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -50,130 +52,7 @@ const upload = multer({
   }
 });
 
-/**
- * Background processing function for CV extraction
- * Does NOT block the HTTP response
- */
-async function processExtractionInBackground(extraction, prisma) {
-  const startTime = Date.now();
-  const extractionId = extraction.id;
-  const employeeId = extraction.employee_id;
-
-  try {
-    console.log(`[Background Job ${extractionId}] Starting CV extraction for employee ${employeeId}`);
-
-    // Create temporary file from BYTEA buffer
-    const tempDir = path.join(__dirname, '../../uploads/temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-
-    const tempFilePath = path.join(tempDir, `cv-temp-${extractionId}.pdf`);
-    fs.writeFileSync(tempFilePath, extraction.file_content);
-
-    console.log(`[Background Job ${extractionId}] Temporary file created: ${tempFilePath}`);
-
-    // Call Python extraction service
-    const formData = new FormData();
-    formData.append('file', fs.createReadStream(tempFilePath), {
-      filename: extraction.original_filename,
-      contentType: extraction.file_type
-    });
-
-    const pythonServiceUrl = process.env.PYTHON_SERVICE_URL || 'http://localhost:8001';
-
-    console.log(`[Background Job ${extractionId}] Calling Python service at ${pythonServiceUrl}/api/cv-analyzer/analyze-file`);
-
-    const pythonResponse = await axios.post(
-      `${pythonServiceUrl}/api/cv-analyzer/analyze-file`,
-      formData,
-      {
-        headers: formData.getHeaders(),
-        timeout: 480000 // 8 minutes timeout
-      }
-    );
-
-    const cvData = pythonResponse.data;
-
-    console.log(`[Background Job ${extractionId}] Python extraction completed`);
-    console.log(`[Background Job ${extractionId}] Extracted text length: ${cvData.extracted_text?.length || 0} chars`);
-    console.log(`[Background Job ${extractionId}] 📊 Role data received from Python:`, JSON.stringify(cvData.role, null, 2));
-
-    // Prepare extraction_result JSON with all extracted data
-    const extractionResult = {
-      personal_info: cvData.personal_info || {},
-      education: cvData.education || [],
-      work_experience: cvData.work_experience || [],
-      skills: cvData.skills || {},
-      languages: cvData.languages || [],
-      certifications: cvData.certifications || [],
-      domain_knowledge: cvData.domain_knowledge || {},  // NEW
-      role: cvData.role || {},  // FIXED: was seniority_info
-      extraction_metadata: {
-        model_used: cvData.llm_model_used || 'gpt-4',
-        tokens_used: cvData.llm_tokens_used || 0,
-        extraction_cost: cvData.extraction_cost || 0,
-        processing_time: ((Date.now() - startTime) / 1000).toFixed(2),
-        extracted_text_length: cvData.extracted_text?.length || 0
-      }
-    };
-
-    console.log(`[Background Job ${extractionId}] 📝 Extraction result prepared - role data:`, JSON.stringify(extractionResult.role, null, 2));
-
-    // Update cv_extractions with results (save all data in extraction_result JSON)
-    await prisma.cv_extractions.update({
-      where: { id: extractionId },
-      data: {
-        status: 'completed',
-        extracted_text: cvData.extracted_text || null,
-        extraction_result: extractionResult, // Save all data in JSON field
-        llm_tokens_used: cvData.llm_tokens_used || 0,
-        llm_cost: cvData.extraction_cost || 0,
-        processing_time_seconds: parseFloat(((Date.now() - startTime) / 1000).toFixed(2)),
-        llm_model_used: cvData.llm_model_used || 'gpt-4',
-        updated_at: new Date()
-      }
-    });
-
-    // Clean up temp file
-    if (fs.existsSync(tempFilePath)) {
-      fs.unlinkSync(tempFilePath);
-    }
-
-    const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(`[Background Job ${extractionId}] ✅ COMPLETED in ${processingTime}s`);
-
-    // Save extracted data to employee tables
-    console.log(`[Background Job ${extractionId}] 💾 Calling CVDataSaveService.saveExtractedDataToTables(${extractionId})...`);
-    const saveResult = await CVDataSaveService.saveExtractedDataToTables(extractionId);
-
-    if (saveResult.success) {
-      console.log(`[Background Job ${extractionId}] ✅ Data saved successfully:`, JSON.stringify(saveResult.stats, null, 2));
-
-      // Log role save specifically
-      if (saveResult.stats.role_saved) {
-        console.log(`[Background Job ${extractionId}] 🎯 ROLE SAVED SUCCESSFULLY`);
-      } else {
-        console.log(`[Background Job ${extractionId}] ⚠️ ROLE NOT SAVED - Check logs above for reason`);
-      }
-    } else {
-      console.error(`[Background Job ${extractionId}] ❌ Failed to save data:`, saveResult.error);
-    }
-
-  } catch (error) {
-    console.error(`[Background Job ${extractionId}] ❌ FAILED:`, error.message);
-
-    // Update status to failed with error message
-    await prisma.cv_extractions.update({
-      where: { id: extractionId },
-      data: {
-        status: 'failed',
-        error_message: error.message || 'Unknown error during extraction',
-        updated_at: new Date()
-      }
-    });
-  }
-}
+// Background job moved to /src/services/cvExtractionBackgroundJob.js for better code organization
 
 /**
  * POST /api/cv/analyze
@@ -227,12 +106,12 @@ router.post('/analyze', upload.single('cv_file'), async (req, res) => {
       contentType: file.mimetype
     });
 
-    const pythonServiceUrl = process.env.PYTHON_SERVICE_URL || 'http://localhost:8001';
+    const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8001';
 
     let pythonResponse;
     try {
       pythonResponse = await axios.post(
-        `${pythonServiceUrl}/api/cv/extract-mvp`,
+        `${pythonApiUrl}/api/cv/extract-mvp`,
         formData,
         {
           headers: formData.getHeaders(),
@@ -506,14 +385,19 @@ router.post('/extract-and-save', authenticate, async (req, res) => {
       });
     }
 
-    if (!latestExtraction.file_content) {
+    // Check if cv_files record exists (volume storage)
+    const cvFile = await prisma.cv_files.findUnique({
+      where: { extraction_id: latestExtraction.id }
+    });
+
+    if (!cvFile) {
       return res.status(400).json({
         success: false,
-        message: 'CV file content is missing in database'
+        message: 'CV file not found in storage. Please upload a CV first.'
       });
     }
 
-    console.log(`[CV Extraction] Found cv_extraction ${latestExtraction.id}, starting background job`);
+    console.log(`[CV Extraction] Found cv_extraction ${latestExtraction.id} with file at ${cvFile.file_path}`);
 
     // Update status to 'processing' immediately
     await prisma.cv_extractions.update({
@@ -542,6 +426,228 @@ router.post('/extract-and-save', authenticate, async (req, res) => {
       message: 'Failed to extract and save CV data',
       error: error.message
     });
+  }
+});
+
+/**
+ * POST /api/cv/extract-mvp
+ * Upload CV and start extraction in background
+ * NEW ENDPOINT for polling-based notification system
+ *
+ * Body (multipart/form-data):
+ * - file: PDF file
+ * - employee_id: number
+ * - user_id: number (optional)
+ */
+const { PrismaClient } = require('@prisma/client');
+const uploadMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+router.post('/extract-mvp', authenticate, uploadMemory.single('file'), async (req, res) => {
+  const prisma = new PrismaClient();
+
+  try {
+    const { employee_id, user_id } = req.body;
+    const file = req.file;
+
+    if (!file || !employee_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'File and employee_id are required'
+      });
+    }
+
+    // Get tenant_id from authenticated user
+    console.log('[CV Upload] req.user:', JSON.stringify(req.user, null, 2));
+    const tenant_id = req.user?.tenant_id || req.user?.tenantId;
+    if (!tenant_id) {
+      console.error('[CV Upload] tenant_id not found in req.user');
+      return res.status(400).json({
+        success: false,
+        error: 'tenant_id not found in authentication token'
+      });
+    }
+
+    console.log(`[CV Upload] Employee ${employee_id}, File: ${file.originalname} (${file.size} bytes), Tenant: ${tenant_id}`);
+
+    // Create cv_extractions record with status='pending' (WITHOUT file_content)
+    const extraction = await prisma.cv_extractions.create({
+      data: {
+        tenant_id,
+        employee_id: parseInt(employee_id),
+        original_filename: file.originalname,
+        file_type: file.mimetype,
+        status: 'pending',
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    });
+
+    console.log(`[CV Upload] Extraction ${extraction.id} created with status=pending`);
+
+    // Save file to volume storage (local or Railway)
+    const storageService = getCVStorageService();
+    const fileInfo = await storageService.saveFile(
+      file.buffer,
+      file.originalname,
+      {
+        extractionId: extraction.id,
+        tenantId: tenant_id,
+        mimeType: file.mimetype
+      }
+    );
+
+    console.log(`[CV Upload] File saved to storage: ${fileInfo.filePath}`);
+
+    // Create cv_files record with file path
+    await prisma.cv_files.create({
+      data: {
+        extraction_id: extraction.id,
+        tenant_id: tenant_id,
+        file_path: fileInfo.filePath,
+        file_size: fileInfo.fileSize,
+        mime_type: fileInfo.mimeType,
+        original_filename: fileInfo.originalFilename,
+        uploaded_at: new Date()
+      }
+    });
+
+    console.log(`[CV Upload] cv_files record created for extraction ${extraction.id}`);
+
+    // Start background job (non-blocking)
+    processExtractionInBackground(extraction, prisma).catch(error => {
+      console.error(`[CV Upload] Background error for ${extraction.id}:`, error);
+    });
+
+    // Return immediately
+    res.json({
+      success: true,
+      message: 'CV upload iniziato. Estrazione in corso...',
+      extraction_id: extraction.id,
+      employee_id: parseInt(employee_id),
+      status: 'pending'
+    });
+
+  } catch (error) {
+    console.error('[CV Upload] Error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to upload CV',
+      details: error.message
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+/**
+ * GET /api/cv/extraction-status/:extractionId
+ * Poll extraction status for frontend
+ * NEW ENDPOINT for polling-based notification system
+ *
+ * NOTE: No rate limiter - this endpoint is polled frequently (every 2-5s)
+ * Security: Still requires authentication via JWT token
+ */
+router.get('/extraction-status/:extractionId', authenticate, async (req, res) => {
+  const prisma = new PrismaClient();
+
+  try {
+    const extractionId = req.params.extractionId; // UUID string, not integer
+
+    const extraction = await prisma.cv_extractions.findUnique({
+      where: { id: extractionId },
+      select: {
+        id: true,
+        employee_id: true,
+        status: true,
+        import_stats: true,
+        extraction_result: true,
+        created_at: true,
+        updated_at: true,
+        error_message: true,
+        error_phase: true
+      }
+    });
+
+    if (!extraction) {
+      return res.status(404).json({
+        success: false,
+        error: 'Extraction not found'
+      });
+    }
+
+    const elapsedSeconds = Math.floor((Date.now() - new Date(extraction.created_at).getTime()) / 1000);
+
+    const response = {
+      success: true,
+      extraction_id: extraction.id,
+      employee_id: extraction.employee_id,
+      status: extraction.status,
+      elapsed_seconds: elapsedSeconds,
+      updated_at: extraction.updated_at
+    };
+
+    // Add status-specific data
+    switch (extraction.status) {
+      case 'pending':
+        response.message = 'CV in attesa di elaborazione';
+        response.progress = 10;
+        break;
+
+      case 'processing':
+        response.message = 'Estrazione dati in corso...';
+        response.progress = 50;
+        break;
+
+      case 'extracted':
+        response.message = 'Dati estratti, importazione nel database...';
+        response.progress = 75;
+        break;
+
+      case 'importing':
+        response.message = 'Salvataggio dati nel database...';
+        response.progress = 90;
+        break;
+
+      case 'completed':
+        response.message = '✅ Importazione completata!';
+        response.progress = 100;
+        response.import_stats = extraction.import_stats;
+
+        if (extraction.extraction_result) {
+          const result = extraction.extraction_result;
+          response.summary = {
+            personal_info: result.personal_info,
+            education_count: result.education?.length || 0,
+            work_experience_count: result.work_experience?.length || 0,
+            skills_count: result.skills?.extracted_skills?.length || 0,
+            languages_count: result.languages?.length || 0,
+            certifications_count: result.certifications?.length || 0
+          };
+        }
+        break;
+
+      case 'failed':
+        response.message = '❌ Errore durante l\'importazione';
+        response.progress = 0;
+        response.error = extraction.error_message;
+        response.error_phase = extraction.error_phase;
+        break;
+
+      default:
+        response.message = 'Stato sconosciuto';
+        response.progress = 0;
+    }
+
+    res.json(response);
+
+  } catch (error) {
+    console.error('[Extraction Status] Error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch extraction status'
+    });
+  } finally {
+    await prisma.$disconnect();
   }
 });
 

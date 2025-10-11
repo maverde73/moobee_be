@@ -47,17 +47,24 @@ router.put('/templates/:id', assessmentController.updateTemplate);
 router.delete('/templates/:id', assessmentController.deleteTemplate);
 router.post('/templates/:id/duplicate', assessmentController.duplicateTemplate);
 
-// AI endpoints (temporarily public for development)
-router.post('/ai/generate-questions', assessmentAIController.generateQuestionsWithAI);
+// Protected routes (require authentication)
+router.use(authenticate);
+
+// AI endpoints (NOW PROTECTED - auth required for LLM audit logging)
+router.post('/ai/generate-questions', (req, res, next) => {
+  const fs = require('fs');
+  fs.appendFileSync('/tmp/moobee_debug.log', `\n[${new Date().toISOString()}] ROUTER: /ai/generate-questions HIT\n`);
+  fs.appendFileSync('/tmp/moobee_debug.log', `  Method: ${req.method}\n`);
+  fs.appendFileSync('/tmp/moobee_debug.log', `  Has req.user: ${!!req.user}\n`);
+  fs.appendFileSync('/tmp/moobee_debug.log', `  req.user.tenantId: ${req.user?.tenantId || req.user?.tenant_id || 'MISSING'}\n`);
+  next();
+}, assessmentAIController.generateQuestionsWithAI);
 router.get('/ai/providers', assessmentAIController.getAIProviders);
 router.get('/ai/prompt-template', assessmentAIController.getPromptTemplate);
 router.get('/ai/assessment-types', assessmentAIController.getAssessmentTypes);
 router.get('/ai/test-connection', assessmentAIController.testAIConnection);
 router.get('/ai/models/:provider/:modelId', assessmentAIController.getModelDetails);
 router.post('/templates/:id/regenerate', assessmentAIController.regenerateQuestions);
-
-// Protected routes (require authentication)
-router.use(authenticate);
 
 // Question management
 router.post('/templates/:id/questions', assessmentController.addQuestion);

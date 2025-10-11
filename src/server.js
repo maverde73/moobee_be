@@ -17,6 +17,7 @@ const assessmentRoutes = require('./routes/assessmentRoutes');
 const engagementRoutes = require('./routes/engagementRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const cvRoutes = require('./routes/cvRoutes');
+const internalRoutes = require('./routes/internalRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -83,6 +84,12 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
+    // Skip rate limiting for CV extraction status polling (ALL environments)
+    // This endpoint is polled every 2-5 seconds during extraction (~3-5 min)
+    if (req.path.includes('/cv/extraction-status/')) {
+      return true;
+    }
+
     // Skip rate limiting for certain endpoints in development
     if (process.env.NODE_ENV === 'development') {
       // Skip for assessment endpoints
@@ -120,6 +127,10 @@ const limiter = rateLimit({
 
 // Apply rate limiting to all routes
 app.use('/api/', limiter);
+
+// Internal API routes (NO rate limiting, NO auth - trusted Python backend)
+// MUST be mounted AFTER rate limiter to bypass it
+app.use('/api/internal', internalRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -162,6 +173,19 @@ app.use('/api/dashboard', dashboardRoutes);
 // Assessment routes (include /api/admin/assessment-catalog) - DISABLED FOR NOW
 // app.use('/', assessmentRoutes);
 
+// DEBUG: Log ALL incoming requests for AI generation
+app.use((req, res, next) => {
+  if (req.path.includes('/ai/generate-questions')) {
+    const fs = require('fs');
+    fs.appendFileSync('/tmp/moobee_debug.log', `\n[${new Date().toISOString()}] INCOMING REQUEST\n`);
+    fs.appendFileSync('/tmp/moobee_debug.log', `  Method: ${req.method}\n`);
+    fs.appendFileSync('/tmp/moobee_debug.log', `  Path: ${req.path}\n`);
+    fs.appendFileSync('/tmp/moobee_debug.log', `  URL: ${req.url}\n`);
+    fs.appendFileSync('/tmp/moobee_debug.log', `  Has Authorization: ${!!req.headers.authorization}\n`);
+  }
+  next();
+});
+
 // New Assessment API routes
 const assessmentAPIRoutes = require('./routes/assessmentAPIRoutes');
 app.use('/api/assessments', assessmentAPIRoutes);
@@ -171,9 +195,9 @@ const roleBasedAssessmentRoutes = require('./routes/roleBasedAssessmentRoutes');
 app.use('/api/assessments', roleBasedAssessmentRoutes);
 app.use('/api', roleBasedAssessmentRoutes); // Also mount at /api for routes like /roles/:id/skill-requirements
 
-// Analytics routes
+// Analytics routes (Super Admin LLM Analytics + Regular Analytics)
 const analyticsRoutes = require('./routes/analyticsRoutes');
-app.use('/api/assessments/analytics', analyticsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Engagement routes
 app.use('/api/engagement', engagementRoutes);

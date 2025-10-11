@@ -1,0 +1,861 @@
+
+> moobee-backend@1.0.0 start
+> node src/server.js
+
+✓ OpenAI provider initialized
+✓ Anthropic provider initialized
+2025-10-10 23:53:37 [[32minfo[39m]: [32mUnified routes registered[39m
+
+    🚀 Server is running!
+    🔊 Listening on localhost:3000
+    📱 Environment: development
+    🏥 Health check: http://localhost:3000/health
+    📚 API Base: http://localhost:3000/api
+  
+✅ Database connected successfully
+=== Authenticate middleware ===
+Path: /
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+=== Employee Route - GET /employees ===
+Search term:  Length: 0
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."employees"."id" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 OFFSET $2) AS "sub"
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 ORDER BY "public"."employees"."last_name" ASC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66) OFFSET $67
+Found 66 employees (Total: 66)
+[0mGET /api/employees?limit=100&page=1 [36m304[0m 787.771 ms - -[0m
+=== Authenticate middleware ===
+Path: /
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT 1
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+=== Employee Route - GET /employees ===
+Search term:  Length: 0
+prisma:query SELECT 1
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 ORDER BY "public"."employees"."last_name" ASC LIMIT $2 OFFSET $3
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."employees"."id" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 OFFSET $2) AS "sub"
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66) OFFSET $67
+Found 66 employees (Total: 66)
+[0mGET /api/employees?limit=100&page=1 [36m304[0m 351.153 ms - -[0m
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE ("public"."tenants"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+[0mGET /api/tenants/f5eafcce-26af-4699-aa97-dd8829621406 [32m200[0m 178.174 ms - -[0m
+=== Authenticate middleware ===
+Path: /74/full
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+=== Authenticate middleware ===
+Path: /74/full
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE ("public"."employees"."id" = $1 AND "public"."employees"."tenant_id" = $2) LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE ("public"."tenants"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."tenant_users"."id", "public"."tenant_users"."email", "public"."tenant_users"."role", "public"."tenant_users"."is_active", "public"."tenant_users"."force_password_change", "public"."tenant_users"."last_login_at", "public"."tenant_users"."login_count", "public"."tenant_users"."employee_id" FROM "public"."tenant_users" WHERE "public"."tenant_users"."employee_id" IN ($1) OFFSET $2
+[0mGET /api/tenants/f5eafcce-26af-4699-aa97-dd8829621406 [32m200[0m 181.340 ms - -[0m
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1) OFFSET $2
+[0mGET /api/employees/74/full [32m200[0m 387.372 ms - 159[0m
+=== Authenticate middleware ===
+Path: /74/skills
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/work-history
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/projects
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/preferences
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/preferences [32m200[0m 2.304 ms - 127[0m
+=== Authenticate middleware ===
+Path: /74/availability
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/availability [32m200[0m 2.590 ms - 105[0m
+=== Authenticate middleware ===
+Path: /74/education
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/certifications
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_work_experiences"."id", "public"."employee_work_experiences"."employee_id", "public"."employee_work_experiences"."company_id", "public"."employee_work_experiences"."company_name", "public"."employee_work_experiences"."company_location", "public"."employee_work_experiences"."company_industry", "public"."employee_work_experiences"."job_title", "public"."employee_work_experiences"."employment_type", "public"."employee_work_experiences"."seniority_level", "public"."employee_work_experiences"."start_date", "public"."employee_work_experiences"."end_date", "public"."employee_work_experiences"."is_current", "public"."employee_work_experiences"."description", "public"."employee_work_experiences"."responsibilities", "public"."employee_work_experiences"."achievements", "public"."employee_work_experiences"."projects", "public"."employee_work_experiences"."skills_used", "public"."employee_work_experiences"."cv_extraction_id", "public"."employee_work_experiences"."created_at", "public"."employee_work_experiences"."updated_at", "public"."employee_work_experiences"."tenant_id" FROM "public"."employee_work_experiences" WHERE "public"."employee_work_experiences"."employee_id" = $1 ORDER BY "public"."employee_work_experiences"."start_date" DESC OFFSET $2
+prisma:query 
+          SELECT DISTINCT ON (es.id)
+            es.id,
+            es.skill_id,
+            es.proficiency_level,
+            es.years_experience,
+            es.source,
+            es.last_used_date,
+            s."Skill" as skill_name,
+            s."NameKnown_Skill" as name_known_skill,
+            ssv."Grading",
+            er.sub_role_id,
+            sr."Sub_Role" as sub_role_name
+          FROM employee_skills es
+          LEFT JOIN skills s ON es.skill_id = s.id
+          LEFT JOIN employee_roles er ON er.employee_id = es.employee_id
+            AND er.is_current = true
+          LEFT JOIN skills_sub_roles_value ssv ON ssv.id_skill = es.skill_id
+            AND ssv.id_sub_role = er.sub_role_id
+          LEFT JOIN sub_roles sr ON sr.id = er.sub_role_id
+          WHERE es.employee_id = $1
+          ORDER BY
+            es.id,
+            ssv."Grading" DESC NULLS LAST,
+            s."Skill" ASC
+        
+[0mGET /api/employees/74/work-history [32m200[0m 117.868 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/languages
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_soft_skills"."id", "public"."employee_soft_skills"."employee_id", "public"."employee_soft_skills"."soft_skill_id", "public"."employee_soft_skills"."sub_role_id", "public"."employee_soft_skills"."importance", "public"."employee_soft_skills"."source", "public"."employee_soft_skills"."created_at", "public"."employee_soft_skills"."updated_at", "public"."employee_soft_skills"."tenant_id" FROM "public"."employee_soft_skills" WHERE "public"."employee_soft_skills"."employee_id" = $1 OFFSET $2
+prisma:query SELECT "public"."employee_certifications"."id", "public"."employee_certifications"."employee_id", "public"."employee_certifications"."certification_id", "public"."employee_certifications"."certification_name", "public"."employee_certifications"."issuing_organization", "public"."employee_certifications"."issue_date", "public"."employee_certifications"."expiry_date", "public"."employee_certifications"."is_active", "public"."employee_certifications"."credential_id", "public"."employee_certifications"."credential_url", "public"."employee_certifications"."cv_extraction_id", "public"."employee_certifications"."created_at", "public"."employee_certifications"."updated_at", "public"."employee_certifications"."tenant_id" FROM "public"."employee_certifications" WHERE "public"."employee_certifications"."employee_id" = $1 ORDER BY "public"."employee_certifications"."issue_date" DESC OFFSET $2
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+[0mGET /api/employees/74/skills [32m200[0m 234.599 ms - 45[0m
+[0mGET /api/employees/74/certifications [32m200[0m 201.452 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/domain-knowledge
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/roles
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_domain_knowledge"."id", "public"."employee_domain_knowledge"."employee_id", "public"."employee_domain_knowledge"."domain_type", "public"."employee_domain_knowledge"."domain_value", "public"."employee_domain_knowledge"."source", "public"."employee_domain_knowledge"."cv_extraction_id", "public"."employee_domain_knowledge"."confidence_score", "public"."employee_domain_knowledge"."years_experience", "public"."employee_domain_knowledge"."created_at", "public"."employee_domain_knowledge"."updated_at", "public"."employee_domain_knowledge"."tenant_id" FROM "public"."employee_domain_knowledge" WHERE "public"."employee_domain_knowledge"."employee_id" = $1 ORDER BY "public"."employee_domain_knowledge"."created_at" DESC OFFSET $2
+prisma:query SELECT "public"."employee_languages"."id", "public"."employee_languages"."employee_id", "public"."employee_languages"."language_id", "public"."employee_languages"."proficiency_level_id", "public"."employee_languages"."listening_level", "public"."employee_languages"."reading_level", "public"."employee_languages"."spoken_interaction_level", "public"."employee_languages"."spoken_production_level", "public"."employee_languages"."writing_level", "public"."employee_languages"."is_native", "public"."employee_languages"."cv_extraction_id", "public"."employee_languages"."created_at", "public"."employee_languages"."updated_at", "public"."employee_languages"."tenant_id" FROM "public"."employee_languages" WHERE "public"."employee_languages"."employee_id" = $1 OFFSET $2
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE ("public"."employees"."id" = $1 AND "public"."employees"."tenant_id" = $2) LIMIT $3 OFFSET $4
+[0mGET /api/employees/74/languages [32m200[0m 205.283 ms - 26[0m
+[0mGET /api/employees/74/domain-knowledge [32m200[0m 96.749 ms - 99[0m
+prisma:query SELECT "public"."tenant_users"."id", "public"."tenant_users"."email", "public"."tenant_users"."role", "public"."tenant_users"."is_active", "public"."tenant_users"."force_password_change", "public"."tenant_users"."last_login_at", "public"."tenant_users"."login_count", "public"."tenant_users"."employee_id" FROM "public"."tenant_users" WHERE "public"."tenant_users"."employee_id" IN ($1) OFFSET $2
+prisma:query 
+        SELECT
+          er.*,
+          r."NameKnown_Role" as role_name,
+          COALESCE(sr."NameKnown_Sub_Role", sr."Sub_Role") as sub_role_name
+        FROM employee_roles er
+        LEFT JOIN roles r ON er.role_id = r.id
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE er.employee_id = $1
+      
+[0mGET /api/employees/74/roles [32m200[0m 191.779 ms - 26[0m
+prisma:query SELECT "public"."employee_projects"."id", "public"."employee_projects"."employee_id", "public"."employee_projects"."project_name", "public"."employee_projects"."description", "public"."employee_projects"."start_date", "public"."employee_projects"."end_date", "public"."employee_projects"."is_current", "public"."employee_projects"."role", "public"."employee_projects"."technologies_used", "public"."employee_projects"."project_url", "public"."employee_projects"."cv_extraction_id", "public"."employee_projects"."created_at", "public"."employee_projects"."updated_at", "public"."employee_projects"."tenant_id" FROM "public"."employee_projects" WHERE "public"."employee_projects"."employee_id" = $1 ORDER BY "public"."employee_projects"."start_date" DESC OFFSET $2
+[0mGET /api/employees/74/projects [32m200[0m 470.061 ms - 26[0m
+prisma:query SELECT "public"."employee_education"."id", "public"."employee_education"."employee_id", "public"."employee_education"."degree_id", "public"."employee_education"."degree_name", "public"."employee_education"."field_of_study", "public"."employee_education"."institution_name", "public"."employee_education"."institution_location", "public"."employee_education"."start_date", "public"."employee_education"."end_date", "public"."employee_education"."is_current", "public"."employee_education"."grade", "public"."employee_education"."honors", "public"."employee_education"."thesis_title", "public"."employee_education"."cv_extraction_id", "public"."employee_education"."created_at", "public"."employee_education"."updated_at", "public"."employee_education"."tenant_id" FROM "public"."employee_education" WHERE "public"."employee_education"."employee_id" = $1 ORDER BY "public"."employee_education"."start_date" DESC OFFSET $2
+[0mGET /api/employees/74/education [32m200[0m 491.608 ms - 26[0m
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1) OFFSET $2
+[0mGET /api/employees/74/full [32m200[0m 816.320 ms - 159[0m
+=== Authenticate middleware ===
+Path: /74/skills
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/projects
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/work-history
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/preferences
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/preferences [32m200[0m 1.361 ms - 127[0m
+=== Authenticate middleware ===
+Path: /74/availability
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/availability [32m200[0m 1.727 ms - 105[0m
+=== Authenticate middleware ===
+Path: /74/education
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/certifications
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/languages
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query 
+          SELECT DISTINCT ON (es.id)
+            es.id,
+            es.skill_id,
+            es.proficiency_level,
+            es.years_experience,
+            es.source,
+            es.last_used_date,
+            s."Skill" as skill_name,
+            s."NameKnown_Skill" as name_known_skill,
+            ssv."Grading",
+            er.sub_role_id,
+            sr."Sub_Role" as sub_role_name
+          FROM employee_skills es
+          LEFT JOIN skills s ON es.skill_id = s.id
+          LEFT JOIN employee_roles er ON er.employee_id = es.employee_id
+            AND er.is_current = true
+          LEFT JOIN skills_sub_roles_value ssv ON ssv.id_skill = es.skill_id
+            AND ssv.id_sub_role = er.sub_role_id
+          LEFT JOIN sub_roles sr ON sr.id = er.sub_role_id
+          WHERE es.employee_id = $1
+          ORDER BY
+            es.id,
+            ssv."Grading" DESC NULLS LAST,
+            s."Skill" ASC
+        
+prisma:query SELECT "public"."employee_certifications"."id", "public"."employee_certifications"."employee_id", "public"."employee_certifications"."certification_id", "public"."employee_certifications"."certification_name", "public"."employee_certifications"."issuing_organization", "public"."employee_certifications"."issue_date", "public"."employee_certifications"."expiry_date", "public"."employee_certifications"."is_active", "public"."employee_certifications"."credential_id", "public"."employee_certifications"."credential_url", "public"."employee_certifications"."cv_extraction_id", "public"."employee_certifications"."created_at", "public"."employee_certifications"."updated_at", "public"."employee_certifications"."tenant_id" FROM "public"."employee_certifications" WHERE "public"."employee_certifications"."employee_id" = $1 ORDER BY "public"."employee_certifications"."issue_date" DESC OFFSET $2
+[0mGET /api/employees/74/certifications [32m200[0m 66.854 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/domain-knowledge
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_projects"."id", "public"."employee_projects"."employee_id", "public"."employee_projects"."project_name", "public"."employee_projects"."description", "public"."employee_projects"."start_date", "public"."employee_projects"."end_date", "public"."employee_projects"."is_current", "public"."employee_projects"."role", "public"."employee_projects"."technologies_used", "public"."employee_projects"."project_url", "public"."employee_projects"."cv_extraction_id", "public"."employee_projects"."created_at", "public"."employee_projects"."updated_at", "public"."employee_projects"."tenant_id" FROM "public"."employee_projects" WHERE "public"."employee_projects"."employee_id" = $1 ORDER BY "public"."employee_projects"."start_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_work_experiences"."id", "public"."employee_work_experiences"."employee_id", "public"."employee_work_experiences"."company_id", "public"."employee_work_experiences"."company_name", "public"."employee_work_experiences"."company_location", "public"."employee_work_experiences"."company_industry", "public"."employee_work_experiences"."job_title", "public"."employee_work_experiences"."employment_type", "public"."employee_work_experiences"."seniority_level", "public"."employee_work_experiences"."start_date", "public"."employee_work_experiences"."end_date", "public"."employee_work_experiences"."is_current", "public"."employee_work_experiences"."description", "public"."employee_work_experiences"."responsibilities", "public"."employee_work_experiences"."achievements", "public"."employee_work_experiences"."projects", "public"."employee_work_experiences"."skills_used", "public"."employee_work_experiences"."cv_extraction_id", "public"."employee_work_experiences"."created_at", "public"."employee_work_experiences"."updated_at", "public"."employee_work_experiences"."tenant_id" FROM "public"."employee_work_experiences" WHERE "public"."employee_work_experiences"."employee_id" = $1 ORDER BY "public"."employee_work_experiences"."start_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_education"."id", "public"."employee_education"."employee_id", "public"."employee_education"."degree_id", "public"."employee_education"."degree_name", "public"."employee_education"."field_of_study", "public"."employee_education"."institution_name", "public"."employee_education"."institution_location", "public"."employee_education"."start_date", "public"."employee_education"."end_date", "public"."employee_education"."is_current", "public"."employee_education"."grade", "public"."employee_education"."honors", "public"."employee_education"."thesis_title", "public"."employee_education"."cv_extraction_id", "public"."employee_education"."created_at", "public"."employee_education"."updated_at", "public"."employee_education"."tenant_id" FROM "public"."employee_education" WHERE "public"."employee_education"."employee_id" = $1 ORDER BY "public"."employee_education"."start_date" DESC OFFSET $2
+[0mGET /api/employees/74/projects [32m200[0m 139.425 ms - 26[0m
+[0mGET /api/employees/74/work-history [32m200[0m 137.315 ms - 26[0m
+[0mGET /api/employees/74/education [32m200[0m 129.472 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/roles
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_soft_skills"."id", "public"."employee_soft_skills"."employee_id", "public"."employee_soft_skills"."soft_skill_id", "public"."employee_soft_skills"."sub_role_id", "public"."employee_soft_skills"."importance", "public"."employee_soft_skills"."source", "public"."employee_soft_skills"."created_at", "public"."employee_soft_skills"."updated_at", "public"."employee_soft_skills"."tenant_id" FROM "public"."employee_soft_skills" WHERE "public"."employee_soft_skills"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/skills [32m200[0m 177.277 ms - 45[0m
+prisma:query SELECT "public"."employee_languages"."id", "public"."employee_languages"."employee_id", "public"."employee_languages"."language_id", "public"."employee_languages"."proficiency_level_id", "public"."employee_languages"."listening_level", "public"."employee_languages"."reading_level", "public"."employee_languages"."spoken_interaction_level", "public"."employee_languages"."spoken_production_level", "public"."employee_languages"."writing_level", "public"."employee_languages"."is_native", "public"."employee_languages"."cv_extraction_id", "public"."employee_languages"."created_at", "public"."employee_languages"."updated_at", "public"."employee_languages"."tenant_id" FROM "public"."employee_languages" WHERE "public"."employee_languages"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/languages [32m200[0m 149.393 ms - 26[0m
+prisma:query 
+        SELECT
+          er.*,
+          r."NameKnown_Role" as role_name,
+          COALESCE(sr."NameKnown_Sub_Role", sr."Sub_Role") as sub_role_name
+        FROM employee_roles er
+        LEFT JOIN roles r ON er.role_id = r.id
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE er.employee_id = $1
+      
+prisma:query SELECT "public"."employee_domain_knowledge"."id", "public"."employee_domain_knowledge"."employee_id", "public"."employee_domain_knowledge"."domain_type", "public"."employee_domain_knowledge"."domain_value", "public"."employee_domain_knowledge"."source", "public"."employee_domain_knowledge"."cv_extraction_id", "public"."employee_domain_knowledge"."confidence_score", "public"."employee_domain_knowledge"."years_experience", "public"."employee_domain_knowledge"."created_at", "public"."employee_domain_knowledge"."updated_at", "public"."employee_domain_knowledge"."tenant_id" FROM "public"."employee_domain_knowledge" WHERE "public"."employee_domain_knowledge"."employee_id" = $1 ORDER BY "public"."employee_domain_knowledge"."created_at" DESC OFFSET $2
+[0mGET /api/employees/74/domain-knowledge [32m200[0m 145.129 ms - 99[0m
+[0mGET /api/employees/74/roles [32m200[0m 96.589 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/roles
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/full
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+=== Authenticate middleware ===
+Path: /74/soft-skills
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/domain-knowledge
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/languages
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/education
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_domain_knowledge"."id", "public"."employee_domain_knowledge"."employee_id", "public"."employee_domain_knowledge"."domain_type", "public"."employee_domain_knowledge"."domain_value", "public"."employee_domain_knowledge"."source", "public"."employee_domain_knowledge"."cv_extraction_id", "public"."employee_domain_knowledge"."confidence_score", "public"."employee_domain_knowledge"."years_experience", "public"."employee_domain_knowledge"."created_at", "public"."employee_domain_knowledge"."updated_at", "public"."employee_domain_knowledge"."tenant_id" FROM "public"."employee_domain_knowledge" WHERE "public"."employee_domain_knowledge"."employee_id" = $1 ORDER BY "public"."employee_domain_knowledge"."created_at" DESC OFFSET $2
+[0mGET /api/employees/74/domain-knowledge [32m200[0m 70.661 ms - 99[0m
+=== Authenticate middleware ===
+Path: /74/roles
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_languages"."id", "public"."employee_languages"."employee_id", "public"."employee_languages"."language_id", "public"."employee_languages"."proficiency_level_id", "public"."employee_languages"."listening_level", "public"."employee_languages"."reading_level", "public"."employee_languages"."spoken_interaction_level", "public"."employee_languages"."spoken_production_level", "public"."employee_languages"."writing_level", "public"."employee_languages"."is_native", "public"."employee_languages"."cv_extraction_id", "public"."employee_languages"."created_at", "public"."employee_languages"."updated_at", "public"."employee_languages"."tenant_id" FROM "public"."employee_languages" WHERE "public"."employee_languages"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/languages [32m200[0m 76.271 ms - 26[0m
+prisma:query 
+        SELECT
+          er.*,
+          r."NameKnown_Role" as role_name,
+          COALESCE(sr."NameKnown_Sub_Role", sr."Sub_Role") as sub_role_name
+        FROM employee_roles er
+        LEFT JOIN roles r ON er.role_id = r.id
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE er.employee_id = $1
+      
+prisma:query SELECT "public"."employee_soft_skills"."id", "public"."employee_soft_skills"."employee_id", "public"."employee_soft_skills"."soft_skill_id", "public"."employee_soft_skills"."sub_role_id", "public"."employee_soft_skills"."importance", "public"."employee_soft_skills"."source", "public"."employee_soft_skills"."created_at", "public"."employee_soft_skills"."updated_at", "public"."employee_soft_skills"."tenant_id" FROM "public"."employee_soft_skills" WHERE "public"."employee_soft_skills"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/roles [32m200[0m 105.742 ms - 26[0m
+[0mGET /api/employees/74/soft-skills [32m200[0m 99.338 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/certifications
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/full
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+=== Authenticate middleware ===
+Path: /74/soft-skills
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query 
+        SELECT
+          er.*,
+          r."NameKnown_Role" as role_name,
+          COALESCE(sr."NameKnown_Sub_Role", sr."Sub_Role") as sub_role_name
+        FROM employee_roles er
+        LEFT JOIN roles r ON er.role_id = r.id
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE er.employee_id = $1
+      
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+[0mGET /api/employees/74/roles [32m200[0m 67.288 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/domain-knowledge
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_education"."id", "public"."employee_education"."employee_id", "public"."employee_education"."degree_id", "public"."employee_education"."degree_name", "public"."employee_education"."field_of_study", "public"."employee_education"."institution_name", "public"."employee_education"."institution_location", "public"."employee_education"."start_date", "public"."employee_education"."end_date", "public"."employee_education"."is_current", "public"."employee_education"."grade", "public"."employee_education"."honors", "public"."employee_education"."thesis_title", "public"."employee_education"."cv_extraction_id", "public"."employee_education"."created_at", "public"."employee_education"."updated_at", "public"."employee_education"."tenant_id" FROM "public"."employee_education" WHERE "public"."employee_education"."employee_id" = $1 ORDER BY "public"."employee_education"."start_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_certifications"."id", "public"."employee_certifications"."employee_id", "public"."employee_certifications"."certification_id", "public"."employee_certifications"."certification_name", "public"."employee_certifications"."issuing_organization", "public"."employee_certifications"."issue_date", "public"."employee_certifications"."expiry_date", "public"."employee_certifications"."is_active", "public"."employee_certifications"."credential_id", "public"."employee_certifications"."credential_url", "public"."employee_certifications"."cv_extraction_id", "public"."employee_certifications"."created_at", "public"."employee_certifications"."updated_at", "public"."employee_certifications"."tenant_id" FROM "public"."employee_certifications" WHERE "public"."employee_certifications"."employee_id" = $1 ORDER BY "public"."employee_certifications"."issue_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_soft_skills"."id", "public"."employee_soft_skills"."employee_id", "public"."employee_soft_skills"."soft_skill_id", "public"."employee_soft_skills"."sub_role_id", "public"."employee_soft_skills"."importance", "public"."employee_soft_skills"."source", "public"."employee_soft_skills"."created_at", "public"."employee_soft_skills"."updated_at", "public"."employee_soft_skills"."tenant_id" FROM "public"."employee_soft_skills" WHERE "public"."employee_soft_skills"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/education [32m200[0m 173.062 ms - 26[0m
+[0mGET /api/employees/74/certifications [32m200[0m 98.494 ms - 26[0m
+[0mGET /api/employees/74/soft-skills [32m200[0m 93.280 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/languages
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/education
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/certifications
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_education"."id", "public"."employee_education"."employee_id", "public"."employee_education"."degree_id", "public"."employee_education"."degree_name", "public"."employee_education"."field_of_study", "public"."employee_education"."institution_name", "public"."employee_education"."institution_location", "public"."employee_education"."start_date", "public"."employee_education"."end_date", "public"."employee_education"."is_current", "public"."employee_education"."grade", "public"."employee_education"."honors", "public"."employee_education"."thesis_title", "public"."employee_education"."cv_extraction_id", "public"."employee_education"."created_at", "public"."employee_education"."updated_at", "public"."employee_education"."tenant_id" FROM "public"."employee_education" WHERE "public"."employee_education"."employee_id" = $1 ORDER BY "public"."employee_education"."start_date" DESC OFFSET $2
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE ("public"."employees"."id" = $1 AND "public"."employees"."tenant_id" = $2) LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."employee_languages"."id", "public"."employee_languages"."employee_id", "public"."employee_languages"."language_id", "public"."employee_languages"."proficiency_level_id", "public"."employee_languages"."listening_level", "public"."employee_languages"."reading_level", "public"."employee_languages"."spoken_interaction_level", "public"."employee_languages"."spoken_production_level", "public"."employee_languages"."writing_level", "public"."employee_languages"."is_native", "public"."employee_languages"."cv_extraction_id", "public"."employee_languages"."created_at", "public"."employee_languages"."updated_at", "public"."employee_languages"."tenant_id" FROM "public"."employee_languages" WHERE "public"."employee_languages"."employee_id" = $1 OFFSET $2
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+[0mGET /api/employees/74/languages [32m200[0m 48.363 ms - 26[0m
+[0mGET /api/employees/74/education [32m200[0m 47.099 ms - 26[0m
+prisma:query SELECT "public"."employee_certifications"."id", "public"."employee_certifications"."employee_id", "public"."employee_certifications"."certification_id", "public"."employee_certifications"."certification_name", "public"."employee_certifications"."issuing_organization", "public"."employee_certifications"."issue_date", "public"."employee_certifications"."expiry_date", "public"."employee_certifications"."is_active", "public"."employee_certifications"."credential_id", "public"."employee_certifications"."credential_url", "public"."employee_certifications"."cv_extraction_id", "public"."employee_certifications"."created_at", "public"."employee_certifications"."updated_at", "public"."employee_certifications"."tenant_id" FROM "public"."employee_certifications" WHERE "public"."employee_certifications"."employee_id" = $1 ORDER BY "public"."employee_certifications"."issue_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_domain_knowledge"."id", "public"."employee_domain_knowledge"."employee_id", "public"."employee_domain_knowledge"."domain_type", "public"."employee_domain_knowledge"."domain_value", "public"."employee_domain_knowledge"."source", "public"."employee_domain_knowledge"."cv_extraction_id", "public"."employee_domain_knowledge"."confidence_score", "public"."employee_domain_knowledge"."years_experience", "public"."employee_domain_knowledge"."created_at", "public"."employee_domain_knowledge"."updated_at", "public"."employee_domain_knowledge"."tenant_id" FROM "public"."employee_domain_knowledge" WHERE "public"."employee_domain_knowledge"."employee_id" = $1 ORDER BY "public"."employee_domain_knowledge"."created_at" DESC OFFSET $2
+[0mGET /api/employees/74/domain-knowledge [32m200[0m 145.416 ms - 99[0m
+[0mGET /api/employees/74/certifications [32m200[0m 92.034 ms - 26[0m
+prisma:query SELECT "public"."tenant_users"."id", "public"."tenant_users"."email", "public"."tenant_users"."role", "public"."tenant_users"."is_active", "public"."tenant_users"."force_password_change", "public"."tenant_users"."last_login_at", "public"."tenant_users"."login_count", "public"."tenant_users"."employee_id" FROM "public"."tenant_users" WHERE "public"."tenant_users"."employee_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE ("public"."employees"."id" = $1 AND "public"."employees"."tenant_id" = $2) LIMIT $3 OFFSET $4
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1) OFFSET $2
+prisma:query SELECT "public"."tenant_users"."id", "public"."tenant_users"."email", "public"."tenant_users"."role", "public"."tenant_users"."is_active", "public"."tenant_users"."force_password_change", "public"."tenant_users"."last_login_at", "public"."tenant_users"."login_count", "public"."tenant_users"."employee_id" FROM "public"."tenant_users" WHERE "public"."tenant_users"."employee_id" IN ($1) OFFSET $2
+[0mGET /api/employees/74/full [32m200[0m 440.220 ms - 159[0m
+=== Authenticate middleware ===
+Path: /74/skills
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/work-history
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/projects
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/preferences
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/preferences [32m200[0m 1.634 ms - 127[0m
+=== Authenticate middleware ===
+Path: /74/availability
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/availability [32m200[0m 1.740 ms - 105[0m
+=== Authenticate middleware ===
+Path: /74/education
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/certifications
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query 
+          SELECT DISTINCT ON (es.id)
+            es.id,
+            es.skill_id,
+            es.proficiency_level,
+            es.years_experience,
+            es.source,
+            es.last_used_date,
+            s."Skill" as skill_name,
+            s."NameKnown_Skill" as name_known_skill,
+            ssv."Grading",
+            er.sub_role_id,
+            sr."Sub_Role" as sub_role_name
+          FROM employee_skills es
+          LEFT JOIN skills s ON es.skill_id = s.id
+          LEFT JOIN employee_roles er ON er.employee_id = es.employee_id
+            AND er.is_current = true
+          LEFT JOIN skills_sub_roles_value ssv ON ssv.id_skill = es.skill_id
+            AND ssv.id_sub_role = er.sub_role_id
+          LEFT JOIN sub_roles sr ON sr.id = er.sub_role_id
+          WHERE es.employee_id = $1
+          ORDER BY
+            es.id,
+            ssv."Grading" DESC NULLS LAST,
+            s."Skill" ASC
+        
+prisma:query SELECT "public"."employee_education"."id", "public"."employee_education"."employee_id", "public"."employee_education"."degree_id", "public"."employee_education"."degree_name", "public"."employee_education"."field_of_study", "public"."employee_education"."institution_name", "public"."employee_education"."institution_location", "public"."employee_education"."start_date", "public"."employee_education"."end_date", "public"."employee_education"."is_current", "public"."employee_education"."grade", "public"."employee_education"."honors", "public"."employee_education"."thesis_title", "public"."employee_education"."cv_extraction_id", "public"."employee_education"."created_at", "public"."employee_education"."updated_at", "public"."employee_education"."tenant_id" FROM "public"."employee_education" WHERE "public"."employee_education"."employee_id" = $1 ORDER BY "public"."employee_education"."start_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_work_experiences"."id", "public"."employee_work_experiences"."employee_id", "public"."employee_work_experiences"."company_id", "public"."employee_work_experiences"."company_name", "public"."employee_work_experiences"."company_location", "public"."employee_work_experiences"."company_industry", "public"."employee_work_experiences"."job_title", "public"."employee_work_experiences"."employment_type", "public"."employee_work_experiences"."seniority_level", "public"."employee_work_experiences"."start_date", "public"."employee_work_experiences"."end_date", "public"."employee_work_experiences"."is_current", "public"."employee_work_experiences"."description", "public"."employee_work_experiences"."responsibilities", "public"."employee_work_experiences"."achievements", "public"."employee_work_experiences"."projects", "public"."employee_work_experiences"."skills_used", "public"."employee_work_experiences"."cv_extraction_id", "public"."employee_work_experiences"."created_at", "public"."employee_work_experiences"."updated_at", "public"."employee_work_experiences"."tenant_id" FROM "public"."employee_work_experiences" WHERE "public"."employee_work_experiences"."employee_id" = $1 ORDER BY "public"."employee_work_experiences"."start_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1) OFFSET $2
+[0mGET /api/employees/74/full [32m200[0m 442.446 ms - 159[0m
+[0mGET /api/employees/74/work-history [32m200[0m 96.493 ms - 26[0m
+[0mGET /api/employees/74/education [32m200[0m 74.751 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/languages
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/domain-knowledge
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/roles
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_projects"."id", "public"."employee_projects"."employee_id", "public"."employee_projects"."project_name", "public"."employee_projects"."description", "public"."employee_projects"."start_date", "public"."employee_projects"."end_date", "public"."employee_projects"."is_current", "public"."employee_projects"."role", "public"."employee_projects"."technologies_used", "public"."employee_projects"."project_url", "public"."employee_projects"."cv_extraction_id", "public"."employee_projects"."created_at", "public"."employee_projects"."updated_at", "public"."employee_projects"."tenant_id" FROM "public"."employee_projects" WHERE "public"."employee_projects"."employee_id" = $1 ORDER BY "public"."employee_projects"."start_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_domain_knowledge"."id", "public"."employee_domain_knowledge"."employee_id", "public"."employee_domain_knowledge"."domain_type", "public"."employee_domain_knowledge"."domain_value", "public"."employee_domain_knowledge"."source", "public"."employee_domain_knowledge"."cv_extraction_id", "public"."employee_domain_knowledge"."confidence_score", "public"."employee_domain_knowledge"."years_experience", "public"."employee_domain_knowledge"."created_at", "public"."employee_domain_knowledge"."updated_at", "public"."employee_domain_knowledge"."tenant_id" FROM "public"."employee_domain_knowledge" WHERE "public"."employee_domain_knowledge"."employee_id" = $1 ORDER BY "public"."employee_domain_knowledge"."created_at" DESC OFFSET $2
+prisma:query SELECT "public"."employee_languages"."id", "public"."employee_languages"."employee_id", "public"."employee_languages"."language_id", "public"."employee_languages"."proficiency_level_id", "public"."employee_languages"."listening_level", "public"."employee_languages"."reading_level", "public"."employee_languages"."spoken_interaction_level", "public"."employee_languages"."spoken_production_level", "public"."employee_languages"."writing_level", "public"."employee_languages"."is_native", "public"."employee_languages"."cv_extraction_id", "public"."employee_languages"."created_at", "public"."employee_languages"."updated_at", "public"."employee_languages"."tenant_id" FROM "public"."employee_languages" WHERE "public"."employee_languages"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/projects [32m200[0m 138.741 ms - 26[0m
+[0mGET /api/employees/74/languages [32m200[0m 47.282 ms - 26[0m
+[0mGET /api/employees/74/domain-knowledge [32m200[0m 45.784 ms - 99[0m
+=== Authenticate middleware ===
+Path: /74/skills
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/work-history
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/projects
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_soft_skills"."id", "public"."employee_soft_skills"."employee_id", "public"."employee_soft_skills"."soft_skill_id", "public"."employee_soft_skills"."sub_role_id", "public"."employee_soft_skills"."importance", "public"."employee_soft_skills"."source", "public"."employee_soft_skills"."created_at", "public"."employee_soft_skills"."updated_at", "public"."employee_soft_skills"."tenant_id" FROM "public"."employee_soft_skills" WHERE "public"."employee_soft_skills"."employee_id" = $1 OFFSET $2
+prisma:query SELECT "public"."employee_certifications"."id", "public"."employee_certifications"."employee_id", "public"."employee_certifications"."certification_id", "public"."employee_certifications"."certification_name", "public"."employee_certifications"."issuing_organization", "public"."employee_certifications"."issue_date", "public"."employee_certifications"."expiry_date", "public"."employee_certifications"."is_active", "public"."employee_certifications"."credential_id", "public"."employee_certifications"."credential_url", "public"."employee_certifications"."cv_extraction_id", "public"."employee_certifications"."created_at", "public"."employee_certifications"."updated_at", "public"."employee_certifications"."tenant_id" FROM "public"."employee_certifications" WHERE "public"."employee_certifications"."employee_id" = $1 ORDER BY "public"."employee_certifications"."issue_date" DESC OFFSET $2
+[0mGET /api/employees/74/skills [32m200[0m 188.645 ms - 45[0m
+[0mGET /api/employees/74/certifications [32m200[0m 159.813 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/preferences
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/preferences [32m200[0m 1.501 ms - 127[0m
+=== Authenticate middleware ===
+Path: /74/availability
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[0mGET /api/employees/74/availability [32m200[0m 1.130 ms - 105[0m
+=== Authenticate middleware ===
+Path: /74/education
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/certifications
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_projects"."id", "public"."employee_projects"."employee_id", "public"."employee_projects"."project_name", "public"."employee_projects"."description", "public"."employee_projects"."start_date", "public"."employee_projects"."end_date", "public"."employee_projects"."is_current", "public"."employee_projects"."role", "public"."employee_projects"."technologies_used", "public"."employee_projects"."project_url", "public"."employee_projects"."cv_extraction_id", "public"."employee_projects"."created_at", "public"."employee_projects"."updated_at", "public"."employee_projects"."tenant_id" FROM "public"."employee_projects" WHERE "public"."employee_projects"."employee_id" = $1 ORDER BY "public"."employee_projects"."start_date" DESC OFFSET $2
+prisma:query 
+        SELECT
+          er.*,
+          r."NameKnown_Role" as role_name,
+          COALESCE(sr."NameKnown_Sub_Role", sr."Sub_Role") as sub_role_name
+        FROM employee_roles er
+        LEFT JOIN roles r ON er.role_id = r.id
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE er.employee_id = $1
+      
+[0mGET /api/employees/74/roles [32m200[0m 141.680 ms - 26[0m
+[0mGET /api/employees/74/projects [32m200[0m 87.366 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/languages
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+=== Authenticate middleware ===
+Path: /74/roles
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query SELECT "public"."employee_certifications"."id", "public"."employee_certifications"."employee_id", "public"."employee_certifications"."certification_id", "public"."employee_certifications"."certification_name", "public"."employee_certifications"."issuing_organization", "public"."employee_certifications"."issue_date", "public"."employee_certifications"."expiry_date", "public"."employee_certifications"."is_active", "public"."employee_certifications"."credential_id", "public"."employee_certifications"."credential_url", "public"."employee_certifications"."cv_extraction_id", "public"."employee_certifications"."created_at", "public"."employee_certifications"."updated_at", "public"."employee_certifications"."tenant_id" FROM "public"."employee_certifications" WHERE "public"."employee_certifications"."employee_id" = $1 ORDER BY "public"."employee_certifications"."issue_date" DESC OFFSET $2
+prisma:query SELECT "public"."employee_work_experiences"."id", "public"."employee_work_experiences"."employee_id", "public"."employee_work_experiences"."company_id", "public"."employee_work_experiences"."company_name", "public"."employee_work_experiences"."company_location", "public"."employee_work_experiences"."company_industry", "public"."employee_work_experiences"."job_title", "public"."employee_work_experiences"."employment_type", "public"."employee_work_experiences"."seniority_level", "public"."employee_work_experiences"."start_date", "public"."employee_work_experiences"."end_date", "public"."employee_work_experiences"."is_current", "public"."employee_work_experiences"."description", "public"."employee_work_experiences"."responsibilities", "public"."employee_work_experiences"."achievements", "public"."employee_work_experiences"."projects", "public"."employee_work_experiences"."skills_used", "public"."employee_work_experiences"."cv_extraction_id", "public"."employee_work_experiences"."created_at", "public"."employee_work_experiences"."updated_at", "public"."employee_work_experiences"."tenant_id" FROM "public"."employee_work_experiences" WHERE "public"."employee_work_experiences"."employee_id" = $1 ORDER BY "public"."employee_work_experiences"."start_date" DESC OFFSET $2
+[0mGET /api/employees/74/work-history [32m200[0m 126.787 ms - 26[0m
+[0mGET /api/employees/74/certifications [32m200[0m 91.957 ms - 26[0m
+=== Authenticate middleware ===
+Path: /74/domain-knowledge
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+prisma:query 
+          SELECT DISTINCT ON (es.id)
+            es.id,
+            es.skill_id,
+            es.proficiency_level,
+            es.years_experience,
+            es.source,
+            es.last_used_date,
+            s."Skill" as skill_name,
+            s."NameKnown_Skill" as name_known_skill,
+            ssv."Grading",
+            er.sub_role_id,
+            sr."Sub_Role" as sub_role_name
+          FROM employee_skills es
+          LEFT JOIN skills s ON es.skill_id = s.id
+          LEFT JOIN employee_roles er ON er.employee_id = es.employee_id
+            AND er.is_current = true
+          LEFT JOIN skills_sub_roles_value ssv ON ssv.id_skill = es.skill_id
+            AND ssv.id_sub_role = er.sub_role_id
+          LEFT JOIN sub_roles sr ON sr.id = er.sub_role_id
+          WHERE es.employee_id = $1
+          ORDER BY
+            es.id,
+            ssv."Grading" DESC NULLS LAST,
+            s."Skill" ASC
+        
+prisma:query SELECT "public"."employee_domain_knowledge"."id", "public"."employee_domain_knowledge"."employee_id", "public"."employee_domain_knowledge"."domain_type", "public"."employee_domain_knowledge"."domain_value", "public"."employee_domain_knowledge"."source", "public"."employee_domain_knowledge"."cv_extraction_id", "public"."employee_domain_knowledge"."confidence_score", "public"."employee_domain_knowledge"."years_experience", "public"."employee_domain_knowledge"."created_at", "public"."employee_domain_knowledge"."updated_at", "public"."employee_domain_knowledge"."tenant_id" FROM "public"."employee_domain_knowledge" WHERE "public"."employee_domain_knowledge"."employee_id" = $1 ORDER BY "public"."employee_domain_knowledge"."created_at" DESC OFFSET $2
+prisma:query SELECT "public"."employee_education"."id", "public"."employee_education"."employee_id", "public"."employee_education"."degree_id", "public"."employee_education"."degree_name", "public"."employee_education"."field_of_study", "public"."employee_education"."institution_name", "public"."employee_education"."institution_location", "public"."employee_education"."start_date", "public"."employee_education"."end_date", "public"."employee_education"."is_current", "public"."employee_education"."grade", "public"."employee_education"."honors", "public"."employee_education"."thesis_title", "public"."employee_education"."cv_extraction_id", "public"."employee_education"."created_at", "public"."employee_education"."updated_at", "public"."employee_education"."tenant_id" FROM "public"."employee_education" WHERE "public"."employee_education"."employee_id" = $1 ORDER BY "public"."employee_education"."start_date" DESC OFFSET $2
+[0mGET /api/employees/74/education [32m200[0m 144.701 ms - 26[0m
+[0mGET /api/employees/74/domain-knowledge [32m200[0m 49.872 ms - 99[0m
+prisma:query SELECT "public"."employee_languages"."id", "public"."employee_languages"."employee_id", "public"."employee_languages"."language_id", "public"."employee_languages"."proficiency_level_id", "public"."employee_languages"."listening_level", "public"."employee_languages"."reading_level", "public"."employee_languages"."spoken_interaction_level", "public"."employee_languages"."spoken_production_level", "public"."employee_languages"."writing_level", "public"."employee_languages"."is_native", "public"."employee_languages"."cv_extraction_id", "public"."employee_languages"."created_at", "public"."employee_languages"."updated_at", "public"."employee_languages"."tenant_id" FROM "public"."employee_languages" WHERE "public"."employee_languages"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/languages [32m200[0m 145.238 ms - 26[0m
+[0mGET /api/employees/74/roles [32m200[0m 144.358 ms - 26[0m
+prisma:query 
+        SELECT
+          er.*,
+          r."NameKnown_Role" as role_name,
+          COALESCE(sr."NameKnown_Sub_Role", sr."Sub_Role") as sub_role_name
+        FROM employee_roles er
+        LEFT JOIN roles r ON er.role_id = r.id
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE er.employee_id = $1
+      
+prisma:query SELECT "public"."employee_soft_skills"."id", "public"."employee_soft_skills"."employee_id", "public"."employee_soft_skills"."soft_skill_id", "public"."employee_soft_skills"."sub_role_id", "public"."employee_soft_skills"."importance", "public"."employee_soft_skills"."source", "public"."employee_soft_skills"."created_at", "public"."employee_soft_skills"."updated_at", "public"."employee_soft_skills"."tenant_id" FROM "public"."employee_soft_skills" WHERE "public"."employee_soft_skills"."employee_id" = $1 OFFSET $2
+[0mGET /api/employees/74/skills [32m200[0m 240.462 ms - 45[0m
+=== Authenticate middleware ===
+Path: /74/cv
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[Employee CV Route] Authenticated user: {
+  id: '3ad5c467-e53a-49ca-a4b6-65d19425479e',
+  email: 'alomonaco@nexadata.it',
+  firstName: 'Andrea',
+  lastName: 'Lomonaco',
+  role: 'employee',
+  tenantId: 'f5eafcce-26af-4699-aa97-dd8829621406',
+  tenant: {
+    id: 'f5eafcce-26af-4699-aa97-dd8829621406',
+    slug: 'nexadata',
+    name: 'Nexa data srl',
+    companyName: null,
+    domain: 'nexadata.it',
+    email: '',
+    phone: '',
+    vat_number: '',
+    tax_code: '',
+    address_street: '',
+    address_city: '',
+    address_state: '',
+    address_zip: '',
+    address_country: '',
+    subscription_plan: 'basic',
+    subscription_status: 'active',
+    max_employees: 50,
+    is_active: true,
+    created_by: null,
+    updated_by: null,
+    address: null,
+    city: null,
+    country: null,
+    isActive: true,
+    is_deleted: false,
+    plan: 'free',
+    maxUsers: 10,
+    createdAt: '2025-09-20T17:27:52.397Z',
+    updatedAt: '2025-09-24T15:38:13.045Z'
+  },
+  employeeId: 74,
+  position: null,
+  departmentId: null,
+  iat: 1760132945,
+  exp: 1760136545,
+  iss: 'moobee-unified'
+}
+[Employee CV Route] Employee ID param: 74
+[Employee CV Upload] Processing CV for employee 74
+[CVStorageService] Running in LOCAL development mode
+[CVStorageService] Storage directory exists: /home/mgiurelli/sviluppo/moobee/BE_nodejs/temp_uploads
+[CVStorageService] Initialized in LOCAL mode
+[CVStorageService] Storage path: /home/mgiurelli/sviluppo/moobee/BE_nodejs/temp_uploads
+[CVStorageService] Failed to save file: extractionId and tenantId are required in metadata
+[Employee CV Upload] Extraction error: Error: Failed to save CV file: extractionId and tenantId are required in metadata
+    at CVStorageService.saveFile (/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/cvStorageService.js:176:13)
+    at async /home/mgiurelli/sviluppo/moobee/BE_nodejs/src/routes/employeeRoutes.js:1671:28
+[0mPOST /api/employees/74/cv [31m500[0m 117.716 ms - 135[0m
+=== Authenticate middleware ===
+Path: /
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT 1
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+=== Employee Route - GET /employees ===
+Search term:  Length: 0
+prisma:query SELECT 1
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 ORDER BY "public"."employees"."last_name" ASC LIMIT $2 OFFSET $3
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."employees"."id" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 OFFSET $2) AS "sub"
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66) OFFSET $67
+Found 66 employees (Total: 66)
+[0mGET /api/employees?limit=100&page=1 [36m304[0m 419.421 ms - -[0m
+=== Authenticate middleware ===
+Path: /
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT 1
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+=== Employee Route - GET /employees ===
+Search term:  Length: 0
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."employees"."id" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 OFFSET $2) AS "sub"
+prisma:query SELECT 1
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 ORDER BY "public"."employees"."last_name" ASC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66) OFFSET $67
+Found 66 employees (Total: 66)
+[0mGET /api/employees?limit=100&page=1 [36m304[0m 330.091 ms - -[0m
+=== Authenticate middleware ===
+Path: /
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT 1
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+=== Employee Route - GET /employees ===
+Search term:  Length: 0
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."employees"."id" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 OFFSET $2) AS "sub"
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 ORDER BY "public"."employees"."last_name" ASC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66) OFFSET $67
+Found 66 employees (Total: 66)
+[0mGET /api/employees?limit=100&page=1 [36m304[0m 375.208 ms - -[0m
+=== Authenticate middleware ===
+Path: /74/cv
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[Employee CV Route] Authenticated user: {
+  id: '3ad5c467-e53a-49ca-a4b6-65d19425479e',
+  email: 'alomonaco@nexadata.it',
+  firstName: 'Andrea',
+  lastName: 'Lomonaco',
+  role: 'employee',
+  tenantId: 'f5eafcce-26af-4699-aa97-dd8829621406',
+  tenant: {
+    id: 'f5eafcce-26af-4699-aa97-dd8829621406',
+    slug: 'nexadata',
+    name: 'Nexa data srl',
+    companyName: null,
+    domain: 'nexadata.it',
+    email: '',
+    phone: '',
+    vat_number: '',
+    tax_code: '',
+    address_street: '',
+    address_city: '',
+    address_state: '',
+    address_zip: '',
+    address_country: '',
+    subscription_plan: 'basic',
+    subscription_status: 'active',
+    max_employees: 50,
+    is_active: true,
+    created_by: null,
+    updated_by: null,
+    address: null,
+    city: null,
+    country: null,
+    isActive: true,
+    is_deleted: false,
+    plan: 'free',
+    maxUsers: 10,
+    createdAt: '2025-09-20T17:27:52.397Z',
+    updatedAt: '2025-09-24T15:38:13.045Z'
+  },
+  employeeId: 74,
+  position: null,
+  departmentId: null,
+  iat: 1760132945,
+  exp: 1760136545,
+  iss: 'moobee-unified'
+}
+[Employee CV Route] Employee ID param: 74
+[Employee CV Upload] Processing CV for employee 74
+[CVStorageService] Failed to save file: extractionId and tenantId are required in metadata
+[Employee CV Upload] Extraction error: Error: Failed to save CV file: extractionId and tenantId are required in metadata
+    at CVStorageService.saveFile (/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/cvStorageService.js:176:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async /home/mgiurelli/sviluppo/moobee/BE_nodejs/src/routes/employeeRoutes.js:1671:28
+[0mPOST /api/employees/74/cv [31m500[0m 76.840 ms - 135[0m
+=== Authenticate middleware ===
+Path: /74/cv
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+[Employee CV Route] Authenticated user: {
+  id: '3ad5c467-e53a-49ca-a4b6-65d19425479e',
+  email: 'alomonaco@nexadata.it',
+  firstName: 'Andrea',
+  lastName: 'Lomonaco',
+  role: 'employee',
+  tenantId: 'f5eafcce-26af-4699-aa97-dd8829621406',
+  tenant: {
+    id: 'f5eafcce-26af-4699-aa97-dd8829621406',
+    slug: 'nexadata',
+    name: 'Nexa data srl',
+    companyName: null,
+    domain: 'nexadata.it',
+    email: '',
+    phone: '',
+    vat_number: '',
+    tax_code: '',
+    address_street: '',
+    address_city: '',
+    address_state: '',
+    address_zip: '',
+    address_country: '',
+    subscription_plan: 'basic',
+    subscription_status: 'active',
+    max_employees: 50,
+    is_active: true,
+    created_by: null,
+    updated_by: null,
+    address: null,
+    city: null,
+    country: null,
+    isActive: true,
+    is_deleted: false,
+    plan: 'free',
+    maxUsers: 10,
+    createdAt: '2025-09-20T17:27:52.397Z',
+    updatedAt: '2025-09-24T15:38:13.045Z'
+  },
+  employeeId: 74,
+  position: null,
+  departmentId: null,
+  iat: 1760132945,
+  exp: 1760136545,
+  iss: 'moobee-unified'
+}
+[Employee CV Route] Employee ID param: 74
+[Employee CV Upload] Processing CV for employee 74
+[CVStorageService] Failed to save file: extractionId and tenantId are required in metadata
+[Employee CV Upload] Extraction error: Error: Failed to save CV file: extractionId and tenantId are required in metadata
+    at CVStorageService.saveFile (/home/mgiurelli/sviluppo/moobee/BE_nodejs/src/services/cvStorageService.js:176:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async /home/mgiurelli/sviluppo/moobee/BE_nodejs/src/routes/employeeRoutes.js:1671:28
+[0mPOST /api/employees/74/cv [31m500[0m 78.196 ms - 135[0m
+=== Authenticate middleware ===
+Path: /
+Headers: Has Authorization header
+Token extracted, attempting to verify...
+Token verified successfully. User: alomonaco@nexadata.it Role: employee
+Normalized tenantId to tenant_id for consistency
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE "public"."tenants"."id" = $1 LIMIT $2 OFFSET $3
+User alomonaco@nexadata.it mapped to tenant: Nexa data srl (from user.tenant_id)
+=== Employee Route - GET /employees ===
+Search term:  Length: 0
+prisma:query SELECT 1
+prisma:query SELECT COUNT(*) FROM (SELECT "public"."employees"."id" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 OFFSET $2) AS "sub"
+prisma:query SELECT "public"."employees"."id", "public"."employees"."employee_code", "public"."employees"."first_name", "public"."employees"."last_name", "public"."employees"."email", "public"."employees"."phone", "public"."employees"."hire_date", "public"."employees"."department_id", "public"."employees"."position", "public"."employees"."manager_id", "public"."employees"."is_active", "public"."employees"."created_at", "public"."employees"."updated_at", "public"."employees"."tenant_id", "public"."employees"."currentRoleId", "public"."employees"."lastAssessmentDate", "public"."employees"."nextAssessmentDue", "public"."employees"."softSkillProfileId", "public"."employees"."competenze_trasversali" FROM "public"."employees" WHERE "public"."employees"."tenant_id" = $1 ORDER BY "public"."employees"."last_name" ASC LIMIT $2 OFFSET $3
+prisma:query SELECT "public"."employee_roles"."id", "public"."employee_roles"."employee_id", "public"."employee_roles"."role_id", "public"."employee_roles"."sub_role_id", "public"."employee_roles"."created_at", "public"."employee_roles"."tenant_id", "public"."employee_roles"."anni_esperienza", "public"."employee_roles"."seniority", "public"."employee_roles"."is_current" FROM "public"."employee_roles" WHERE "public"."employee_roles"."employee_id" IN ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40,$41,$42,$43,$44,$45,$46,$47,$48,$49,$50,$51,$52,$53,$54,$55,$56,$57,$58,$59,$60,$61,$62,$63,$64,$65,$66) OFFSET $67
+Found 66 employees (Total: 66)
+[0mGET /api/employees?limit=100&page=1 [36m304[0m 1249.639 ms - -[0m
+SIGTERM signal received: closing HTTP server
+prisma:query SELECT "public"."tenants"."id", "public"."tenants"."slug", "public"."tenants"."name", "public"."tenants"."companyName", "public"."tenants"."domain", "public"."tenants"."email", "public"."tenants"."phone", "public"."tenants"."vat_number", "public"."tenants"."tax_code", "public"."tenants"."address_street", "public"."tenants"."address_city", "public"."tenants"."address_state", "public"."tenants"."address_zip", "public"."tenants"."address_country", "public"."tenants"."subscription_plan", "public"."tenants"."subscription_status", "public"."tenants"."max_employees", "public"."tenants"."is_active", "public"."tenants"."created_by", "public"."tenants"."updated_by", "public"."tenants"."address", "public"."tenants"."city", "public"."tenants"."country", "public"."tenants"."isActive", "public"."tenants"."is_deleted", "public"."tenants"."plan", "public"."tenants"."maxUsers", "public"."tenants"."createdAt", "public"."tenants"."updatedAt", "public"."tenants"."logo" FROM "public"."tenants" WHERE ("public"."tenants"."id" = $1 AND 1=1) LIMIT $2 OFFSET $3
+[0mGET /api/tenants/f5eafcce-26af-4699-aa97-dd8829621406 [32m200[0m 614.413 ms - -[0m
+HTTP server closed

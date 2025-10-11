@@ -26,6 +26,37 @@ model assessment_generation_logs {
   assessment_templates_TemplateGenerationLog                                            assessment_templates[] @relation("TemplateGenerationLog")
 }
 
+model llm_usage_logs {
+  id                   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  tenant_id            String    @db.Uuid
+  operation_type       String    @db.VarChar(100)
+  entity_type          String?   @db.VarChar(50)
+  entity_id            String?   @db.VarChar(255)
+  provider             String    @db.VarChar(50)
+  model                String    @db.VarChar(100)
+  prompt_tokens        Int?
+  completion_tokens    Int?
+  total_tokens         Int?
+  estimated_cost       Decimal?  @db.Decimal(10, 6)
+  request_params       Json?
+  response_summary     Json?
+  status               String    @db.VarChar(50)
+  response_time_ms     Int?
+  error_message        String?
+  user_id              String?   @db.VarChar(255)
+  request_id           String?   @db.VarChar(255)
+  parent_operation_id  String?   @db.Uuid
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+  metadata             Json?
+
+  @@index([tenant_id], map: "idx_llm_logs_tenant")
+  @@index([operation_type], map: "idx_llm_logs_operation_type")
+  @@index([created_at(sort: Desc)], map: "idx_llm_logs_created_at")
+  @@index([status], map: "idx_llm_logs_status")
+  @@index([entity_type, entity_id], map: "idx_llm_logs_entity")
+  @@index([estimated_cost(sort: Desc)], map: "idx_llm_logs_cost")
+}
+
 model assessment_instance_responses {
   id                   Int                  @id @default(autoincrement())
   instanceId           Int
@@ -1436,10 +1467,12 @@ model cv_extractions {
   created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   updated_at                DateTime?                   @default(now()) @db.Timestamp(6)
   updated_by                String?
-  file_content              Bytes?
   extracted_text            String?
   llm_cost                  Decimal?                    @db.Decimal(10, 6)
+  import_stats              Json?
+  error_phase               String?
   employees                 employees                   @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  cv_file                   cv_files?
   employee_additional_info  employee_additional_info[]
   employee_awards           employee_awards[]
   employee_certifications   employee_certifications[]
@@ -1452,6 +1485,22 @@ model cv_extractions {
   employee_work_experiences employee_work_experiences[]
 
   @@index([extraction_result], map: "idx_cv_extractions_result_gin", type: Gin)
+}
+
+model cv_files {
+  id                Int             @id @default(autoincrement())
+  extraction_id     String          @unique @db.Uuid
+  tenant_id         String
+  file_path         String          @db.VarChar(500)
+  file_size         Int
+  mime_type         String?         @default("application/pdf") @db.VarChar(100)
+  original_filename String?         @db.VarChar(255)
+  uploaded_at       DateTime        @default(now())
+  cv_extractions    cv_extractions  @relation(fields: [extraction_id], references: [id], onDelete: Cascade)
+
+  @@index([extraction_id])
+  @@index([tenant_id])
+  @@index([uploaded_at(sort: Desc)])
 }
 
 model education_degrees {

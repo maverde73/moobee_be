@@ -35,7 +35,7 @@ class CVExtractionService {
     try {
       // 1. Call Python API for extraction
       console.log('[CVExtractionService] Calling Python extraction API...');
-      const extractedData = await this.callPythonExtractor(file);
+      const extractedData = await this.callPythonExtractor(file, employeeId, tenantId);
 
       if (!extractedData || !extractedData.success) {
         throw new Error('Python API extraction failed: ' + (extractedData?.error || 'Unknown error'));
@@ -81,9 +81,11 @@ class CVExtractionService {
    * Call Python API to extract CV data
    *
    * @param {Object} file - File object with buffer, originalname, size
+   * @param {number} employeeId - Employee ID for LLM audit logging
+   * @param {string} tenantId - Tenant ID for LLM audit logging
    * @returns {Promise<Object>} Extracted JSON data
    */
-  async callPythonExtractor(file) {
+  async callPythonExtractor(file, employeeId, tenantId) {
     const formData = new FormData();
 
     // Append buffer as stream with correct content type
@@ -92,6 +94,14 @@ class CVExtractionService {
       contentType: file.originalname.endsWith('.pdf') ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       knownLength: file.size
     });
+
+    // Append tenant_id and employee_id for LLM audit logging
+    if (tenantId) {
+      formData.append('tenant_id', tenantId.toString());
+    }
+    if (employeeId) {
+      formData.append('employee_id', employeeId.toString());
+    }
 
     try {
       console.log(`[CVExtractionService] Calling Python API at ${this.pythonApiUrl}/cv-analyzer/analyze-file`);
