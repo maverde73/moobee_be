@@ -56,12 +56,16 @@ async function processExtractionInBackground(extraction, prisma) {
     formData.append('file', fs.createReadStream(tempFilePath));
 
     const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8001';
+    const pythonApiToken = process.env.PYTHON_API_TOKEN || 'secret-shared-token-moobee-2025';
 
     const pythonResponse = await axios.post(
       `${pythonApiUrl}/api/cv-analyzer/analyze-file`,
       formData,
       {
-        headers: formData.getHeaders(),
+        headers: {
+          ...formData.getHeaders(),
+          'Authorization': `Bearer ${pythonApiToken}`
+        },
         timeout: 480000,  // 8 minutes
         maxContentLength: Infinity,
         maxBodyLength: Infinity
