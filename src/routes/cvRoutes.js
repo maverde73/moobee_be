@@ -665,6 +665,76 @@ router.get('/health', (req, res) => {
 });
 
 /**
+ * GET /api/cv/storage-health
+ * Check CV storage volume health (Railway diagnostic endpoint)
+ * NOTE: Remove or secure this endpoint in production!
+ */
+router.get('/storage-health', async (req, res) => {
+  try {
+    const storageService = getCVStorageService();
+    const health = await storageService.healthCheck();
+
+    // Get file count and total size
+    const fs = require('fs');
+    const path = require('path');
+    const storagePath = health.storagePath;
+
+    let fileCount = 0;
+    let totalSize = 0;
+    let fileList = [];
+
+    try {
+      if (fs.existsSync(storagePath)) {
+        const files = fs.readdirSync(storagePath);
+        fileCount = files.length;
+
+        for (const file of files) {
+          const filePath = path.join(storagePath, file);
+          const stats = fs.statSync(filePath);
+          totalSize += stats.size;
+
+          // Add to list (max 10 for preview)
+          if (fileList.length < 10) {
+            fileList.push({
+              name: file,
+              size: stats.size,
+              modified: stats.mtime
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[Storage Health] Error reading directory:', err.message);
+    }
+
+    res.json({
+      success: true,
+      storage: {
+        status: health.status,
+        environment: health.environment,
+        path: health.storagePath,
+        readable: health.readable,
+        writable: health.writable
+      },
+      files: {
+        count: fileCount,
+        total_size_bytes: totalSize,
+        total_size_mb: (totalSize / 1024 / 1024).toFixed(2),
+        recent_files: fileList
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[Storage Health] Error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check storage health',
+      details: error.message
+    });
+  }
+});
+
+/**
  * POST /api/cv/test/upload
  * Test endpoint without authentication (for E2E tests only)
  */
