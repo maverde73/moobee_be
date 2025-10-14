@@ -1,0 +1,76 @@
+TABELLA: tenant_engagement_selections
+DESCRIZIONE: Tabella per la gestione di tenant_engagement_selections
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- tenant_id (text): Campo tenant_id [REQUIRED]
+- selected_by (text): Campo selected_by
+
+RELAZIONI PRINCIPALI:
+- template_id (text): Campo template_id [REQUIRED] [FK verso engagement_templates]
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [REQUIRED] [DEFAULT: true]
+
+DATE E TIMESTAMP:
+- selected_at (timestamp without time zone): Campo selected_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+DATI TECNICI:
+- custom_settings (jsonb): Campo custom_settings [JSONB]
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_templates (N:1): Collegamento via template_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: tenant_id, template_id, is_active, selected_at
+2. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_engagement_selections per un tenant:
+{
+  "table": "tenant_engagement_selections",
+  "select": [
+    "id",
+    "tenant_id",
+    "template_id",
+    "is_active",
+    "selected_at"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera tenant_engagement_selections con dati di engagement_templates:
+{
+  "table": "tenant_engagement_selections",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "engagement_templates",
+      "first": "tenant_engagement_selections.template_id",
+      "second": "engagement_templates.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare
+- Campo custom_settings (JSONB): verificare schema JSON atteso nella documentazione

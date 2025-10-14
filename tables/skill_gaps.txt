@@ -1,0 +1,49 @@
+TABELLA: skill_gaps
+DESCRIZIONE: Tabella per la gestione di skill_gaps
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- employee_id (integer): Campo employee_id [REQUIRED]
+- role_id (integer): Campo role_id [REQUIRED]
+- skill_id (integer): Campo skill_id [REQUIRED]
+- current_level (integer): Campo current_level
+- required_level (integer): Campo required_level
+- gap_size (integer): Campo gap_size
+- gap_percentage (numeric): Campo gap_percentage
+- priority (character varying(20)): Campo priority
+
+DATE E TIMESTAMP:
+- calculated_at (timestamp without time zone): Campo calculated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, role_id, skill_id
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di skill_gaps:
+{
+  "table": "skill_gaps",
+  "select": [
+    "id",
+    "employee_id",
+    "role_id",
+    "skill_id",
+    "current_level"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

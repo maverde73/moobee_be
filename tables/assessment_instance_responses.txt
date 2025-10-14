@@ -1,0 +1,63 @@
+TABELLA: assessment_instance_responses
+DESCRIZIONE: Tabella per la gestione di assessment_instance_responses
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- instanceId (integer): Campo instanceId [REQUIRED] [FK verso assessment_instances]
+
+ALTRI CAMPI:
+- questionId (integer): Campo questionId [REQUIRED]
+- answer (jsonb): Campo answer [REQUIRED] [JSONB]
+- score (double precision): Campo score
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_instances (N:1): Collegamento via instanceId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: instanceId, questionId, answer, createdAt
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_instance_responses:
+{
+  "table": "assessment_instance_responses",
+  "select": [
+    "id",
+    "instanceId",
+    "questionId",
+    "answer",
+    "score"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_instance_responses con dati di assessment_instances:
+{
+  "table": "assessment_instance_responses",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_instances",
+      "first": "assessment_instance_responses.instanceId",
+      "second": "assessment_instances.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo answer (JSONB): verificare schema JSON atteso nella documentazione

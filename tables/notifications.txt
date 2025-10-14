@@ -1,0 +1,79 @@
+TABELLA: notifications
+DESCRIZIONE: Tabella per la gestione di notifications
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- employee_id (integer): Campo employee_id [REQUIRED]
+- type (character varying(50)): Campo type [REQUIRED]
+- title (character varying(200)): Campo title [REQUIRED]
+- message (text): Campo message
+
+STATI E FLAGS:
+- is_read (boolean): Campo is_read [DEFAULT: false]
+
+DATE E TIMESTAMP:
+- read_at (timestamp without time zone): Campo read_at
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, type, title
+2. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di notifications:
+{
+  "table": "notifications",
+  "select": [
+    "id",
+    "employee_id",
+    "type",
+    "title",
+    "message"
+  ],
+  "limit": 100
+}
+
+2. Ricerca notifications per title:
+{
+  "table": "notifications",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "title": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+3. Conta notifications creati nell'ultimo mese:
+{
+  "table": "notifications",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

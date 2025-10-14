@@ -1,0 +1,86 @@
+TABELLA: role_soft_skills
+DESCRIZIONE: Tabella per la gestione di role_soft_skills
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- roleId (integer): Campo roleId [REQUIRED] [FK verso roles]
+- softSkillId (integer): Campo softSkillId [REQUIRED] [FK verso soft_skills]
+
+ALTRI CAMPI:
+- priority (integer): Campo priority [REQUIRED]
+- minScore (double precision): Campo minScore
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- isRequired (boolean): Campo isRequired [REQUIRED] [DEFAULT: false]
+- weight (double precision): Campo weight [REQUIRED] [DEFAULT: 1.0]
+- targetScore (double precision): Campo targetScore
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- soft_skills (N:1): Collegamento via softSkillId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- roles (N:1): Collegamento via roleId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di role_soft_skills:
+{
+  "table": "role_soft_skills",
+  "select": [
+    "id",
+    "roleId",
+    "softSkillId",
+    "priority",
+    "minScore"
+  ],
+  "limit": 100
+}
+
+2. Recupera role_soft_skills con dati di soft_skills:
+{
+  "table": "role_soft_skills",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "soft_skills",
+      "first": "role_soft_skills.softSkillId",
+      "second": "soft_skills.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca role_soft_skills per description:
+{
+  "table": "role_soft_skills",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "description": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

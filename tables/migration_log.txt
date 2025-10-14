@@ -1,0 +1,61 @@
+TABELLA: migration_log
+DESCRIZIONE: Tabella per la gestione di migration_log
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- step (character varying(100)): Campo step
+- affected_rows (integer): Campo affected_rows
+- message (text): Campo message
+
+STATI E FLAGS:
+- status (character varying(20)): Campo status
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di migration_log:
+{
+  "table": "migration_log",
+  "select": [
+    "id",
+    "step",
+    "status",
+    "affected_rows",
+    "message"
+  ],
+  "limit": 100
+}
+
+2. Conta migration_log creati nell'ultimo mese:
+{
+  "table": "migration_log",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

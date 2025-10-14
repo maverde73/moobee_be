@@ -1,0 +1,44 @@
+TABELLA: project_skills_required
+DESCRIZIONE: Tabella per la gestione di project_skills_required
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- project_id (integer): Campo project_id [REQUIRED]
+- skill_id (integer): Campo skill_id [REQUIRED]
+- required_level (integer): Campo required_level
+
+STATI E FLAGS:
+- is_mandatory (boolean): Campo is_mandatory [DEFAULT: false]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: project_id, skill_id
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di project_skills_required:
+{
+  "table": "project_skills_required",
+  "select": [
+    "id",
+    "project_id",
+    "skill_id",
+    "required_level",
+    "is_mandatory"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

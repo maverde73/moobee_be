@@ -1,0 +1,121 @@
+VISTA: v_assessment_results_summary
+TIPO: Database View (Read-Only)
+DESCRIZIONE: Assessment results with employee info and scores.
+
+This view combines assessment results with employee information:
+- Employee basic data (name, email)
+- Assessment campaign and assignment references
+- Overall score, percentile, and detailed skill scores (JSONB)
+- Qualitative feedback (strengths, improvements, recommendations)
+- Performance metrics (time taken, attempt number)
+
+**Primary Use**: Assessment dashboard, employee assessment history
+**Performance**: Single query with JOIN (~3x faster)
+**Key Feature**: Only completed assessments (completed_at IS NOT NULL)
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- assessment_result_id (text)
+- employee_id (integer)
+- campaign_id (text)
+- assignment_id (text)
+
+DATI ANAGRAFICI:
+- first_name (character varying(100))
+- last_name (character varying(100))
+- email (character varying(255))
+
+SCORES E METRICHE:
+- overall_score (double precision)
+- percentile (double precision)
+- skill_scores (jsonb) [JSONB]
+
+DATE E TIMESTAMP:
+- completed_at (timestamp without time zone)
+
+DATI JSONB:
+- responses (jsonb) [JSONB]
+- strengths (jsonb) [JSONB]
+- improvements (jsonb) [JSONB]
+- recommendations (jsonb) [JSONB]
+
+ALTRI CAMPI:
+- time_taken (integer)
+- attempt_number (integer)
+
+CASI D'USO:
+━━━━━━━━━━━
+1. Assessment results dashboard
+2. Employee assessment history
+3. Skills assessment tracking
+4. Performance reports
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record dalla vista v_assessment_results_summary:
+{
+  "table": "v_assessment_results_summary",
+  "select": [
+    "*"
+  ],
+  "limit": 100
+}
+
+2. Assessment results per employee:
+{
+  "table": "v_assessment_results_summary",
+  "select": [
+    "assessment_result_id",
+    "first_name",
+    "last_name",
+    "overall_score",
+    "percentile",
+    "completed_at"
+  ],
+  "where": {
+    "employee_id": 91
+  },
+  "orderBy": [
+    {
+      "column": "completed_at",
+      "order": "desc"
+    }
+  ],
+  "limit": 10
+}
+
+3. Top performers (score >= 80):
+{
+  "table": "v_assessment_results_summary",
+  "select": [
+    "first_name",
+    "last_name",
+    "overall_score",
+    "percentile"
+  ],
+  "where": {
+    "overall_score": {
+      "operator": ">=",
+      "value": 80
+    }
+  },
+  "orderBy": [
+    {
+      "column": "overall_score",
+      "order": "desc"
+    }
+  ],
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Questa è una VIEW (sola lettura), non una tabella
+- Ottimizzata per query frequenti con dati pre-joinati
+- Performance: ~3-5x più veloce rispetto a query multiple
+- Solo assessment completati (completed_at IS NOT NULL)
+- skill_scores è in formato JSONB per flessibilità parsing
+

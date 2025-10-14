@@ -1,0 +1,70 @@
+TABELLA: tenant_soft_skill_profiles
+DESCRIZIONE: Tabella per la gestione di tenant_soft_skill_profiles
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- profileName (text): Campo profileName [REQUIRED]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+ALTRI CAMPI:
+- softSkillIds (int4[]): Campo softSkillIds [ARRAY]
+- isActive (boolean): Campo isActive [REQUIRED] [DEFAULT: true]
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- createdBy (text): Campo createdBy
+- softSkillWeights (jsonb): Campo softSkillWeights [JSONB]
+- isDefault (boolean): Campo isDefault [REQUIRED] [DEFAULT: false]
+- roleIds (int4[]): Campo roleIds [ARRAY]
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_soft_skill_profiles per un tenant:
+{
+  "table": "tenant_soft_skill_profiles",
+  "select": [
+    "id",
+    "profileName",
+    "description",
+    "softSkillIds",
+    "isActive"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Ricerca tenant_soft_skill_profiles per description:
+{
+  "table": "tenant_soft_skill_profiles",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "description": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo softSkillWeights (JSONB): verificare schema JSON atteso nella documentazione

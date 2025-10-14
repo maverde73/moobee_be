@@ -1,0 +1,78 @@
+TABELLA: assessment_schedules
+DESCRIZIONE: Tabella per la gestione di assessment_schedules
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- tenantSelectionId (integer): Campo tenantSelectionId [REQUIRED] [FK verso tenant_assessment_selections]
+
+ALTRI CAMPI:
+- userId (text): Campo userId [REQUIRED]
+- assignedBy (text): Campo assignedBy [REQUIRED]
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+DATE E TIMESTAMP:
+- scheduledDate (timestamp without time zone): Campo scheduledDate [REQUIRED]
+- dueDate (timestamp without time zone): Campo dueDate [REQUIRED]
+- reminderDates (jsonb): Campo reminderDates [JSONB]
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+STATI E FLAGS:
+- status (USER-DEFINED): Campo status [REQUIRED] [DEFAULT: SCHEDULED] [ENUM: SCHEDULED, NOTIFIED, IN_PROGRESS, COMPLETED, EXPIRED, CANCELLED]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenant_assessment_selections (N:1): Collegamento via tenantSelectionId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- assessment_instances (1:N): assessment_instances referenzia questa tabella via scheduleId
+
+STATI E VALORI ENUM:
+━━━━━━━━━━━━━━━━━━━━
+STATUS (ScheduleStatus):
+  - SCHEDULED
+  - NOTIFIED
+  - IN_PROGRESS
+  - COMPLETED
+  - EXPIRED
+  - CANCELLED
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_schedules:
+{
+  "table": "assessment_schedules",
+  "select": [
+    "id",
+    "tenantSelectionId",
+    "userId",
+    "assignedBy",
+    "scheduledDate"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_schedules con dati di tenant_assessment_selections:
+{
+  "table": "assessment_schedules",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "tenant_assessment_selections",
+      "first": "assessment_schedules.tenantSelectionId",
+      "second": "tenant_assessment_selections.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo reminderDates (JSONB): verificare schema JSON atteso nella documentazione

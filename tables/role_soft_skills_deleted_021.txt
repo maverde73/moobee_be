@@ -1,0 +1,63 @@
+TABELLA: role_soft_skills_deleted_021
+DESCRIZIONE: The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id
+
+ALTRI CAMPI:
+- roleId (integer): Campo roleId
+- softSkillId (integer): Campo softSkillId
+- priority (integer): Campo priority
+- minScore (double precision): Campo minScore
+- createdAt (timestamp without time zone): Campo createdAt
+- isRequired (boolean): Campo isRequired
+- weight (double precision): Campo weight
+- targetScore (double precision): Campo targetScore
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di role_soft_skills_deleted_021:
+{
+  "table": "role_soft_skills_deleted_021",
+  "select": [
+    "id",
+    "roleId",
+    "softSkillId",
+    "priority",
+    "minScore"
+  ],
+  "limit": 100
+}
+
+2. Ricerca role_soft_skills_deleted_021 per description:
+{
+  "table": "role_soft_skills_deleted_021",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "description": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

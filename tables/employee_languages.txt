@@ -1,0 +1,109 @@
+TABELLA: employee_languages
+DESCRIZIONE: Tabella per la gestione di employee_languages
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: uuid_generate_v4()]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- language_id (integer): Campo language_id [REQUIRED] [FK verso languages]
+- proficiency_level_id (integer): Campo proficiency_level_id [FK verso language_proficiency_levels]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+ALTRI CAMPI:
+- listening_level (character varying(10)): Campo listening_level
+- reading_level (character varying(10)): Campo reading_level
+- spoken_interaction_level (character varying(10)): Campo spoken_interaction_level
+- spoken_production_level (character varying(10)): Campo spoken_production_level
+- writing_level (character varying(10)): Campo writing_level
+
+STATI E FLAGS:
+- is_native (boolean): Campo is_native [DEFAULT: false]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- languages (N:1): Collegamento via language_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- language_proficiency_levels (N:1): Collegamento via proficiency_level_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione employee_id + language_id deve essere unica
+2. Campi obbligatori: employee_id, language_id, tenant_id
+3. La cancellazione di employees cancella automaticamente questo record
+4. La cancellazione di tenants cancella automaticamente questo record
+5. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_languages per un tenant:
+{
+  "table": "employee_languages",
+  "select": [
+    "id",
+    "employee_id",
+    "language_id",
+    "proficiency_level_id",
+    "listening_level"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_languages con dati di employees:
+{
+  "table": "employee_languages",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_languages.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta employee_languages creati nell'ultimo mese:
+{
+  "table": "employee_languages",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Performance: Tabella ottimizzata con 4 indici

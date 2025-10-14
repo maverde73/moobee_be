@@ -1,0 +1,122 @@
+TABELLA: assessment_campaigns
+DESCRIZIONE: Tabella per la gestione di assessment_campaigns
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- tenant_id (text): Campo tenant_id [REQUIRED]
+- deadline (timestamp without time zone): Campo deadline [REQUIRED]
+- frequency (text): Campo frequency [REQUIRED] [DEFAULT: once]
+- mandatory (boolean): Campo mandatory [REQUIRED] [DEFAULT: false]
+- allow_retakes (boolean): Campo allow_retakes [REQUIRED] [DEFAULT: false]
+- target_audience (jsonb): Campo target_audience [REQUIRED] [JSONB]
+- completion_stats (jsonb): Campo completion_stats [JSONB]
+- created_by (text): Campo created_by [REQUIRED]
+
+RELAZIONI PRINCIPALI:
+- template_id (integer): Campo template_id [REQUIRED] [FK verso assessment_templates]
+
+DATI ANAGRAFICI:
+- name (text): Campo name [REQUIRED]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- start_date (timestamp without time zone): Campo start_date [REQUIRED]
+- max_attempts (integer): Campo max_attempts [DEFAULT: 1]
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [REQUIRED]
+- archived_at (timestamp without time zone): Campo archived_at
+
+STATI E FLAGS:
+- status (text): Campo status [REQUIRED] [DEFAULT: PLANNED]
+
+DATI TECNICI:
+- recurring_config (jsonb): Campo recurring_config [JSONB]
+- notification_settings (jsonb): Campo notification_settings [REQUIRED] [JSONB]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_templates (N:1): Collegamento via template_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- assessment_campaign_assignments (1:N): assessment_campaign_assignments referenzia questa tabella via campaign_id
+- assessment_results (1:N): assessment_results referenzia questa tabella via campaign_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_campaigns per un tenant:
+{
+  "table": "assessment_campaigns",
+  "select": [
+    "id",
+    "tenant_id",
+    "template_id",
+    "name",
+    "description"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera assessment_campaigns con dati di assessment_templates:
+{
+  "table": "assessment_campaigns",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_templates",
+      "first": "assessment_campaigns.template_id",
+      "second": "assessment_templates.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca assessment_campaigns per name:
+{
+  "table": "assessment_campaigns",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta assessment_campaigns creati nell'ultimo mese:
+{
+  "table": "assessment_campaigns",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo recurring_config (JSONB): verificare schema JSON atteso nella documentazione

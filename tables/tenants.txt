@@ -1,0 +1,110 @@
+TABELLA: tenants
+DESCRIZIONE: Tabella per la gestione di tenants
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- slug (text): Campo slug
+- domain (text): Campo domain
+- vat_number (text): Campo vat_number
+- tax_code (text): Campo tax_code
+- subscription_plan (text): Campo subscription_plan [DEFAULT: basic]
+- max_employees (integer): Campo max_employees [REQUIRED] [DEFAULT: 50]
+- created_by (text): Campo created_by
+- isActive (boolean): Campo isActive [REQUIRED] [DEFAULT: true]
+- plan (text): Campo plan [DEFAULT: free]
+- maxUsers (integer): Campo maxUsers [REQUIRED] [DEFAULT: 10]
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- logo (text): Campo logo
+
+DATI ANAGRAFICI:
+- name (text): Campo name [REQUIRED]
+- companyName (text): Campo companyName
+- email (text): Campo email [REQUIRED]
+- phone (text): Campo phone
+- address_street (text): Campo address_street
+- address_city (text): Campo address_city
+- address_state (text): Campo address_state
+- address_zip (text): Campo address_zip
+- address_country (text): Campo address_country
+- address (text): Campo address
+- city (text): Campo city
+- country (text): Campo country
+
+STATI E FLAGS:
+- subscription_status (text): Campo subscription_status [DEFAULT: active]
+- is_active (boolean): Campo is_active [REQUIRED] [DEFAULT: true]
+- is_deleted (boolean): Campo is_deleted [REQUIRED] [DEFAULT: false]
+
+DATE E TIMESTAMP:
+- updated_by (text): Campo updated_by
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenant_users (1:N): tenant_users referenzia questa tabella via tenant_id
+- tenant_api_keys (1:N): tenant_api_keys referenzia questa tabella via tenant_id
+- tenant_audit_log (1:N): tenant_audit_log referenzia questa tabella via tenant_id
+- tenant_billing (1:N): tenant_billing referenzia questa tabella via tenant_id
+- tenant_features (1:N): tenant_features referenzia questa tabella via tenant_id
+- skills (1:N): skills referenzia questa tabella via tenant_id
+- tenant_certifications (1:N): tenant_certifications referenzia questa tabella via tenant_id
+- employee_skills (1:N): employee_skills referenzia questa tabella via tenant_id
+- employee_roles (1:N): employee_roles referenzia questa tabella via tenant_id
+- employee_additional_info (1:N): employee_additional_info referenzia questa tabella via tenant_id
+- employee_awards (1:N): employee_awards referenzia questa tabella via tenant_id
+- employee_certifications (1:N): employee_certifications referenzia questa tabella via tenant_id
+- employee_domain_knowledge (1:N): employee_domain_knowledge referenzia questa tabella via tenant_id
+- employee_education (1:N): employee_education referenzia questa tabella via tenant_id
+- employee_languages (1:N): employee_languages referenzia questa tabella via tenant_id
+- employee_projects (1:N): employee_projects referenzia questa tabella via tenant_id
+- employee_publications (1:N): employee_publications referenzia questa tabella via tenant_id
+- employee_work_experiences (1:N): employee_work_experiences referenzia questa tabella via tenant_id
+- employee_soft_skills (1:N): employee_soft_skills referenzia questa tabella via tenant_id
+- cv_files (1:N): cv_files referenzia questa tabella via tenant_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenants:
+{
+  "table": "tenants",
+  "select": [
+    "id",
+    "slug",
+    "name",
+    "companyName",
+    "domain"
+  ],
+  "where": {
+    "is_active": true
+  },
+  "limit": 100
+}
+
+2. Ricerca tenants per name:
+{
+  "table": "tenants",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Utilizza soft delete: impostare is_active=false invece di cancellare

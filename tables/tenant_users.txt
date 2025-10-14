@@ -1,0 +1,125 @@
+TABELLA: tenant_users
+DESCRIZIONE: Tabella per la gestione di tenant_users
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+- employee_id (integer): Campo employee_id [FK verso employees]
+
+DATI ANAGRAFICI:
+- email (text): Campo email [REQUIRED]
+
+ALTRI CAMPI:
+- password (text): Campo password
+- role (text): Campo role [REQUIRED] [DEFAULT: user]
+- last_login_ip (text): Campo last_login_ip
+- login_count (integer): Campo login_count [REQUIRED] [DEFAULT: 0]
+- failed_login_count (integer): Campo failed_login_count [REQUIRED] [DEFAULT: 0]
+- locked_until (timestamp without time zone): Campo locked_until
+- force_password_change (boolean): Campo force_password_change [REQUIRED] [DEFAULT: false]
+
+DATI TECNICI:
+- password_hash (text): Campo password_hash
+- password_reset_token (text): Campo password_reset_token
+- refresh_token (text): Campo refresh_token
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [REQUIRED] [DEFAULT: true]
+
+DATE E TIMESTAMP:
+- last_login_at (timestamp without time zone): Campo last_login_at
+- password_reset_expires_at (timestamp without time zone): Campo password_reset_expires_at
+- refresh_token_expires_at (timestamp without time zone): Campo refresh_token_expires_at
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: CASCADE
+- engagement_results (1:N): engagement_results referenzia questa tabella via tenant_user_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La cancellazione di employees imposta employee_id a NULL
+2. Il timestamp di creazione viene impostato automaticamente
+3. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_users per un tenant:
+{
+  "table": "tenant_users",
+  "select": [
+    "id",
+    "tenant_id",
+    "email",
+    "password",
+    "password_hash"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera tenant_users con dati di tenants:
+{
+  "table": "tenant_users",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "tenants",
+      "first": "tenant_users.tenant_id",
+      "second": "tenants.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca tenant_users per email:
+{
+  "table": "tenant_users",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "email": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta tenant_users creati nell'ultimo mese:
+{
+  "table": "tenant_users",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare
+- ⚠️ SECURITY: Le password devono essere sempre hashate (bcrypt, argon2)

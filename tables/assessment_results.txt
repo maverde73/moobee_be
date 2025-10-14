@@ -1,0 +1,76 @@
+TABELLA: assessment_results
+DESCRIZIONE: Tabella per la gestione di assessment_results
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- campaign_id (text): Campo campaign_id [REQUIRED] [FK verso assessment_campaigns]
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+
+ALTRI CAMPI:
+- assignment_id (text): Campo assignment_id [REQUIRED]
+- responses (jsonb): Campo responses [REQUIRED] [JSONB]
+- scores (jsonb): Campo scores [REQUIRED] [JSONB]
+- overall_score (double precision): Campo overall_score
+- percentile (double precision): Campo percentile
+- strengths (jsonb): Campo strengths [JSONB]
+- improvements (jsonb): Campo improvements [JSONB]
+- recommendations (jsonb): Campo recommendations [JSONB]
+- time_taken (integer): Campo time_taken [REQUIRED]
+- attempt_number (integer): Campo attempt_number [REQUIRED] [DEFAULT: 1]
+
+DATE E TIMESTAMP:
+- completed_at (timestamp without time zone): Campo completed_at [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_campaigns (N:1): Collegamento via campaign_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La cancellazione di employees cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_results:
+{
+  "table": "assessment_results",
+  "select": [
+    "id",
+    "campaign_id",
+    "assignment_id",
+    "responses",
+    "scores"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_results con dati di assessment_campaigns:
+{
+  "table": "assessment_results",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_campaigns",
+      "first": "assessment_results.campaign_id",
+      "second": "assessment_campaigns.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo responses (JSONB): verificare schema JSON atteso nella documentazione

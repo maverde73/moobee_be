@@ -1,0 +1,103 @@
+TABELLA: employee_domain_knowledge
+DESCRIZIONE: Tabella per la gestione di employee_domain_knowledge
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+ALTRI CAMPI:
+- domain_type (character varying(50)): Campo domain_type [REQUIRED]
+- domain_value (character varying(255)): Campo domain_value [REQUIRED]
+- source (character varying(50)): Campo source [DEFAULT: cv_extracted]
+- confidence_score (numeric): Campo confidence_score
+- years_experience (integer): Campo years_experience
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione employee_id + domain_type + domain_value deve essere unica
+2. Campi obbligatori: employee_id, domain_type, domain_value, tenant_id
+3. La cancellazione di employees cancella automaticamente questo record
+4. La cancellazione di cv_extractions imposta cv_extraction_id a NULL
+5. La cancellazione di tenants cancella automaticamente questo record
+6. Vincolo: ((domain_type)::text = ANY ((ARRAY['industry'::character varying, 'standard'::character varying, 'process'::character varying, 'sector'::character varying])::text[]))
+7. Vincolo: ((source)::text = ANY ((ARRAY['cv_extracted'::character varying, 'manual'::character varying, 'verified'::character varying])::text[]))
+8. Vincolo: ((confidence_score >= (0)::numeric) AND (confidence_score <= (1)::numeric))
+9. Vincolo: (years_experience >= 0)
+10. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_domain_knowledge per un tenant:
+{
+  "table": "employee_domain_knowledge",
+  "select": [
+    "id",
+    "employee_id",
+    "domain_type",
+    "domain_value",
+    "source"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_domain_knowledge con dati di employees:
+{
+  "table": "employee_domain_knowledge",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_domain_knowledge.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta employee_domain_knowledge creati nell'ultimo mese:
+{
+  "table": "employee_domain_knowledge",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Performance: Tabella ottimizzata con 6 indici

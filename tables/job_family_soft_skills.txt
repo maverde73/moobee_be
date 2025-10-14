@@ -1,0 +1,113 @@
+TABELLA: job_family_soft_skills
+DESCRIZIONE: Tabella per la gestione di job_family_soft_skills
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- job_family_id (integer): Campo job_family_id [REQUIRED] [FK verso job_family]
+- soft_skill_id (integer): Campo soft_skill_id [REQUIRED] [FK verso soft_skills]
+
+ALTRI CAMPI:
+- priority (integer): Campo priority [REQUIRED]
+- min_score (integer): Campo min_score [REQUIRED]
+- weight (numeric): Campo weight [REQUIRED]
+- target_score (integer): Campo target_score [REQUIRED]
+
+STATI E FLAGS:
+- is_required (boolean): Campo is_required [REQUIRED] [DEFAULT: false]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- job_family (N:1): Collegamento via job_family_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- soft_skills (N:1): Collegamento via soft_skill_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione job_family_id + soft_skill_id deve essere unica
+2. La cancellazione di job_family cancella automaticamente questo record
+3. La cancellazione di soft_skills cancella automaticamente questo record
+4. Vincolo: (priority > 0)
+5. Vincolo: ((min_score >= 1) AND (min_score <= 5))
+6. Vincolo: ((weight >= (0)::numeric) AND (weight <= (1)::numeric))
+7. Vincolo: ((target_score >= 1) AND (target_score <= 5))
+8. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di job_family_soft_skills:
+{
+  "table": "job_family_soft_skills",
+  "select": [
+    "id",
+    "job_family_id",
+    "soft_skill_id",
+    "priority",
+    "min_score"
+  ],
+  "limit": 100
+}
+
+2. Recupera job_family_soft_skills con dati di job_family:
+{
+  "table": "job_family_soft_skills",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "job_family",
+      "first": "job_family_soft_skills.job_family_id",
+      "second": "job_family.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca job_family_soft_skills per description:
+{
+  "table": "job_family_soft_skills",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "description": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta job_family_soft_skills creati nell'ultimo mese:
+{
+  "table": "job_family_soft_skills",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 6 indici

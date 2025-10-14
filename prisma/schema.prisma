@@ -71,18 +71,18 @@ model assessment_instance_responses {
 }
 
 model assessment_instances {
-  id                            Int                             @id @default(autoincrement())
-  scheduleId                    Int                             @unique
-  userId                        String
-  tenantId                      String                          @db.Uuid
-  templateId                    Int
-  startedAt                     DateTime
-  completedAt                   DateTime?
-  timeSpent                     Int?
-  reportUrl                     String?
-  assessment_instance_responses assessment_instance_responses[]
-  assessment_schedules          assessment_schedules            @relation(fields: [scheduleId], references: [id])
-  user_soft_skills              user_soft_skills[]
+  id                              Int                               @id @default(autoincrement())
+  scheduleId                      Int                               @unique
+  userId                          String
+  tenantId                        String                            @db.Uuid
+  templateId                      Int
+  startedAt                       DateTime
+  completedAt                     DateTime?
+  timeSpent                       Int?
+  reportUrl                       String?
+  assessment_instance_responses   assessment_instance_responses[]
+  assessment_schedules            assessment_schedules              @relation(fields: [scheduleId], references: [id])
+  employee_soft_skill_assessments employee_soft_skill_assessments[]
 
   @@index([completedAt])
   @@index([tenantId])
@@ -328,6 +328,7 @@ model employees {
   employee_roles                  employee_roles[]
   employee_skills                 employee_skills[]
   employee_soft_skills            employee_soft_skills[]
+  employee_soft_skill_assessments employee_soft_skill_assessments[]
   employee_work_experiences       employee_work_experiences[]
   departments                     departments?                      @relation(fields: [department_id], references: [id])
   engagement_campaign_assignments engagement_campaign_assignments[]
@@ -612,24 +613,24 @@ model skills {
 }
 
 model soft_skills {
-  id                             Int                              @id @default(autoincrement())
-  name                           String
-  nameEn                         String?
-  description                    String?
-  category                       String?
-  isActive                       Boolean                          @default(true)
-  createdAt                      DateTime                         @default(now())
-  updatedAt                      DateTime
-  code                           String                           @unique
-  descriptionEn                  String?
-  evaluationCriteria             Json?
-  orderIndex                     Int                              @default(0)
-  assessment_template_soft_skill assessment_template_soft_skill[]
-  employee_soft_skills           employee_soft_skills[]
-  job_family_soft_skills         job_family_soft_skills[]
-  question_soft_skill_mappings   question_soft_skill_mappings[]
-  role_soft_skills               role_soft_skills[]
-  user_soft_skills               user_soft_skills[]
+  id                              Int                               @id @default(autoincrement())
+  name                            String
+  nameEn                          String?
+  description                     String?
+  category                        String?
+  isActive                        Boolean                           @default(true)
+  createdAt                       DateTime                          @default(now())
+  updatedAt                       DateTime
+  code                            String                            @unique
+  descriptionEn                   String?
+  evaluationCriteria              Json?
+  orderIndex                      Int                               @default(0)
+  assessment_template_soft_skill  assessment_template_soft_skill[]
+  employee_soft_skills            employee_soft_skills[]
+  employee_soft_skill_assessments employee_soft_skill_assessments[]
+  job_family_soft_skills          job_family_soft_skills[]
+  question_soft_skill_mappings    question_soft_skill_mappings[]
+  role_soft_skills                role_soft_skills[]
 }
 
 model soft_skills_assessments {
@@ -890,26 +891,13 @@ model tenants {
   tenant_users              tenant_users[]
 }
 
-model training_plans {
-  id            Int       @id @default(autoincrement())
-  employee_id   Int
-  skill_id      Int?
-  training_type String?   @db.VarChar(100)
-  provider      String?   @db.VarChar(200)
-  start_date    DateTime? @db.Date
-  end_date      DateTime? @db.Date
-  status        String?   @default("PLANNED") @db.VarChar(50)
-  cost          Decimal?  @db.Decimal(10, 2)
-  notes         String?
-  created_at    DateTime? @default(now()) @db.Timestamp(6)
-  updated_at    DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id     String    @db.Uuid
-}
+// Removed: training_plans table (Migration 043 - 12 Oct 2025)
+// Reason: Zombie table - never implemented, no FK, no code usage, 0 records
 
-model user_soft_skills {
+model employee_soft_skill_assessments {
   id                   Int                  @id @default(autoincrement())
-  userId               String
-  instanceId           Int
+  employeeId           Int
+  assessmentInstanceId Int
   softSkillId          Int
   score                Float
   confidence           Float
@@ -917,12 +905,15 @@ model user_soft_skills {
   previousScore        Float?
   trend                Trend?
   calculatedAt         DateTime             @default(now())
-  assessment_instances assessment_instances @relation(fields: [instanceId], references: [id])
+  assessment_instances assessment_instances @relation(fields: [assessmentInstanceId], references: [id])
+  employees            employees            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   soft_skills          soft_skills          @relation(fields: [softSkillId], references: [id])
 
-  @@unique([userId, softSkillId, instanceId])
-  @@index([softSkillId])
-  @@index([userId])
+  @@unique([employeeId, softSkillId, assessmentInstanceId], name: "employee_soft_skill_assessments_unique")
+  @@index([employeeId], map: "idx_employee_soft_skill_assessments_employee")
+  @@index([softSkillId], map: "idx_employee_soft_skill_assessments_soft_skill")
+  @@index([assessmentInstanceId], map: "idx_employee_soft_skill_assessments_instance")
+  @@map("employee_soft_skill_assessments")
 }
 
 model engagement_templates {
@@ -1432,16 +1423,27 @@ model TenantCertification {
   @@map("tenant_certifications")
 }
 
+/// Companies database - Stores normalized company names for employee work experiences.
+///
+/// This table is used to deduplicate company names extracted from CVs and entered manually.
+/// For example, "NTT Data", "ntt data", and "NTT DATA" are all normalized to "nttdata".
+///
+/// **Primary Use**: Links to employee_work_experiences.company_id to track where employees worked.
+/// **Normalization**: Lowercase, no spaces (e.g., "Engineering Spa" → "engineeringspa")
+/// **Records**: 47 companies (as of Oct 2025)
+///
+/// @see employee_work_experiences.company_id - Foreign key reference
+/// @see cvDataSaveService.normalizeCompanyName() - Normalization logic
 model companies {
   id                        Int                         @id @default(autoincrement())
-  name                      String                      @db.VarChar(200)
-  normalized_name           String?                     @unique @db.VarChar(200)
-  industry_id               Int?
-  website                   String?
+  name                      String                      @db.VarChar(200)  /// Original company name as provided
+  normalized_name           String?                     @unique @db.VarChar(200)  /// Lowercase, no spaces for deduplication
+  industry_id               Int?  /// Optional link to industries table
+  website                   String?  /// Company website URL
   created_at                DateTime?                   @default(now()) @db.Timestamp(6)
   updated_at                DateTime?                   @default(now()) @db.Timestamp(6)
   industries                industries?                 @relation(fields: [industry_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  employee_work_experiences employee_work_experiences[]
+  employee_work_experiences employee_work_experiences[]  /// All work experiences at this company
 
   @@index([industry_id], map: "idx_companies_industry")
   @@index([normalized_name], map: "idx_companies_normalized_name")
@@ -1471,6 +1473,7 @@ model cv_extractions {
   llm_cost                  Decimal?                    @db.Decimal(10, 6)
   import_stats              Json?
   error_phase               String?
+  retry_count               Int?                        @default(0)
   employees                 employees                   @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   cv_file                   cv_files?
   employee_additional_info  employee_additional_info[]

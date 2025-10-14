@@ -1,0 +1,74 @@
+TABELLA: assessments
+DESCRIZIONE: Tabella per la gestione di assessments
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- employee_id (integer): Campo employee_id [REQUIRED]
+- assessment_type (character varying(50)): Campo assessment_type [REQUIRED]
+- overall_score (numeric): Campo overall_score
+- technical_score (numeric): Campo technical_score
+- soft_skills_score (numeric): Campo soft_skills_score
+- assessed_by (integer): Campo assessed_by
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+DATE E TIMESTAMP:
+- assessment_date (date): Campo assessment_date [REQUIRED] [DEFAULT: CURRENT_DATE]
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+DATI DESCRITTIVI:
+- notes (text): Campo notes
+
+STATI E FLAGS:
+- status (character varying(50)): Campo status [DEFAULT: DRAFT]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, assessment_type, assessment_date, tenant_id
+2. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessments per un tenant:
+{
+  "table": "assessments",
+  "select": [
+    "id",
+    "employee_id",
+    "assessment_type",
+    "assessment_date",
+    "overall_score"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Conta assessments creati nell'ultimo mese:
+{
+  "table": "assessments",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

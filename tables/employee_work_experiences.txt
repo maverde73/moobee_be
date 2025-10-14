@@ -1,0 +1,131 @@
+TABELLA: employee_work_experiences
+DESCRIZIONE: Tabella per la gestione di employee_work_experiences
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: uuid_generate_v4()]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- company_id (integer): Campo company_id [FK verso companies]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+DATI ANAGRAFICI:
+- company_name (character varying(200)): Campo company_name [REQUIRED]
+
+ALTRI CAMPI:
+- company_location (character varying(200)): Campo company_location
+- company_industry (character varying(100)): Campo company_industry
+- job_title (character varying(200)): Campo job_title [REQUIRED]
+- employment_type (character varying(50)): Campo employment_type
+- seniority_level (character varying(50)): Campo seniority_level
+- responsibilities (text[]): Campo responsibilities [ARRAY]
+- achievements (text[]): Campo achievements [ARRAY]
+- projects (jsonb): Campo projects [JSONB]
+- skills_used (text[]): Campo skills_used [ARRAY]
+
+DATE E TIMESTAMP:
+- start_date (date): Campo start_date
+- end_date (date): Campo end_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+STATI E FLAGS:
+- is_current (boolean): Campo is_current [DEFAULT: false]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- companies (N:1): Collegamento via company_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, company_name, job_title, tenant_id
+2. La cancellazione di employees cancella automaticamente questo record
+3. La cancellazione di tenants cancella automaticamente questo record
+4. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_work_experiences per un tenant:
+{
+  "table": "employee_work_experiences",
+  "select": [
+    "id",
+    "employee_id",
+    "company_id",
+    "company_name",
+    "company_location"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_work_experiences con dati di employees:
+{
+  "table": "employee_work_experiences",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_work_experiences.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca employee_work_experiences per company_name:
+{
+  "table": "employee_work_experiences",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "company_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta employee_work_experiences creati nell'ultimo mese:
+{
+  "table": "employee_work_experiences",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo projects (JSONB): verificare schema JSON atteso nella documentazione

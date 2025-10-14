@@ -1,0 +1,64 @@
+TABELLA: engagement_options
+DESCRIZIONE: Tabella per la gestione di engagement_options
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- question_id (text): Campo question_id [REQUIRED] [FK verso engagement_questions]
+
+ALTRI CAMPI:
+- option_text (text): Campo option_text [REQUIRED]
+- value (integer): Campo value [REQUIRED]
+- order (integer): Campo order [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_questions (N:1): Collegamento via question_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+- engagement_responses (1:N): engagement_responses referenzia questa tabella via option_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: question_id, option_text, value, order
+2. La cancellazione di engagement_questions cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_options:
+{
+  "table": "engagement_options",
+  "select": [
+    "id",
+    "question_id",
+    "option_text",
+    "value",
+    "order"
+  ],
+  "limit": 100
+}
+
+2. Recupera engagement_options con dati di engagement_questions:
+{
+  "table": "engagement_options",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "engagement_questions",
+      "first": "engagement_options.question_id",
+      "second": "engagement_questions.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

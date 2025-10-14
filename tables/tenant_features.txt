@@ -1,0 +1,74 @@
+TABELLA: tenant_features
+DESCRIZIONE: Tabella per la gestione di tenant_features
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+DATI ANAGRAFICI:
+- featureName (text): Campo featureName [REQUIRED]
+
+ALTRI CAMPI:
+- isEnabled (boolean): Campo isEnabled [REQUIRED] [DEFAULT: true]
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+DATI TECNICI:
+- config (jsonb): Campo config [JSONB]
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: tenant_id, featureName, isEnabled, createdAt, updatedAt
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_features per un tenant:
+{
+  "table": "tenant_features",
+  "select": [
+    "id",
+    "tenant_id",
+    "featureName",
+    "isEnabled",
+    "config"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera tenant_features con dati di tenants:
+{
+  "table": "tenant_features",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "tenants",
+      "first": "tenant_features.tenant_id",
+      "second": "tenants.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo config (JSONB): verificare schema JSON atteso nella documentazione

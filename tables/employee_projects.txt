@@ -1,0 +1,120 @@
+TABELLA: employee_projects
+DESCRIZIONE: Tabella per la gestione di employee_projects
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: uuid_generate_v4()]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+DATI ANAGRAFICI:
+- project_name (character varying(200)): Campo project_name [REQUIRED]
+
+DATI DESCRITTIVI:
+- description (text): Campo description [REQUIRED]
+
+DATE E TIMESTAMP:
+- start_date (date): Campo start_date
+- end_date (date): Campo end_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+STATI E FLAGS:
+- is_current (boolean): Campo is_current [DEFAULT: false]
+
+ALTRI CAMPI:
+- role (character varying(100)): Campo role
+- technologies_used (text[]): Campo technologies_used [ARRAY]
+- project_url (text): Campo project_url
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, project_name, description, tenant_id
+2. La cancellazione di employees cancella automaticamente questo record
+3. La cancellazione di tenants cancella automaticamente questo record
+4. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_projects per un tenant:
+{
+  "table": "employee_projects",
+  "select": [
+    "id",
+    "employee_id",
+    "project_name",
+    "description",
+    "start_date"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_projects con dati di employees:
+{
+  "table": "employee_projects",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_projects.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca employee_projects per project_name:
+{
+  "table": "employee_projects",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "project_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta employee_projects creati nell'ultimo mese:
+{
+  "table": "employee_projects",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

@@ -1,0 +1,74 @@
+TABELLA: engagement_surveys
+DESCRIZIONE: Tabella per la gestione di engagement_surveys
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- employee_id (integer): Campo employee_id [REQUIRED]
+- survey_month (date): Campo survey_month [REQUIRED]
+- job_satisfaction (integer): Campo job_satisfaction
+- work_life_balance (integer): Campo work_life_balance
+- career_development (integer): Campo career_development
+- team_collaboration (integer): Campo team_collaboration
+- manager_support (integer): Campo manager_support
+- overall_score (numeric): Campo overall_score
+- achieved_goals (text[]): Campo achieved_goals [ARRAY]
+- challenges_faced (text[]): Campo challenges_faced [ARRAY]
+- support_needed (text[]): Campo support_needed [ARRAY]
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+DATI DESCRITTIVI:
+- comments (text): Campo comments
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, survey_month, tenant_id
+2. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_surveys per un tenant:
+{
+  "table": "engagement_surveys",
+  "select": [
+    "id",
+    "employee_id",
+    "survey_month",
+    "job_satisfaction",
+    "work_life_balance"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Conta engagement_surveys creati nell'ultimo mese:
+{
+  "table": "engagement_surveys",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

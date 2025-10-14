@@ -1,0 +1,72 @@
+TABELLA: project_assignments
+DESCRIZIONE: Tabella per la gestione di project_assignments
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- project_id (integer): Campo project_id [REQUIRED]
+- employee_id (integer): Campo employee_id [REQUIRED]
+- role_in_project (character varying(100)): Campo role_in_project
+- allocation_percentage (integer): Campo allocation_percentage
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+DATE E TIMESTAMP:
+- start_date (date): Campo start_date [REQUIRED]
+- end_date (date): Campo end_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: project_id, employee_id, start_date, tenant_id
+2. Il timestamp di creazione viene impostato automaticamente
+3. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di project_assignments per un tenant:
+{
+  "table": "project_assignments",
+  "select": [
+    "id",
+    "project_id",
+    "employee_id",
+    "role_in_project",
+    "allocation_percentage"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Conta project_assignments creati nell'ultimo mese:
+{
+  "table": "project_assignments",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare
+- Performance: Tabella ottimizzata con 4 indici

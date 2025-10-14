@@ -1,0 +1,68 @@
+TABELLA: assessment_instances
+DESCRIZIONE: Tabella per la gestione di assessment_instances
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- scheduleId (integer): Campo scheduleId [REQUIRED] [FK verso assessment_schedules]
+
+ALTRI CAMPI:
+- userId (text): Campo userId [REQUIRED]
+- tenantId (uuid): Campo tenantId [REQUIRED]
+- templateId (integer): Campo templateId [REQUIRED]
+- startedAt (timestamp without time zone): Campo startedAt [REQUIRED]
+- completedAt (timestamp without time zone): Campo completedAt
+- timeSpent (integer): Campo timeSpent
+- reportUrl (text): Campo reportUrl
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_schedules (N:1): Collegamento via scheduleId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- assessment_instance_responses (1:N): assessment_instance_responses referenzia questa tabella via instanceId
+- employee_soft_skill_assessments (1:N): employee_soft_skill_assessments referenzia questa tabella via assessmentInstanceId
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: scheduleId, userId, tenantId, templateId, startedAt
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_instances:
+{
+  "table": "assessment_instances",
+  "select": [
+    "id",
+    "scheduleId",
+    "userId",
+    "tenantId",
+    "templateId"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_instances con dati di assessment_schedules:
+{
+  "table": "assessment_instances",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_schedules",
+      "first": "assessment_instances.scheduleId",
+      "second": "assessment_schedules.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 4 indici

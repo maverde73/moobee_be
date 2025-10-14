@@ -1,0 +1,87 @@
+TABELLA: skills_sub_roles_value
+DESCRIZIONE: Tabella per la gestione di skills_sub_roles_value
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- id_skill (integer): Campo id_skill [REQUIRED] [FK verso skills]
+- id_sub_role (integer): Campo id_sub_role [REQUIRED] [FK verso sub_roles]
+
+ALTRI CAMPI:
+- Value (double precision): Campo Value
+- Grading (double precision): Campo Grading
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- skills (N:1): Collegamento via id_skill
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+- sub_roles (N:1): Collegamento via id_sub_role
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione id_skill + id_sub_role deve essere unica
+2. Campi obbligatori: id_skill, id_sub_role
+3. La cancellazione di skills cancella automaticamente questo record
+4. La cancellazione di sub_roles cancella automaticamente questo record
+5. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di skills_sub_roles_value:
+{
+  "table": "skills_sub_roles_value",
+  "select": [
+    "id",
+    "id_skill",
+    "id_sub_role",
+    "Value",
+    "Grading"
+  ],
+  "limit": 100
+}
+
+2. Recupera skills_sub_roles_value con dati di skills:
+{
+  "table": "skills_sub_roles_value",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "skills",
+      "first": "skills_sub_roles_value.id_skill",
+      "second": "skills.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta skills_sub_roles_value creati nell'ultimo mese:
+{
+  "table": "skills_sub_roles_value",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

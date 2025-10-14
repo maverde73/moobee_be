@@ -1,0 +1,100 @@
+TABELLA: employee_soft_skills
+DESCRIZIONE: Tabella per la gestione di employee_soft_skills
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- soft_skill_id (integer): Campo soft_skill_id [REQUIRED] [FK verso soft_skills]
+- sub_role_id (integer): Campo sub_role_id [REQUIRED] [FK verso sub_roles]
+- tenant_id (character varying(255)): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+ALTRI CAMPI:
+- importance (integer): Campo importance
+- source (character varying(50)): Campo source [DEFAULT: auto_from_role]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- soft_skills (N:1): Collegamento via soft_skill_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- sub_roles (N:1): Collegamento via sub_role_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, soft_skill_id, sub_role_id, tenant_id
+2. La cancellazione di employees cancella automaticamente questo record
+3. La cancellazione di soft_skills cancella automaticamente questo record
+4. La cancellazione di sub_roles cancella automaticamente questo record
+5. La cancellazione di tenants cancella automaticamente questo record
+6. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_soft_skills per un tenant:
+{
+  "table": "employee_soft_skills",
+  "select": [
+    "id",
+    "employee_id",
+    "soft_skill_id",
+    "sub_role_id",
+    "importance"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_soft_skills con dati di employees:
+{
+  "table": "employee_soft_skills",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_soft_skills.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta employee_soft_skills creati nell'ultimo mese:
+{
+  "table": "employee_soft_skills",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Performance: Tabella ottimizzata con 5 indici

@@ -1,0 +1,68 @@
+TABELLA: assessment_template_soft_skill
+DESCRIZIONE: Tabella per la gestione di assessment_template_soft_skill
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- templateId (integer): Campo templateId [REQUIRED] [FK verso assessment_templates]
+- softSkillId (integer): Campo softSkillId [REQUIRED] [FK verso soft_skills]
+
+ALTRI CAMPI:
+- questionMappings (jsonb): Campo questionMappings [REQUIRED] [JSONB]
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_templates (N:1): Collegamento via templateId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- soft_skills (N:1): Collegamento via softSkillId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: templateId, softSkillId, questionMappings, createdAt, updatedAt
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_template_soft_skill:
+{
+  "table": "assessment_template_soft_skill",
+  "select": [
+    "id",
+    "templateId",
+    "softSkillId",
+    "questionMappings",
+    "createdAt"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_template_soft_skill con dati di assessment_templates:
+{
+  "table": "assessment_template_soft_skill",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_templates",
+      "first": "assessment_template_soft_skill.templateId",
+      "second": "assessment_templates.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo questionMappings (JSONB): verificare schema JSON atteso nella documentazione

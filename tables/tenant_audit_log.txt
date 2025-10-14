@@ -1,0 +1,74 @@
+TABELLA: tenant_audit_log
+DESCRIZIONE: Tabella per la gestione di tenant_audit_log
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+ALTRI CAMPI:
+- userId (integer): Campo userId
+- action (text): Campo action [REQUIRED]
+- entity (text): Campo entity
+- entityId (text): Campo entityId
+- oldValue (jsonb): Campo oldValue [JSONB]
+- newValue (jsonb): Campo newValue [JSONB]
+- userAgent (text): Campo userAgent
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+DATI ANAGRAFICI:
+- ipAddress (text): Campo ipAddress
+
+RELAZIONI:
+━━━━━━━━━━
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: tenant_id, action, createdAt
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_audit_log per un tenant:
+{
+  "table": "tenant_audit_log",
+  "select": [
+    "id",
+    "tenant_id",
+    "userId",
+    "action",
+    "entity"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera tenant_audit_log con dati di tenants:
+{
+  "table": "tenant_audit_log",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "tenants",
+      "first": "tenant_audit_log.tenant_id",
+      "second": "tenants.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo oldValue (JSONB): verificare schema JSON atteso nella documentazione

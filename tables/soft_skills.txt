@@ -1,0 +1,71 @@
+TABELLA: soft_skills
+DESCRIZIONE: Tabella per la gestione di soft_skills
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- name (text): Campo name [REQUIRED]
+- nameEn (text): Campo nameEn
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+- descriptionEn (text): Campo descriptionEn
+
+ALTRI CAMPI:
+- category (text): Campo category
+- isActive (boolean): Campo isActive [REQUIRED] [DEFAULT: true]
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- code (text): Campo code [REQUIRED]
+- evaluationCriteria (jsonb): Campo evaluationCriteria [JSONB]
+- orderIndex (integer): Campo orderIndex [REQUIRED] [DEFAULT: 0]
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- role_soft_skills (1:N): role_soft_skills referenzia questa tabella via softSkillId
+- question_soft_skill_mappings (1:N): question_soft_skill_mappings referenzia questa tabella via softSkillId
+- employee_soft_skill_assessments (1:N): employee_soft_skill_assessments referenzia questa tabella via softSkillId
+- assessment_template_soft_skill (1:N): assessment_template_soft_skill referenzia questa tabella via softSkillId
+- job_family_soft_skills (1:N): job_family_soft_skills referenzia questa tabella via soft_skill_id
+- employee_soft_skills (1:N): employee_soft_skills referenzia questa tabella via soft_skill_id
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di soft_skills:
+{
+  "table": "soft_skills",
+  "select": [
+    "id",
+    "name",
+    "nameEn",
+    "description",
+    "category"
+  ],
+  "limit": 100
+}
+
+2. Ricerca soft_skills per name:
+{
+  "table": "soft_skills",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo evaluationCriteria (JSONB): verificare schema JSON atteso nella documentazione

@@ -1,0 +1,81 @@
+TABELLA: role_sub_role
+DESCRIZIONE: Tabella per la gestione di role_sub_role
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- id_role (integer): Campo id_role [REQUIRED] [FK verso roles]
+- id_sub_role (integer): Campo id_sub_role [FK verso sub_roles]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- roles (N:1): Collegamento via id_role
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+- sub_roles (N:1): Collegamento via id_sub_role
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione id_role + id_sub_role deve essere unica
+2. Campi obbligatori: id_role
+3. La cancellazione di roles cancella automaticamente questo record
+4. La cancellazione di sub_roles cancella automaticamente questo record
+5. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di role_sub_role:
+{
+  "table": "role_sub_role",
+  "select": [
+    "id",
+    "id_role",
+    "id_sub_role",
+    "created_at"
+  ],
+  "limit": 100
+}
+
+2. Recupera role_sub_role con dati di roles:
+{
+  "table": "role_sub_role",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "roles",
+      "first": "role_sub_role.id_role",
+      "second": "roles.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta role_sub_role creati nell'ultimo mese:
+{
+  "table": "role_sub_role",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

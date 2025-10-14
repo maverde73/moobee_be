@@ -1,0 +1,133 @@
+TABELLA: project_roles
+DESCRIZIONE: Tabella per la gestione di project_roles
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: gen_random_uuid()]
+
+RELAZIONI PRINCIPALI:
+- project_id (integer): Campo project_id [REQUIRED] [FK verso projects]
+- sub_role_id (integer): Campo sub_role_id [FK verso sub_roles]
+
+ALTRI CAMPI:
+- role_code (character varying(100)): Campo role_code
+- title (character varying(255)): Campo title [REQUIRED]
+- seniority (character varying(50)): Campo seniority
+- quantity (integer): Campo quantity [DEFAULT: 1]
+- required_skills (jsonb): Campo required_skills [JSONB]
+- soft_skills (jsonb): Campo soft_skills [JSONB]
+- hard_skills (jsonb): Campo hard_skills [JSONB]
+- certifications (varchar[]): Campo certifications [ARRAY]
+- required_certifications (varchar[]): Campo required_certifications [ARRAY]
+- preferred_certifications (varchar[]): Campo preferred_certifications [ARRAY]
+- competencies (jsonb): Campo competencies [JSONB]
+- preferences (jsonb): Campo preferences [JSONB]
+- min_experience_years (integer): Campo min_experience_years [DEFAULT: 0]
+- preferred_experience_years (integer): Campo preferred_experience_years
+- required_languages (jsonb): Campo required_languages [JSONB]
+- preferred_languages (jsonb): Campo preferred_languages [JSONB]
+- availability_required (integer): Campo availability_required
+- allocation_percentage (integer): Campo allocation_percentage [DEFAULT: 100]
+- work_mode (character varying(50)): Campo work_mode
+- location (character varying(255)): Campo location
+- language_required (character varying(100)): Campo language_required
+- budget_range (jsonb): Campo budget_range [JSONB]
+- constraints (jsonb): Campo constraints [JSONB]
+- opportunities (jsonb): Campo opportunities [JSONB]
+- priority (character varying(20)): Campo priority [DEFAULT: NORMAL]
+- role_id (integer): Campo role_id
+
+STATI E FLAGS:
+- is_billable (boolean): Campo is_billable [DEFAULT: true]
+- is_urgent (boolean): Campo is_urgent [DEFAULT: false]
+- is_critical (boolean): Campo is_critical [DEFAULT: false]
+- status (character varying(50)): Campo status [DEFAULT: OPEN]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- sub_roles (N:1): Collegamento via sub_role_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: NO ACTION
+- projects (N:1): Collegamento via project_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- project_matching_results (1:N): project_matching_results referenzia questa tabella via project_role_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: project_id, title
+2. La cancellazione di sub_roles imposta sub_role_id a NULL
+3. La cancellazione di projects cancella automaticamente questo record
+4. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di project_roles:
+{
+  "table": "project_roles",
+  "select": [
+    "id",
+    "project_id",
+    "role_code",
+    "title",
+    "seniority"
+  ],
+  "limit": 100
+}
+
+2. Recupera project_roles con dati di sub_roles:
+{
+  "table": "project_roles",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "sub_roles",
+      "first": "project_roles.sub_role_id",
+      "second": "sub_roles.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca project_roles per title:
+{
+  "table": "project_roles",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "title": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta project_roles creati nell'ultimo mese:
+{
+  "table": "project_roles",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 9 indici
+- Campo required_skills (JSONB): verificare schema JSON atteso nella documentazione

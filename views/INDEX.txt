@@ -1,0 +1,17 @@
+MOOBEE DATABASE VIEWS - INDICE
+══════════════════════════════════════════════════
+
+Generated: 2025-10-12T18:20:57.608Z
+Total Views: 3
+
+PRIORITY 1 - High-Use Views (2 viste):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- v_employee_skills_summary.txt
+  Employee Skills Summary with Grading
+- v_employee_complete_profile.txt
+  Complete Employee Profile
+
+PRIORITY 2 - Medium-Use Views (1 vista):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- v_assessment_results_summary.txt
+  Assessment Results Summary

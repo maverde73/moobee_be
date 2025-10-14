@@ -1,0 +1,85 @@
+TABELLA: job_family
+DESCRIZIONE: Tabella per la gestione di job_family
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- name (character varying(100)): Campo name [REQUIRED] [UNIQUE]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- job_family_soft_skills (1:N): job_family_soft_skills referenzia questa tabella via job_family_id
+- assessment_templates (1:N): assessment_templates referenzia questa tabella via job_family_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il campo name deve essere unico nel sistema
+2. Campi obbligatori: name
+3. Il timestamp di creazione viene impostato automaticamente
+4. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di job_family:
+{
+  "table": "job_family",
+  "select": [
+    "id",
+    "name",
+    "description",
+    "is_active",
+    "created_at"
+  ],
+  "where": {
+    "is_active": true
+  },
+  "limit": 100
+}
+
+2. Ricerca job_family per name:
+{
+  "table": "job_family",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+3. Conta job_family creati nell'ultimo mese:
+{
+  "table": "job_family",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Utilizza soft delete: impostare is_active=false invece di cancellare

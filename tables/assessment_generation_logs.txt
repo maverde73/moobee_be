@@ -1,0 +1,77 @@
+TABELLA: assessment_generation_logs
+DESCRIZIONE: Tabella per la gestione di assessment_generation_logs
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- templateId (integer): Campo templateId [FK verso assessment_templates]
+
+ALTRI CAMPI:
+- provider (text): Campo provider [REQUIRED]
+- model (text): Campo model [REQUIRED]
+- questionsCount (integer): Campo questionsCount
+- generationType (text): Campo generationType [REQUIRED]
+- requestParams (jsonb): Campo requestParams [JSONB]
+- responseTime (integer): Campo responseTime
+- errorMessage (text): Campo errorMessage
+- userId (text): Campo userId
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+STATI E FLAGS:
+- status (text): Campo status [REQUIRED]
+
+DATI TECNICI:
+- metadata (jsonb): Campo metadata [JSONB]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_templates (N:1): Collegamento via templateId
+  * ON DELETE: SET NULL
+  * ON UPDATE: CASCADE
+- assessment_templates (1:N): assessment_templates referenzia questa tabella via generationLogId
+- _TemplateGenerationLog (1:N): _TemplateGenerationLog referenzia questa tabella via A
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: provider, model, status, generationType, createdAt
+2. La cancellazione di assessment_templates imposta templateId a NULL
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_generation_logs:
+{
+  "table": "assessment_generation_logs",
+  "select": [
+    "id",
+    "templateId",
+    "provider",
+    "model",
+    "status"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_generation_logs con dati di assessment_templates:
+{
+  "table": "assessment_generation_logs",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_templates",
+      "first": "assessment_generation_logs.templateId",
+      "second": "assessment_templates.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo metadata (JSONB): verificare schema JSON atteso nella documentazione

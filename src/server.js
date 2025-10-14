@@ -18,6 +18,7 @@ const engagementRoutes = require('./routes/engagementRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const cvRoutes = require('./routes/cvRoutes');
 const internalRoutes = require('./routes/internalRoutes');
+const mcpProxyRoutes = require('./routes/mcpProxyRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -131,6 +132,18 @@ app.use('/api/', limiter);
 // Internal API routes (NO rate limiting, NO auth - trusted Python backend)
 // MUST be mounted AFTER rate limiter to bypass it
 app.use('/api/internal', internalRoutes);
+
+// MCP Proxy routes (WITH auth, WITH rate limiting)
+// Initialize MCP configuration on server start
+const { initializeConfig } = require('./config/mcpRbacRules');
+try {
+  initializeConfig();
+  console.log('✅ MCP RBAC configuration loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load MCP RBAC configuration:', error.message);
+  console.error('   MCP Proxy will not be available');
+}
+app.use('/api', mcpProxyRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -306,6 +319,9 @@ if (require.main === module) {
   // Bind to all interfaces on Railway/production, localhost in development
   const HOST = process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
+  // CV Worker flag (module scope for SIGTERM handler access)
+  let isCVWorkerStarted = false;
+
   const server = app.listen(PORT, HOST, () => {
     console.log(`
     🚀 Server is running!
@@ -314,11 +330,30 @@ if (require.main === module) {
     🏥 Health check: http://localhost:${PORT}/health
     📚 API Base: http://localhost:${PORT}/api
   `);
+
+    // Start CV Extraction Background Worker (if enabled)
+    const startWorker = process.env.START_CV_WORKER !== 'false'; // Default: true
+    if (startWorker) {
+      const { startWorker: startCVWorker } = require('./services/cvExtractionBackgroundWorker');
+      const workerInterval = parseInt(process.env.CV_WORKER_INTERVAL_MS) || 10000; // Default: 10s
+      startCVWorker(workerInterval);
+      isCVWorkerStarted = true; // Set flag for SIGTERM handler
+      console.log(`✅ CV Extraction Background Worker started (polling every ${workerInterval / 1000}s)`);
+    } else {
+      console.log('⚠️  CV Extraction Background Worker disabled (START_CV_WORKER=false)');
+    }
   });
 
   // Handle graceful shutdown
   process.on('SIGTERM', () => {
     console.log('SIGTERM signal received: closing HTTP server');
+
+    // Stop CV worker
+    if (isCVWorkerStarted) {
+      const { stopWorker } = require('./services/cvExtractionBackgroundWorker');
+      stopWorker();
+    }
+
     server.close(() => {
       console.log('HTTP server closed');
       process.exit(0);

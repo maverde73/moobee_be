@@ -1,0 +1,101 @@
+TABELLA: project_activity_logs
+DESCRIZIONE: Tabella per la gestione di project_activity_logs
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: gen_random_uuid()]
+
+RELAZIONI PRINCIPALI:
+- project_id (integer): Campo project_id [REQUIRED] [FK verso projects]
+
+ALTRI CAMPI:
+- activity_type (character varying(100)): Campo activity_type
+- user_id (character varying(255)): Campo user_id
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATI TECNICI:
+- metadata (jsonb): Campo metadata [JSONB]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- projects (N:1): Collegamento via project_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: project_id
+2. La cancellazione di projects cancella automaticamente questo record
+3. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di project_activity_logs:
+{
+  "table": "project_activity_logs",
+  "select": [
+    "id",
+    "project_id",
+    "activity_type",
+    "description",
+    "user_id"
+  ],
+  "limit": 100
+}
+
+2. Recupera project_activity_logs con dati di projects:
+{
+  "table": "project_activity_logs",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "projects",
+      "first": "project_activity_logs.project_id",
+      "second": "projects.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca project_activity_logs per description:
+{
+  "table": "project_activity_logs",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "description": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta project_activity_logs creati nell'ultimo mese:
+{
+  "table": "project_activity_logs",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo metadata (JSONB): verificare schema JSON atteso nella documentazione

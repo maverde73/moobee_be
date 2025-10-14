@@ -1,0 +1,102 @@
+TABELLA: employee_skills
+DESCRIZIONE: Tabella per la gestione di employee_skills
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+
+ALTRI CAMPI:
+- skill_id (integer): Campo skill_id [REQUIRED]
+- proficiency_level (double precision): Campo proficiency_level
+- years_experience (numeric): Campo years_experience
+- source (character varying(50)): Campo source [DEFAULT: manual]
+
+DATE E TIMESTAMP:
+- last_used_date (date): Campo last_used_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+DATI DESCRITTIVI:
+- notes (text): Campo notes
+
+RELAZIONI:
+━━━━━━━━━━
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione employee_id + skill_id deve essere unica
+2. Campi obbligatori: employee_id, skill_id, tenant_id
+3. La cancellazione di cv_extractions imposta cv_extraction_id a NULL
+4. La cancellazione di tenants cancella automaticamente questo record
+5. La cancellazione di employees cancella automaticamente questo record
+6. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_skills per un tenant:
+{
+  "table": "employee_skills",
+  "select": [
+    "id",
+    "employee_id",
+    "skill_id",
+    "proficiency_level",
+    "years_experience"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_skills con dati di cv_extractions:
+{
+  "table": "employee_skills",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "cv_extractions",
+      "first": "employee_skills.cv_extraction_id",
+      "second": "cv_extractions.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta employee_skills creati nell'ultimo mese:
+{
+  "table": "employee_skills",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Performance: Tabella ottimizzata con 5 indici

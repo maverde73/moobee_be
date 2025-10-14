@@ -1,0 +1,116 @@
+TABELLA: employee_publications
+DESCRIZIONE: Tabella per la gestione di employee_publications
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: uuid_generate_v4()]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+ALTRI CAMPI:
+- title (text): Campo title [REQUIRED]
+- authors (jsonb): Campo authors [REQUIRED] [JSONB]
+- publication_type (character varying(100)): Campo publication_type
+- venue (character varying(300)): Campo venue
+- doi (character varying(200)): Campo doi
+- isbn (character varying(50)): Campo isbn
+- url (text): Campo url
+- abstract (text): Campo abstract
+- keywords (text[]): Campo keywords [ARRAY]
+
+DATE E TIMESTAMP:
+- publication_date (date): Campo publication_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, title, authors, tenant_id
+2. La cancellazione di employees cancella automaticamente questo record
+3. La cancellazione di tenants cancella automaticamente questo record
+4. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_publications per un tenant:
+{
+  "table": "employee_publications",
+  "select": [
+    "id",
+    "employee_id",
+    "title",
+    "authors",
+    "publication_type"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_publications con dati di employees:
+{
+  "table": "employee_publications",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_publications.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca employee_publications per title:
+{
+  "table": "employee_publications",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "title": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta employee_publications creati nell'ultimo mese:
+{
+  "table": "employee_publications",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo authors (JSONB): verificare schema JSON atteso nella documentazione

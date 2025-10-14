@@ -1,0 +1,95 @@
+TABELLA: skills
+DESCRIZIONE: Tabella per la gestione di skills
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- Skill (text): Campo Skill
+- Synonyms_Skill (text[]): Campo Synonyms_Skill [ARRAY]
+- created_by (character varying(255)): Campo created_by
+
+DATI ANAGRAFICI:
+- NameKnown_Skill (text): Campo NameKnown_Skill
+
+RELAZIONI PRINCIPALI:
+- tenant_id (character varying(255)): Campo tenant_id [FK verso tenants]
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- skills_sub_roles_value (1:N): skills_sub_roles_value referenzia questa tabella via id_skill
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione Skill + tenant_id deve essere unica
+2. La cancellazione di tenants cancella automaticamente questo record
+3. Il timestamp di creazione viene impostato automaticamente
+4. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di skills per un tenant:
+{
+  "table": "skills",
+  "select": [
+    "id",
+    "Skill",
+    "NameKnown_Skill",
+    "Synonyms_Skill",
+    "tenant_id"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera skills con dati di tenants:
+{
+  "table": "skills",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "tenants",
+      "first": "skills.tenant_id",
+      "second": "tenants.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta skills creati nell'ultimo mese:
+{
+  "table": "skills",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare
+- Performance: Tabella ottimizzata con 5 indici

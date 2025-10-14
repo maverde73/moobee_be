@@ -1,0 +1,81 @@
+TABELLA: engagement_campaign_assignments
+DESCRIZIONE: Tabella per la gestione di engagement_campaign_assignments
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- campaign_id (text): Campo campaign_id [REQUIRED] [FK verso engagement_campaigns]
+- employee_id (integer): Campo employee_id [FK verso employees]
+
+DATE E TIMESTAMP:
+- assigned_at (timestamp without time zone): Campo assigned_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- started_at (timestamp without time zone): Campo started_at
+- completed_at (timestamp without time zone): Campo completed_at
+- last_accessed_at (timestamp without time zone): Campo last_accessed_at
+- last_reminder_at (timestamp without time zone): Campo last_reminder_at
+
+ALTRI CAMPI:
+- assigned_by (text): Campo assigned_by [REQUIRED]
+- completion_rate (double precision): Campo completion_rate
+- reminder_count (integer): Campo reminder_count [REQUIRED] [DEFAULT: 0]
+
+STATI E FLAGS:
+- status (text): Campo status [REQUIRED] [DEFAULT: ASSIGNED]
+
+DATI DESCRITTIVI:
+- notes (text): Campo notes
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- engagement_campaigns (N:1): Collegamento via campaign_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- engagement_results (1:N): engagement_results referenzia questa tabella via assignment_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: campaign_id, assigned_at, assigned_by, status, reminder_count
+2. La cancellazione di employees cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_campaign_assignments:
+{
+  "table": "engagement_campaign_assignments",
+  "select": [
+    "id",
+    "campaign_id",
+    "assigned_at",
+    "assigned_by",
+    "status"
+  ],
+  "limit": 100
+}
+
+2. Recupera engagement_campaign_assignments con dati di employees:
+{
+  "table": "engagement_campaign_assignments",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "engagement_campaign_assignments.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 5 indici

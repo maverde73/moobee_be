@@ -1,0 +1,72 @@
+TABELLA: sub_roles
+DESCRIZIONE: Tabella per la gestione di sub_roles
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- Sub_Role (text): Campo Sub_Role
+- Synonyms_Sub_Role (text[]): Campo Synonyms_Sub_Role [ARRAY]
+- tenant_id (character varying(255)): Campo tenant_id [DEFAULT: NULL]
+- created_by (character varying(255)): Campo created_by [DEFAULT: NULL]
+
+DATI ANAGRAFICI:
+- NameKnown_Sub_Role (text): Campo NameKnown_Sub_Role
+
+STATI E FLAGS:
+- is_custom (boolean): Campo is_custom [DEFAULT: false]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- skills_sub_roles_value (1:N): skills_sub_roles_value referenzia questa tabella via id_sub_role
+- role_sub_role (1:N): role_sub_role referenzia questa tabella via id_sub_role
+- project_roles (1:N): project_roles referenzia questa tabella via sub_role_id
+- employee_soft_skills (1:N): employee_soft_skills referenzia questa tabella via sub_role_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Vincolo: (((is_custom = false) AND (tenant_id IS NULL)) OR ((is_custom = true) AND (tenant_id IS NOT NULL)))
+2. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di sub_roles per un tenant:
+{
+  "table": "sub_roles",
+  "select": [
+    "id",
+    "Sub_Role",
+    "NameKnown_Sub_Role",
+    "Synonyms_Sub_Role",
+    "tenant_id"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Conta sub_roles creati nell'ultimo mese:
+{
+  "table": "sub_roles",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

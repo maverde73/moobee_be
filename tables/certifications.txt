@@ -1,0 +1,106 @@
+TABELLA: certifications
+DESCRIZIONE: Tabella per la gestione di certifications
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- code (text): Campo code [REQUIRED]
+- category (character varying(100)): Campo category [REQUIRED]
+- level (USER-DEFINED): Campo level [ENUM: FOUNDATION, ASSOCIATE, PROFESSIONAL, EXPERT]
+- provider (text): Campo provider
+- url (text): Campo url
+- validity_years (integer): Campo validity_years
+- created_by (integer): Campo created_by
+- issuing_organization (character varying(255)): Campo issuing_organization
+- standard_duration_months (integer): Campo standard_duration_months
+- verification_url_template (text): Campo verification_url_template
+
+DATI ANAGRAFICI:
+- name (text): Campo name [REQUIRED]
+- normalized_name (character varying(255)): Campo normalized_name
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [REQUIRED] [DEFAULT: true]
+- is_renewable (boolean): Campo is_renewable [DEFAULT: true]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenant_certifications (1:N): tenant_certifications referenzia questa tabella via certification_id
+- employee_certifications (1:N): employee_certifications referenzia questa tabella via certification_id
+
+STATI E VALORI ENUM:
+━━━━━━━━━━━━━━━━━━━━
+LEVEL (CertificationLevel):
+  - FOUNDATION
+  - ASSOCIATE
+  - PROFESSIONAL
+  - EXPERT
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il timestamp di creazione viene impostato automaticamente
+2. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di certifications:
+{
+  "table": "certifications",
+  "select": [
+    "id",
+    "code",
+    "name",
+    "category",
+    "level"
+  ],
+  "where": {
+    "is_active": true
+  },
+  "limit": 100
+}
+
+2. Ricerca certifications per name:
+{
+  "table": "certifications",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+3. Conta certifications creati nell'ultimo mese:
+{
+  "table": "certifications",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Utilizza soft delete: impostare is_active=false invece di cancellare
+- Performance: Tabella ottimizzata con 7 indici

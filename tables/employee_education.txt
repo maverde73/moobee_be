@@ -1,0 +1,124 @@
+TABELLA: employee_education
+DESCRIZIONE: Tabella per la gestione di employee_education
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: uuid_generate_v4()]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- degree_id (integer): Campo degree_id [FK verso education_degrees]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+DATI ANAGRAFICI:
+- degree_name (character varying(200)): Campo degree_name [REQUIRED]
+- institution_name (character varying(200)): Campo institution_name [REQUIRED]
+
+ALTRI CAMPI:
+- field_of_study (character varying(200)): Campo field_of_study
+- institution_location (character varying(200)): Campo institution_location
+- grade (character varying(50)): Campo grade
+- honors (text): Campo honors
+
+DATE E TIMESTAMP:
+- start_date (date): Campo start_date
+- end_date (date): Campo end_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+STATI E FLAGS:
+- is_current (boolean): Campo is_current [DEFAULT: false]
+- thesis_title (text): Campo thesis_title
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- education_degrees (N:1): Collegamento via degree_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, degree_name, institution_name, tenant_id
+2. La cancellazione di employees cancella automaticamente questo record
+3. La cancellazione di tenants cancella automaticamente questo record
+4. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_education per un tenant:
+{
+  "table": "employee_education",
+  "select": [
+    "id",
+    "employee_id",
+    "degree_id",
+    "degree_name",
+    "field_of_study"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_education con dati di employees:
+{
+  "table": "employee_education",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_education.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca employee_education per degree_name:
+{
+  "table": "employee_education",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "degree_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta employee_education creati nell'ultimo mese:
+{
+  "table": "employee_education",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

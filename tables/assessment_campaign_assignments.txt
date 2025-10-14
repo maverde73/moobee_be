@@ -1,0 +1,80 @@
+TABELLA: assessment_campaign_assignments
+DESCRIZIONE: Tabella per la gestione di assessment_campaign_assignments
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- campaign_id (text): Campo campaign_id [REQUIRED] [FK verso assessment_campaigns]
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+
+STATI E FLAGS:
+- status (text): Campo status [REQUIRED] [DEFAULT: ASSIGNED]
+
+DATE E TIMESTAMP:
+- assigned_at (timestamp without time zone): Campo assigned_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- started_at (timestamp without time zone): Campo started_at
+- completed_at (timestamp without time zone): Campo completed_at
+- expired_at (timestamp without time zone): Campo expired_at
+- current_attempt (integer): Campo current_attempt [REQUIRED] [DEFAULT: 0]
+- total_attempts (integer): Campo total_attempts [REQUIRED] [DEFAULT: 0]
+
+ALTRI CAMPI:
+- assigned_by (text): Campo assigned_by [REQUIRED]
+- progress_percent (double precision): Campo progress_percent [DEFAULT: 0]
+- time_spent (integer): Campo time_spent
+- score (double precision): Campo score
+- result_id (text): Campo result_id
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_campaigns (N:1): Collegamento via campaign_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La cancellazione di assessment_campaigns cancella automaticamente questo record
+2. La cancellazione di employees cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_campaign_assignments:
+{
+  "table": "assessment_campaign_assignments",
+  "select": [
+    "id",
+    "campaign_id",
+    "status",
+    "assigned_at",
+    "assigned_by"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_campaign_assignments con dati di assessment_campaigns:
+{
+  "table": "assessment_campaign_assignments",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_campaigns",
+      "first": "assessment_campaign_assignments.campaign_id",
+      "second": "assessment_campaigns.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

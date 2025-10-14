@@ -1,0 +1,36 @@
+TABELLA: extended_descriptions_skills
+DESCRIZIONE: The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI DESCRITTIVI:
+- Extended_Description (text): Campo Extended_Description
+
+ALTRI CAMPI:
+- Skill (text): Campo Skill
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di extended_descriptions_skills:
+{
+  "table": "extended_descriptions_skills",
+  "select": [
+    "id",
+    "Extended_Description",
+    "Skill"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

@@ -1,0 +1,102 @@
+TABELLA: engagement_templates
+DESCRIZIONE: Tabella per la gestione di engagement_templates
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- title (text): Campo title [REQUIRED]
+- type (text): Campo type [REQUIRED] [DEFAULT: CUSTOM]
+- category (text): Campo category [REQUIRED] [DEFAULT: ENGAGEMENT]
+- instructions (text): Campo instructions
+- suggested_frequency (text): Campo suggested_frequency
+- estimated_time (integer): Campo estimated_time
+- language (text): Campo language [REQUIRED] [DEFAULT: it]
+- tags (text[]): Campo tags [ARRAY]
+- tenant_id (text): Campo tenant_id
+- created_by (text): Campo created_by
+- suggested_roles (jsonb): Campo suggested_roles [JSONB]
+- ai_prompt (text): Campo ai_prompt
+- ai_provider (text): Campo ai_provider
+- ai_model (text): Campo ai_model
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+STATI E FLAGS:
+- status (text): Campo status [REQUIRED] [DEFAULT: DRAFT]
+
+DATI TECNICI:
+- metadata (jsonb): Campo metadata [JSONB]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_results (1:N): engagement_results referenzia questa tabella via template_id
+- engagement_question_weights (1:N): engagement_question_weights referenzia questa tabella via template_id
+- engagement_questions (1:N): engagement_questions referenzia questa tabella via template_id
+- engagement_campaigns (1:N): engagement_campaigns referenzia questa tabella via template_id
+- tenant_engagement_selections (1:N): tenant_engagement_selections referenzia questa tabella via template_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_templates per un tenant:
+{
+  "table": "engagement_templates",
+  "select": [
+    "id",
+    "title",
+    "description",
+    "type",
+    "category"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Ricerca engagement_templates per title:
+{
+  "table": "engagement_templates",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "title": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+3. Conta engagement_templates creati nell'ultimo mese:
+{
+  "table": "engagement_templates",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo metadata (JSONB): verificare schema JSON atteso nella documentazione

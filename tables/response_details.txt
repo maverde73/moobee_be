@@ -1,0 +1,84 @@
+TABELLA: response_details
+DESCRIZIONE: Tabella per la gestione di response_details
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- response_id (text): Campo response_id [REQUIRED] [FK verso engagement_responses]
+- question_id (text): Campo question_id [REQUIRED] [FK verso engagement_questions]
+
+ALTRI CAMPI:
+- value (integer): Campo value
+- text_value (text): Campo text_value
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_responses (N:1): Collegamento via response_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+- engagement_questions (N:1): Collegamento via question_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: response_id, question_id, created_at
+2. La cancellazione di engagement_responses cancella automaticamente questo record
+3. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di response_details:
+{
+  "table": "response_details",
+  "select": [
+    "id",
+    "response_id",
+    "question_id",
+    "value",
+    "text_value"
+  ],
+  "limit": 100
+}
+
+2. Recupera response_details con dati di engagement_responses:
+{
+  "table": "response_details",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "engagement_responses",
+      "first": "response_details.response_id",
+      "second": "engagement_responses.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta response_details creati nell'ultimo mese:
+{
+  "table": "response_details",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

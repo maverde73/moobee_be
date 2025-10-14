@@ -1,0 +1,128 @@
+{
+  "_comment": "Definizione tabelle database per MCP Proxy - tenant-isolated vs shared",
+  "_version": "1.0.0",
+  "_last_updated": "2025-10-13",
+
+  "tenant_tables": {
+    "_description": "Tabelle con tenant_id - isolate per tenant",
+    "tables": [
+      "employees",
+      "employee_roles",
+      "employee_skills",
+      "employee_soft_skills",
+      "employee_education",
+      "employee_work_experiences",
+      "employee_languages",
+      "employee_certifications",
+      "employee_domain_knowledge",
+      "employee_projects",
+      "employee_publications",
+      "employee_awards",
+      "employee_additional_info",
+      "employee_soft_skill_assessments",
+      "projects",
+      "project_assignments",
+      "project_roles",
+      "project_skills_required",
+      "project_matching_results",
+      "project_activity_logs",
+      "project_milestones",
+      "assessments",
+      "assessment_campaigns",
+      "assessment_results",
+      "assessment_instances",
+      "assessment_instance_responses",
+      "assessment_campaign_assignments",
+      "assessment_generation_logs",
+      "assessment_soft_skill_scores",
+      "engagement_campaigns",
+      "engagement_results",
+      "engagement_responses",
+      "engagement_campaign_assignments",
+      "cv_extractions",
+      "cv_files",
+      "departments",
+      "tenants",
+      "tenant_users",
+      "tenant_features",
+      "tenant_api_keys",
+      "tenant_billing",
+      "tenant_audit_log",
+      "tenant_assessment_selections",
+      "tenant_engagement_selections",
+      "tenant_soft_skill_profiles",
+      "tenant_certifications",
+      "llm_usage_logs",
+      "notifications",
+      "action_plans",
+      "career_aspirations",
+      "skill_gaps"
+    ]
+  },
+
+  "shared_tables": {
+    "_description": "Tabelle senza tenant_id - condivise tra tutti i tenant",
+    "tables": [
+      "skills",
+      "roles",
+      "sub_roles",
+      "role_sub_role",
+      "soft_skills",
+      "job_family",
+      "job_family_soft_skills",
+      "industries",
+      "companies",
+      "languages",
+      "language_proficiency_levels",
+      "certifications",
+      "education_degrees",
+      "assessment_templates",
+      "assessment_questions",
+      "assessment_options",
+      "assessment_template_soft_skill",
+      "engagement_templates",
+      "engagement_questions",
+      "engagement_options",
+      "engagement_question_weights",
+      "soft_skills_assessments",
+      "skills_sub_roles_value",
+      "role_soft_skills",
+      "role_mappings",
+      "question_soft_skill_mappings",
+      "response_details",
+      "extended_descriptions_roles",
+      "extended_descriptions_sub_roles",
+      "extended_descriptions_skills",
+      "extended_tech_skills_roles_descriptions_full",
+      "migration_log",
+      "assessment_schedules"
+    ]
+  },
+
+  "special_rules": {
+    "_description": "Regole speciali per tabelle specifiche",
+    "employee_view_only": {
+      "_comment": "Employee può vedere solo i propri record in queste tabelle",
+      "tables": [
+        "employees",
+        "employee_skills",
+        "employee_roles",
+        "employee_education",
+        "employee_work_experiences",
+        "employee_languages",
+        "employee_certifications",
+        "employee_domain_knowledge",
+        "employee_soft_skills"
+      ],
+      "filter_field": "employee_id"
+    },
+    "project_related": {
+      "_comment": "Employee vede solo progetti a cui è assegnato",
+      "tables": [
+        "projects",
+        "project_assignments"
+      ],
+      "requires_subquery": true
+    }
+  }
+}

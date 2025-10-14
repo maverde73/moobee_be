@@ -1,0 +1,38 @@
+TABELLA: role_sub_role_backup
+DESCRIZIONE: The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id
+
+ALTRI CAMPI:
+- Role (text): Campo Role
+- Sub_Role (text): Campo Sub_Role
+- id_role (integer): Campo id_role
+- id_sub_role (integer): Campo id_sub_role
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di role_sub_role_backup:
+{
+  "table": "role_sub_role_backup",
+  "select": [
+    "id",
+    "Role",
+    "Sub_Role",
+    "id_role",
+    "id_sub_role"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

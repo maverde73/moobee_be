@@ -1,0 +1,81 @@
+TABELLA: language_proficiency_levels
+DESCRIZIONE: Tabella per la gestione di language_proficiency_levels
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- level (character varying(50)): Campo level [REQUIRED] [UNIQUE]
+- cefr_code (character varying(10)): Campo cefr_code [REQUIRED] [UNIQUE]
+- numeric_value (integer): Campo numeric_value [REQUIRED] [UNIQUE]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- employee_languages (1:N): employee_languages referenzia questa tabella via proficiency_level_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il campo cefr_code deve essere unico nel sistema
+2. Il campo level deve essere unico nel sistema
+3. Il campo numeric_value deve essere unico nel sistema
+4. Campi obbligatori: level, cefr_code, numeric_value
+5. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di language_proficiency_levels:
+{
+  "table": "language_proficiency_levels",
+  "select": [
+    "id",
+    "level",
+    "cefr_code",
+    "description",
+    "numeric_value"
+  ],
+  "limit": 100
+}
+
+2. Ricerca language_proficiency_levels per description:
+{
+  "table": "language_proficiency_levels",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "description": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+3. Conta language_proficiency_levels creati nell'ultimo mese:
+{
+  "table": "language_proficiency_levels",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

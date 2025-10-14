@@ -1,0 +1,108 @@
+TABELLA: project_milestones
+DESCRIZIONE: Tabella per la gestione di project_milestones
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: gen_random_uuid()]
+
+RELAZIONI PRINCIPALI:
+- project_id (integer): Campo project_id [REQUIRED] [FK verso projects]
+
+DATI ANAGRAFICI:
+- name (character varying(255)): Campo name [REQUIRED]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- due_date (date): Campo due_date
+- completed_date (date): Campo completed_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+STATI E FLAGS:
+- status (character varying(50)): Campo status [DEFAULT: PENDING]
+
+ALTRI CAMPI:
+- deliverables (jsonb): Campo deliverables [JSONB]
+- dependencies (varchar[]): Campo dependencies [ARRAY]
+- completion_percentage (integer): Campo completion_percentage [DEFAULT: 0]
+
+RELAZIONI:
+━━━━━━━━━━
+- projects (N:1): Collegamento via project_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: project_id, name
+2. La cancellazione di projects cancella automaticamente questo record
+3. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di project_milestones:
+{
+  "table": "project_milestones",
+  "select": [
+    "id",
+    "project_id",
+    "name",
+    "description",
+    "due_date"
+  ],
+  "limit": 100
+}
+
+2. Recupera project_milestones con dati di projects:
+{
+  "table": "project_milestones",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "projects",
+      "first": "project_milestones.project_id",
+      "second": "projects.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca project_milestones per name:
+{
+  "table": "project_milestones",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta project_milestones creati nell'ultimo mese:
+{
+  "table": "project_milestones",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo deliverables (JSONB): verificare schema JSON atteso nella documentazione

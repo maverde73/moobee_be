@@ -1,0 +1,100 @@
+TABELLA: engagement_results
+DESCRIZIONE: Tabella per la gestione di engagement_results
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- campaign_id (text): Campo campaign_id [REQUIRED] [FK verso engagement_campaigns]
+- assignment_id (text): Campo assignment_id [REQUIRED] [FK verso engagement_campaign_assignments]
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- tenant_user_id (text): Campo tenant_user_id [REQUIRED] [FK verso tenant_users]
+- template_id (text): Campo template_id [REQUIRED] [FK verso engagement_templates]
+
+ALTRI CAMPI:
+- responses (jsonb): Campo responses [REQUIRED] [JSONB]
+- weighted_scores (jsonb): Campo weighted_scores [JSONB]
+- area_scores (jsonb): Campo area_scores [JSONB]
+- overall_score (double precision): Campo overall_score
+- engagement_index (double precision): Campo engagement_index
+- percentile (double precision): Campo percentile
+- benchmark_score (double precision): Campo benchmark_score
+- strengths (jsonb): Campo strengths [JSONB]
+- improvements (jsonb): Campo improvements [JSONB]
+- recommendations (jsonb): Campo recommendations [JSONB]
+- sentiment (text): Campo sentiment
+- trend (text): Campo trend
+- time_taken (integer): Campo time_taken
+- attempt_number (integer): Campo attempt_number [REQUIRED] [DEFAULT: 1]
+- completion_rate (double precision): Campo completion_rate
+- user_agent (text): Campo user_agent
+- device_type (text): Campo device_type
+
+DATE E TIMESTAMP:
+- completed_at (timestamp without time zone): Campo completed_at [REQUIRED]
+- started_at (timestamp without time zone): Campo started_at
+
+DATI ANAGRAFICI:
+- ip_address (text): Campo ip_address
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_campaigns (N:1): Collegamento via campaign_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- engagement_campaign_assignments (N:1): Collegamento via assignment_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- tenant_users (N:1): Collegamento via tenant_user_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- engagement_templates (N:1): Collegamento via template_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La cancellazione di employees cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_results:
+{
+  "table": "engagement_results",
+  "select": [
+    "id",
+    "campaign_id",
+    "assignment_id",
+    "employee_id",
+    "tenant_user_id"
+  ],
+  "limit": 100
+}
+
+2. Recupera engagement_results con dati di engagement_campaigns:
+{
+  "table": "engagement_results",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "engagement_campaigns",
+      "first": "engagement_results.campaign_id",
+      "second": "engagement_campaigns.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 6 indici
+- Campo responses (JSONB): verificare schema JSON atteso nella documentazione

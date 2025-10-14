@@ -1,0 +1,67 @@
+TABELLA: question_soft_skill_mappings
+DESCRIZIONE: Tabella per la gestione di question_soft_skill_mappings
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- questionId (integer): Campo questionId [REQUIRED] [FK verso assessment_questions]
+- softSkillId (integer): Campo softSkillId [REQUIRED] [FK verso soft_skills]
+
+ALTRI CAMPI:
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- mappingType (text): Campo mappingType [REQUIRED] [DEFAULT: primary]
+- modelDimension (text): Campo modelDimension
+- modelType (text): Campo modelType
+- weight (double precision): Campo weight [REQUIRED] [DEFAULT: 1.0]
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_questions (N:1): Collegamento via questionId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- soft_skills (N:1): Collegamento via softSkillId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di question_soft_skill_mappings:
+{
+  "table": "question_soft_skill_mappings",
+  "select": [
+    "id",
+    "questionId",
+    "softSkillId",
+    "createdAt",
+    "updatedAt"
+  ],
+  "limit": 100
+}
+
+2. Recupera question_soft_skill_mappings con dati di assessment_questions:
+{
+  "table": "question_soft_skill_mappings",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_questions",
+      "first": "question_soft_skill_mappings.questionId",
+      "second": "assessment_questions.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

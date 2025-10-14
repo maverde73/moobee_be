@@ -1,0 +1,75 @@
+TABELLA: engagement_responses
+DESCRIZIONE: Tabella per la gestione di engagement_responses
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- campaign_id (text): Campo campaign_id [REQUIRED] [FK verso engagement_campaigns]
+- question_id (text): Campo question_id [REQUIRED] [FK verso engagement_questions]
+- option_id (text): Campo option_id [FK verso engagement_options]
+
+ALTRI CAMPI:
+- user_id (text): Campo user_id [REQUIRED]
+- response_text (text): Campo response_text
+- response_value (integer): Campo response_value
+
+DATE E TIMESTAMP:
+- responded_at (timestamp without time zone): Campo responded_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_campaigns (N:1): Collegamento via campaign_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- engagement_options (N:1): Collegamento via option_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: CASCADE
+- engagement_questions (N:1): Collegamento via question_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- response_details (1:N): response_details referenzia questa tabella via response_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: campaign_id, user_id, question_id, responded_at
+2. La cancellazione di engagement_options imposta option_id a NULL
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_responses:
+{
+  "table": "engagement_responses",
+  "select": [
+    "id",
+    "campaign_id",
+    "user_id",
+    "question_id",
+    "option_id"
+  ],
+  "limit": 100
+}
+
+2. Recupera engagement_responses con dati di engagement_campaigns:
+{
+  "table": "engagement_responses",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "engagement_campaigns",
+      "first": "engagement_responses.campaign_id",
+      "second": "engagement_campaigns.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 4 indici

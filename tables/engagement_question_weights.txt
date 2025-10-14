@@ -1,0 +1,87 @@
+TABELLA: engagement_question_weights
+DESCRIZIONE: Tabella per la gestione di engagement_question_weights
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- template_id (text): Campo template_id [REQUIRED] [FK verso engagement_templates]
+- question_id (text): Campo question_id [REQUIRED] [FK verso engagement_questions]
+
+ALTRI CAMPI:
+- area (text): Campo area [REQUIRED]
+- weight (double precision): Campo weight [REQUIRED] [DEFAULT: 1.0]
+- impact_factor (double precision): Campo impact_factor [REQUIRED] [DEFAULT: 1.0]
+
+STATI E FLAGS:
+- is_reversed (boolean): Campo is_reversed [REQUIRED] [DEFAULT: false]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_templates (N:1): Collegamento via template_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- engagement_questions (N:1): Collegamento via question_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_question_weights:
+{
+  "table": "engagement_question_weights",
+  "select": [
+    "id",
+    "template_id",
+    "question_id",
+    "area",
+    "weight"
+  ],
+  "limit": 100
+}
+
+2. Recupera engagement_question_weights con dati di engagement_templates:
+{
+  "table": "engagement_question_weights",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "engagement_templates",
+      "first": "engagement_question_weights.template_id",
+      "second": "engagement_templates.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta engagement_question_weights creati nell'ultimo mese:
+{
+  "table": "engagement_question_weights",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

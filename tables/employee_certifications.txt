@@ -1,0 +1,123 @@
+TABELLA: employee_certifications
+DESCRIZIONE: Tabella per la gestione di employee_certifications
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: uuid_generate_v4()]
+
+RELAZIONI PRINCIPALI:
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+- certification_id (text): Campo certification_id [FK verso certifications]
+- cv_extraction_id (uuid): Campo cv_extraction_id [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+DATI ANAGRAFICI:
+- certification_name (character varying(300)): Campo certification_name [REQUIRED]
+
+ALTRI CAMPI:
+- issuing_organization (character varying(200)): Campo issuing_organization
+- credential_id (character varying(200)): Campo credential_id
+- credential_url (text): Campo credential_url
+
+DATE E TIMESTAMP:
+- issue_date (date): Campo issue_date
+- expiry_date (date): Campo expiry_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- certifications (N:1): Collegamento via certification_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- cv_extractions (N:1): Collegamento via cv_extraction_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, certification_name, tenant_id
+2. La cancellazione di employees cancella automaticamente questo record
+3. La cancellazione di tenants cancella automaticamente questo record
+4. Il timestamp di creazione viene impostato automaticamente
+5. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_certifications per un tenant:
+{
+  "table": "employee_certifications",
+  "select": [
+    "id",
+    "employee_id",
+    "certification_id",
+    "certification_name",
+    "issuing_organization"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employee_certifications con dati di employees:
+{
+  "table": "employee_certifications",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "employee_certifications.employee_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca employee_certifications per certification_name:
+{
+  "table": "employee_certifications",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "certification_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta employee_certifications creati nell'ultimo mese:
+{
+  "table": "employee_certifications",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare

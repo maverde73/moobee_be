@@ -1,0 +1,54 @@
+TABELLA: extended_tech_skills_roles_descriptions_full
+DESCRIZIONE: The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- Skill (text): Campo Skill
+- Role (text): Campo Role
+- Hot_Technology (text): Campo Hot_Technology
+- In_Demand (text): Campo In_Demand
+- Synonyms_Skill (text[]): Campo Synonyms_Skill [ARRAY]
+- Synonyms_Role (text[]): Campo Synonyms_Role [ARRAY]
+- id_skill (integer): Campo id_skill
+- id_role (integer): Campo id_role
+- Grading (double precision): Campo Grading
+- Value (double precision): Campo Value
+
+DATI DESCRITTIVI:
+- Description_Code (integer): Campo Description_Code
+- Description (text): Campo Description
+- Extended_Description (text): Campo Extended_Description
+- Extended_Description_Role (text): Campo Extended_Description_Role
+
+DATI ANAGRAFICI:
+- NameKnown_Skill (text): Campo NameKnown_Skill
+- NameKnown_Role (text): Campo NameKnown_Role
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di extended_tech_skills_roles_descriptions_full:
+{
+  "table": "extended_tech_skills_roles_descriptions_full",
+  "select": [
+    "id",
+    "Skill",
+    "Role",
+    "Description_Code",
+    "Description"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

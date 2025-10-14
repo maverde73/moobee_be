@@ -1,0 +1,87 @@
+TABELLA: departments
+DESCRIZIONE: Tabella per la gestione di departments
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- department_name (character varying(100)): Campo department_name [REQUIRED]
+
+ALTRI CAMPI:
+- department_code (character varying(20)): Campo department_code
+- manager_id (integer): Campo manager_id
+- parent_department_id (integer): Campo parent_department_id
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (1:N): employees referenzia questa tabella via department_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: department_name, tenant_id
+2. Il timestamp di creazione viene impostato automaticamente
+3. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di departments per un tenant:
+{
+  "table": "departments",
+  "select": [
+    "id",
+    "department_name",
+    "department_code",
+    "manager_id",
+    "parent_department_id"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Ricerca departments per department_name:
+{
+  "table": "departments",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "department_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+3. Conta departments creati nell'ultimo mese:
+{
+  "table": "departments",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare

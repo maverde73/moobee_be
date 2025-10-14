@@ -1,0 +1,70 @@
+TABELLA: tenant_api_keys
+DESCRIZIONE: Tabella per la gestione di tenant_api_keys
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+DATI ANAGRAFICI:
+- keyName (text): Campo keyName [REQUIRED]
+
+ALTRI CAMPI:
+- apiKey (text): Campo apiKey [REQUIRED]
+- isActive (boolean): Campo isActive [REQUIRED] [DEFAULT: true]
+- expiresAt (timestamp without time zone): Campo expiresAt
+- lastUsedAt (timestamp without time zone): Campo lastUsedAt
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: tenant_id, keyName, apiKey, isActive, createdAt
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_api_keys per un tenant:
+{
+  "table": "tenant_api_keys",
+  "select": [
+    "id",
+    "tenant_id",
+    "keyName",
+    "apiKey",
+    "isActive"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera tenant_api_keys con dati di tenants:
+{
+  "table": "tenant_api_keys",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "tenants",
+      "first": "tenant_api_keys.tenant_id",
+      "second": "tenants.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

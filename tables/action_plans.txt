@@ -1,0 +1,114 @@
+TABELLA: action_plans
+DESCRIZIONE: Tabella per la gestione di action_plans
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+- area (text): Campo area [REQUIRED]
+- actions (jsonb): Campo actions [REQUIRED] [JSONB]
+- target_metrics (jsonb): Campo target_metrics [REQUIRED] [JSONB]
+- created_by (text): Campo created_by [REQUIRED]
+
+RELAZIONI PRINCIPALI:
+- role_id (integer): Campo role_id [FK verso roles]
+
+DATI ANAGRAFICI:
+- name (text): Campo name [REQUIRED]
+
+DATI DESCRITTIVI:
+- description (text): Campo description [REQUIRED]
+
+STATI E FLAGS:
+- status (text): Campo status [REQUIRED] [DEFAULT: DRAFT]
+
+DATE E TIMESTAMP:
+- start_date (timestamp without time zone): Campo start_date
+- end_date (timestamp without time zone): Campo end_date
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- roles (N:1): Collegamento via role_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La cancellazione di roles imposta role_id a NULL
+2. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di action_plans per un tenant:
+{
+  "table": "action_plans",
+  "select": [
+    "id",
+    "tenant_id",
+    "role_id",
+    "area",
+    "name"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera action_plans con dati di roles:
+{
+  "table": "action_plans",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "roles",
+      "first": "action_plans.role_id",
+      "second": "roles.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca action_plans per name:
+{
+  "table": "action_plans",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta action_plans creati nell'ultimo mese:
+{
+  "table": "action_plans",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Performance: Tabella ottimizzata con 4 indici
+- Campo actions (JSONB): verificare schema JSON atteso nella documentazione

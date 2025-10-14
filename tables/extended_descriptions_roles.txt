@@ -1,0 +1,36 @@
+TABELLA: extended_descriptions_roles
+DESCRIZIONE: The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id
+
+DATI DESCRITTIVI:
+- Extended_Description_Role (text): Campo Extended_Description_Role
+
+ALTRI CAMPI:
+- Role (text): Campo Role
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di extended_descriptions_roles:
+{
+  "table": "extended_descriptions_roles",
+  "select": [
+    "id",
+    "Extended_Description_Role",
+    "Role"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

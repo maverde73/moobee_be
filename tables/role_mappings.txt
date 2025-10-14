@@ -1,0 +1,51 @@
+TABELLA: role_mappings
+DESCRIZIONE: Tabella per la gestione di role_mappings
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- role_id (integer): Campo role_id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- role_name (text): Campo role_name [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: role_name
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di role_mappings:
+{
+  "table": "role_mappings",
+  "select": [
+    "role_id",
+    "role_name"
+  ],
+  "limit": 100
+}
+
+2. Ricerca role_mappings per role_name:
+{
+  "table": "role_mappings",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "role_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

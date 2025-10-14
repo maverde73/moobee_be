@@ -1,0 +1,109 @@
+TABELLA: tenant_certifications
+DESCRIZIONE: Tabella per la gestione di tenant_certifications
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+- certification_id (text): Campo certification_id [REQUIRED] [FK verso certifications]
+
+DATI ANAGRAFICI:
+- custom_name (text): Campo custom_name
+
+STATI E FLAGS:
+- is_required (boolean): Campo is_required [REQUIRED] [DEFAULT: false]
+
+ALTRI CAMPI:
+- priority (integer): Campo priority [REQUIRED] [DEFAULT: 0]
+
+DATI DESCRITTIVI:
+- notes (text): Campo notes
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- certifications (N:1): Collegamento via certification_id
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: tenant_id, certification_id, is_required, priority, created_at
+2. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_certifications per un tenant:
+{
+  "table": "tenant_certifications",
+  "select": [
+    "id",
+    "tenant_id",
+    "certification_id",
+    "custom_name",
+    "is_required"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera tenant_certifications con dati di tenants:
+{
+  "table": "tenant_certifications",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "tenants",
+      "first": "tenant_certifications.tenant_id",
+      "second": "tenants.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca tenant_certifications per custom_name:
+{
+  "table": "tenant_certifications",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "custom_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta tenant_certifications creati nell'ultimo mese:
+{
+  "table": "tenant_certifications",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

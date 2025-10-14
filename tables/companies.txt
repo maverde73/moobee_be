@@ -1,0 +1,110 @@
+TABELLA: companies
+DESCRIZIONE: Companies database - Stores normalized company names for employee work experiences.
+
+This table is used to deduplicate company names extracted from CVs and entered manually.
+For example, "NTT Data", "ntt data", and "NTT DATA" are all normalized to "nttdata".
+
+**Primary Use**: Links to employee_work_experiences.company_id to track where employees worked.
+**Normalization**: Lowercase, no spaces (e.g., "Engineering Spa" → "engineeringspa")
+**Records**: 47 companies (as of Oct 2025)
+
+@see employee_work_experiences.company_id - Foreign key reference
+@see cvDataSaveService.normalizeCompanyName() - Normalization logic
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- name (character varying(200)): Campo name [REQUIRED]
+- normalized_name (character varying(200)): Campo normalized_name [UNIQUE]
+
+RELAZIONI PRINCIPALI:
+- industry_id (integer): Campo industry_id [FK verso industries]
+
+ALTRI CAMPI:
+- website (text): Campo website
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: now()]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- industries (N:1): Collegamento via industry_id
+  * ON DELETE: NO ACTION
+  * ON UPDATE: NO ACTION
+- employee_work_experiences (1:N): employee_work_experiences referenzia questa tabella via company_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il campo normalized_name deve essere unico nel sistema
+2. Campi obbligatori: name
+3. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di companies:
+{
+  "table": "companies",
+  "select": [
+    "id",
+    "name",
+    "normalized_name",
+    "industry_id",
+    "website"
+  ],
+  "limit": 100
+}
+
+2. Recupera companies con dati di industries:
+{
+  "table": "companies",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "industries",
+      "first": "companies.industry_id",
+      "second": "industries.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca companies per name:
+{
+  "table": "companies",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta companies creati nell'ultimo mese:
+{
+  "table": "companies",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

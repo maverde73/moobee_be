@@ -1,0 +1,71 @@
+TABELLA: soft_skills_assessments
+DESCRIZIONE: Tabella per la gestione di soft_skills_assessments
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- assessment_id (integer): Campo assessment_id
+- employee_id (integer): Campo employee_id [REQUIRED]
+- communication_score (integer): Campo communication_score
+- teamwork_score (integer): Campo teamwork_score
+- problem_solving_score (integer): Campo problem_solving_score
+- emotional_intelligence_score (integer): Campo emotional_intelligence_score
+- leadership_score (integer): Campo leadership_score
+- total_score (integer): Campo total_score
+- percentage_score (numeric): Campo percentage_score
+- skill_level (character varying(50)): Campo skill_level
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+DATE E TIMESTAMP:
+- completed_at (timestamp without time zone): Campo completed_at
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, tenant_id
+2. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di soft_skills_assessments per un tenant:
+{
+  "table": "soft_skills_assessments",
+  "select": [
+    "id",
+    "assessment_id",
+    "employee_id",
+    "communication_score",
+    "teamwork_score"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Conta soft_skills_assessments creati nell'ultimo mese:
+{
+  "table": "soft_skills_assessments",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id

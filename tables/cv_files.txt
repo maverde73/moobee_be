@@ -1,0 +1,94 @@
+TABELLA: cv_files
+DESCRIZIONE: Tabella per la gestione di cv_files
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- extraction_id (uuid): Campo extraction_id [REQUIRED] [UNIQUE] [FK verso cv_extractions]
+- tenant_id (text): Campo tenant_id [REQUIRED] [FK verso tenants]
+
+ALTRI CAMPI:
+- file_path (character varying(500)): Campo file_path [REQUIRED]
+- file_size (integer): Campo file_size [REQUIRED]
+- mime_type (character varying(100)): Campo mime_type [DEFAULT: application/pdf]
+
+DATI ANAGRAFICI:
+- original_filename (character varying(255)): Campo original_filename
+
+DATE E TIMESTAMP:
+- uploaded_at (timestamp without time zone): Campo uploaded_at [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+- cv_extractions (1:1): Collegamento via extraction_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- tenants (N:1): Collegamento via tenant_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il campo extraction_id deve essere unico nel sistema
+2. Campi obbligatori: extraction_id, tenant_id, file_path, file_size
+3. La cancellazione di cv_extractions cancella automaticamente questo record
+4. La cancellazione di tenants cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di cv_files per un tenant:
+{
+  "table": "cv_files",
+  "select": [
+    "id",
+    "extraction_id",
+    "tenant_id",
+    "file_path",
+    "file_size"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera cv_files con dati di cv_extractions:
+{
+  "table": "cv_files",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "cv_extractions",
+      "first": "cv_files.extraction_id",
+      "second": "cv_extractions.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca cv_files per original_filename:
+{
+  "table": "cv_files",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "original_filename": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Performance: Tabella ottimizzata con 4 indici

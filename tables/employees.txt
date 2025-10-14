@@ -1,0 +1,140 @@
+TABELLA: employees
+DESCRIZIONE: This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- employee_code (character varying(50)): Campo employee_code
+- position (character varying(100)): Campo position
+- manager_id (integer): Campo manager_id
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+- currentRoleId (integer): Campo currentRoleId
+- nextAssessmentDue (timestamp without time zone): Campo nextAssessmentDue
+- softSkillProfileId (integer): Campo softSkillProfileId
+- competenze_trasversali (jsonb): Campo competenze_trasversali [DEFAULT: []] [JSONB]
+
+DATI ANAGRAFICI:
+- first_name (character varying(100)): Campo first_name [REQUIRED]
+- last_name (character varying(100)): Campo last_name [REQUIRED]
+- email (character varying(255)): Campo email [REQUIRED]
+- phone (character varying(20)): Campo phone
+
+DATE E TIMESTAMP:
+- hire_date (date): Campo hire_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+- lastAssessmentDate (timestamp without time zone): Campo lastAssessmentDate
+
+RELAZIONI PRINCIPALI:
+- department_id (integer): Campo department_id [FK verso departments]
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+RELAZIONI:
+━━━━━━━━━━
+- departments (N:1): Collegamento via department_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: CASCADE
+- project_matching_results (1:N): project_matching_results referenzia questa tabella via employee_id
+- tenant_users (1:N): tenant_users referenzia questa tabella via employee_id
+- employee_roles (1:N): employee_roles referenzia questa tabella via employee_id
+- engagement_campaign_assignments (1:N): engagement_campaign_assignments referenzia questa tabella via employee_id
+- assessment_campaign_assignments (1:N): assessment_campaign_assignments referenzia questa tabella via employee_id
+- assessment_results (1:N): assessment_results referenzia questa tabella via employee_id
+- engagement_results (1:N): engagement_results referenzia questa tabella via employee_id
+- projects (1:N): projects referenzia questa tabella via pm_id
+- cv_extractions (1:N): cv_extractions referenzia questa tabella via employee_id
+- employee_languages (1:N): employee_languages referenzia questa tabella via employee_id
+- employee_certifications (1:N): employee_certifications referenzia questa tabella via employee_id
+- employee_education (1:N): employee_education referenzia questa tabella via employee_id
+- employee_work_experiences (1:N): employee_work_experiences referenzia questa tabella via employee_id
+- employee_projects (1:N): employee_projects referenzia questa tabella via employee_id
+- employee_publications (1:N): employee_publications referenzia questa tabella via employee_id
+- employee_awards (1:N): employee_awards referenzia questa tabella via employee_id
+- employee_additional_info (1:N): employee_additional_info referenzia questa tabella via employee_id
+- employee_domain_knowledge (1:N): employee_domain_knowledge referenzia questa tabella via employee_id
+- employee_soft_skills (1:N): employee_soft_skills referenzia questa tabella via employee_id
+- employee_skills (1:N): employee_skills referenzia questa tabella via employee_id
+- employee_soft_skill_assessments (1:N): employee_soft_skill_assessments referenzia questa tabella via employeeId
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: first_name, last_name, email, tenant_id
+2. La cancellazione di departments imposta department_id a NULL
+3. Il timestamp di creazione viene impostato automaticamente
+4. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employees per un tenant:
+{
+  "table": "employees",
+  "select": [
+    "id",
+    "employee_code",
+    "first_name",
+    "last_name",
+    "email"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera employees con dati di departments:
+{
+  "table": "employees",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "departments",
+      "first": "employees.department_id",
+      "second": "departments.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca employees per first_name:
+{
+  "table": "employees",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "first_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta employees creati nell'ultimo mese:
+{
+  "table": "employees",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare
+- Campo competenze_trasversali (JSONB): verificare schema JSON atteso nella documentazione

@@ -1,0 +1,71 @@
+TABELLA: engagement_questions
+DESCRIZIONE: Tabella per la gestione di engagement_questions
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (text): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- template_id (text): Campo template_id [REQUIRED] [FK verso engagement_templates]
+
+ALTRI CAMPI:
+- question_text (text): Campo question_text [REQUIRED]
+- question_type (text): Campo question_type [REQUIRED] [DEFAULT: LIKERT]
+- order (integer): Campo order [REQUIRED]
+- required (boolean): Campo required [REQUIRED] [DEFAULT: true]
+
+DATI TECNICI:
+- metadata (jsonb): Campo metadata [JSONB]
+
+RELAZIONI:
+━━━━━━━━━━
+- engagement_templates (N:1): Collegamento via template_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: CASCADE
+- engagement_question_weights (1:N): engagement_question_weights referenzia questa tabella via question_id
+- engagement_options (1:N): engagement_options referenzia questa tabella via question_id
+- response_details (1:N): response_details referenzia questa tabella via question_id
+- engagement_responses (1:N): engagement_responses referenzia questa tabella via question_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: template_id, question_text, question_type, order, required
+2. La cancellazione di engagement_templates cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di engagement_questions:
+{
+  "table": "engagement_questions",
+  "select": [
+    "id",
+    "template_id",
+    "question_text",
+    "question_type",
+    "order"
+  ],
+  "limit": 100
+}
+
+2. Recupera engagement_questions con dati di engagement_templates:
+{
+  "table": "engagement_questions",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "engagement_templates",
+      "first": "engagement_questions.template_id",
+      "second": "engagement_templates.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Campo metadata (JSONB): verificare schema JSON atteso nella documentazione

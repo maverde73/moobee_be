@@ -1,0 +1,134 @@
+TABELLA: projects
+DESCRIZIONE: Tabella per la gestione di projects
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- project_name (character varying(200)): Campo project_name [REQUIRED]
+- client_name (character varying(200)): Campo client_name
+
+ALTRI CAMPI:
+- project_code (character varying(50)): Campo project_code
+- budget (numeric): Campo budget
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+- objectives (jsonb): Campo objectives [JSONB]
+- deliverables (jsonb): Campo deliverables [JSONB]
+- constraints (jsonb): Campo constraints [JSONB]
+- risks (jsonb): Campo risks [JSONB]
+- team_size (integer): Campo team_size
+- completion_percentage (numeric): Campo completion_percentage [DEFAULT: 0]
+- tags (varchar[]): Campo tags [ARRAY]
+- priority (character varying(20)): Campo priority [DEFAULT: MEDIUM]
+- type (character varying(20)): Campo type [DEFAULT: FORMAL]
+- context_preferences (jsonb): Campo context_preferences [JSONB]
+- created_by (character varying(255)): Campo created_by
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+- notes (text): Campo notes
+
+DATE E TIMESTAMP:
+- start_date (date): Campo start_date
+- end_date (date): Campo end_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+- archived_at (timestamp without time zone): Campo archived_at
+
+STATI E FLAGS:
+- status (character varying(50)): Campo status [DEFAULT: PLANNING]
+- is_archived (boolean): Campo is_archived [DEFAULT: false]
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+RELAZIONI PRINCIPALI:
+- pm_id (integer): Campo pm_id [FK verso employees]
+
+RELAZIONI:
+━━━━━━━━━━
+- employees (N:1): Collegamento via pm_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: NO ACTION
+- project_milestones (1:N): project_milestones referenzia questa tabella via project_id
+- project_activity_logs (1:N): project_activity_logs referenzia questa tabella via project_id
+- project_roles (1:N): project_roles referenzia questa tabella via project_id
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: project_name, tenant_id
+2. La cancellazione di employees imposta pm_id a NULL
+3. Il timestamp di creazione viene impostato automaticamente
+4. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di projects per un tenant:
+{
+  "table": "projects",
+  "select": [
+    "id",
+    "project_name",
+    "project_code",
+    "description",
+    "client_name"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera projects con dati di employees:
+{
+  "table": "projects",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "employees",
+      "first": "projects.pm_id",
+      "second": "employees.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca projects per project_name:
+{
+  "table": "projects",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "project_name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+4. Conta projects creati nell'ultimo mese:
+{
+  "table": "projects",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare
+- Performance: Tabella ottimizzata con 11 indici
+- Campo objectives (JSONB): verificare schema JSON atteso nella documentazione

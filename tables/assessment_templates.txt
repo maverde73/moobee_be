@@ -1,0 +1,116 @@
+TABELLA: assessment_templates
+DESCRIZIONE: Tabella per la gestione di assessment_templates
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI ANAGRAFICI:
+- name (text): Campo name [REQUIRED]
+
+ALTRI CAMPI:
+- type (text): Campo type
+- isActive (boolean): Campo isActive [REQUIRED] [DEFAULT: true]
+- createdBy (text): Campo createdBy
+- version (text): Campo version
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- scoringAlgorithm (text): Campo scoringAlgorithm [REQUIRED] [DEFAULT: weighted]
+- softSkillsEnabled (boolean): Campo softSkillsEnabled [REQUIRED] [DEFAULT: false]
+- aiProvider (text): Campo aiProvider
+- createdByAdmin (text): Campo createdByAdmin
+- isGlobal (boolean): Campo isGlobal [REQUIRED] [DEFAULT: false]
+- aiPrompt (text): Campo aiPrompt
+- instructions (text): Campo instructions
+- suggestedFrequency (character varying(255)): Campo suggestedFrequency
+- aiModel (character varying(255)): Campo aiModel [DEFAULT: gpt-4-turbo]
+- aiTemperature (numeric): Campo aiTemperature [DEFAULT: 0.7]
+- aiLanguage (character varying(10)): Campo aiLanguage [DEFAULT: it]
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI PRINCIPALI:
+- generationLogId (text): Campo generationLogId [FK verso assessment_generation_logs]
+- job_family_id (integer): Campo job_family_id [FK verso job_family]
+
+STATI E FLAGS:
+- generationStatus (text): Campo generationStatus
+
+DATI TECNICI:
+- aiMaxTokens (integer): Campo aiMaxTokens [DEFAULT: 4000]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_generation_logs (N:M): Collegamento via generationLogId
+  * ON DELETE: SET NULL
+  * ON UPDATE: CASCADE
+- job_family (N:1): Collegamento via job_family_id
+  * ON DELETE: SET NULL
+  * ON UPDATE: NO ACTION
+- assessment_campaigns (1:N): assessment_campaigns referenzia questa tabella via template_id
+- assessment_questions (1:N): assessment_questions referenzia questa tabella via templateId
+- tenant_assessment_selections (1:N): tenant_assessment_selections referenzia questa tabella via templateId
+- assessment_generation_logs (1:N): assessment_generation_logs referenzia questa tabella via templateId
+- _TemplateGenerationLog (1:N): _TemplateGenerationLog referenzia questa tabella via B
+- assessment_template_soft_skill (1:N): assessment_template_soft_skill referenzia questa tabella via templateId
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La cancellazione di assessment_generation_logs imposta generationLogId a NULL
+2. La cancellazione di job_family imposta job_family_id a NULL
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_templates:
+{
+  "table": "assessment_templates",
+  "select": [
+    "id",
+    "name",
+    "type",
+    "description",
+    "isActive"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_templates con dati di assessment_generation_logs:
+{
+  "table": "assessment_templates",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_generation_logs",
+      "first": "assessment_templates.generationLogId",
+      "second": "assessment_generation_logs.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Ricerca assessment_templates per name:
+{
+  "table": "assessment_templates",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "name": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

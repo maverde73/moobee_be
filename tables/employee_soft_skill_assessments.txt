@@ -1,0 +1,81 @@
+TABELLA: employee_soft_skill_assessments
+DESCRIZIONE: Tabella per la gestione di employee_soft_skill_assessments
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- employeeId (integer): Campo employeeId [REQUIRED] [FK verso employees]
+- assessmentInstanceId (integer): Campo assessmentInstanceId [REQUIRED] [FK verso assessment_instances]
+- softSkillId (integer): Campo softSkillId [REQUIRED] [FK verso soft_skills]
+
+ALTRI CAMPI:
+- score (double precision): Campo score [REQUIRED]
+- confidence (double precision): Campo confidence [REQUIRED]
+- weight (double precision): Campo weight [REQUIRED]
+- previousScore (double precision): Campo previousScore
+- trend (USER-DEFINED): Campo trend [ENUM: IMPROVING, STABLE, DECLINING]
+- calculatedAt (timestamp without time zone): Campo calculatedAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_instances (N:1): Collegamento via assessmentInstanceId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- soft_skills (N:1): Collegamento via softSkillId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- employees (N:1): Collegamento via employeeId
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+STATI E VALORI ENUM:
+━━━━━━━━━━━━━━━━━━━━
+TREND (Trend):
+  - IMPROVING
+  - STABLE
+  - DECLINING
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione employeeId + assessmentInstanceId + softSkillId deve essere unica
+2. La cancellazione di employees cancella automaticamente questo record
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di employee_soft_skill_assessments:
+{
+  "table": "employee_soft_skill_assessments",
+  "select": [
+    "id",
+    "employeeId",
+    "assessmentInstanceId",
+    "softSkillId",
+    "score"
+  ],
+  "limit": 100
+}
+
+2. Recupera employee_soft_skill_assessments con dati di assessment_instances:
+{
+  "table": "employee_soft_skill_assessments",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_instances",
+      "first": "employee_soft_skill_assessments.assessmentInstanceId",
+      "second": "assessment_instances.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 5 indici

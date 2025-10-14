@@ -1,0 +1,76 @@
+TABELLA: tenant_assessment_selections
+DESCRIZIONE: Tabella per la gestione di tenant_assessment_selections
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- templateId (integer): Campo templateId [REQUIRED] [FK verso assessment_templates]
+
+ALTRI CAMPI:
+- isActive (boolean): Campo isActive [REQUIRED] [DEFAULT: true]
+- selectedAt (timestamp without time zone): Campo selectedAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- selectedBy (text): Campo selectedBy
+- assignmentRules (jsonb): Campo assignmentRules [JSONB]
+- frequency (text): Campo frequency
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+DATI ANAGRAFICI:
+- customName (text): Campo customName
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt [REQUIRED]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_templates (N:1): Collegamento via templateId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+- assessment_schedules (1:N): assessment_schedules referenzia questa tabella via tenantSelectionId
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: templateId, isActive, selectedAt, updatedAt, tenant_id
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di tenant_assessment_selections per un tenant:
+{
+  "table": "tenant_assessment_selections",
+  "select": [
+    "id",
+    "templateId",
+    "isActive",
+    "selectedAt",
+    "selectedBy"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Recupera tenant_assessment_selections con dati di assessment_templates:
+{
+  "table": "tenant_assessment_selections",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_templates",
+      "first": "tenant_assessment_selections.templateId",
+      "second": "assessment_templates.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Campo assignmentRules (JSONB): verificare schema JSON atteso nella documentazione

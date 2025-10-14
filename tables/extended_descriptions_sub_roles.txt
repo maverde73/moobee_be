@@ -1,0 +1,36 @@
+TABELLA: extended_descriptions_sub_roles
+DESCRIZIONE: Tabella per la gestione di extended_descriptions_sub_roles
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+DATI DESCRITTIVI:
+- Extended_Description_Sub_Role (text): Campo Extended_Description_Sub_Role
+
+ALTRI CAMPI:
+- Sub_Role (text): Campo Sub_Role
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di extended_descriptions_sub_roles:
+{
+  "table": "extended_descriptions_sub_roles",
+  "select": [
+    "id",
+    "Extended_Description_Sub_Role",
+    "Sub_Role"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

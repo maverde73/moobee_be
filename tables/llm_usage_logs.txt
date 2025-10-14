@@ -1,0 +1,82 @@
+TABELLA: llm_usage_logs
+DESCRIZIONE: Tabella per la gestione di llm_usage_logs
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: uuid_generate_v4()]
+
+ALTRI CAMPI:
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+- operation_type (character varying(100)): Campo operation_type [REQUIRED]
+- entity_type (character varying(50)): Campo entity_type
+- entity_id (character varying(255)): Campo entity_id
+- provider (character varying(50)): Campo provider [REQUIRED]
+- model (character varying(100)): Campo model [REQUIRED]
+- estimated_cost (numeric): Campo estimated_cost
+- request_params (json): Campo request_params [JSONB]
+- response_summary (json): Campo response_summary [JSONB]
+- response_time_ms (integer): Campo response_time_ms
+- error_message (text): Campo error_message
+- user_id (character varying(255)): Campo user_id
+- request_id (character varying(255)): Campo request_id
+- parent_operation_id (uuid): Campo parent_operation_id
+
+DATI TECNICI:
+- prompt_tokens (integer): Campo prompt_tokens
+- completion_tokens (integer): Campo completion_tokens
+- total_tokens (integer): Campo total_tokens
+- metadata (json): Campo metadata [JSONB]
+
+STATI E FLAGS:
+- status (character varying(50)): Campo status [REQUIRED]
+
+DATE E TIMESTAMP:
+- created_at (timestamp without time zone): Campo created_at [REQUIRED] [DEFAULT: now()]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di llm_usage_logs per un tenant:
+{
+  "table": "llm_usage_logs",
+  "select": [
+    "id",
+    "tenant_id",
+    "operation_type",
+    "entity_type",
+    "entity_id"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Conta llm_usage_logs creati nell'ultimo mese:
+{
+  "table": "llm_usage_logs",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Performance: Tabella ottimizzata con 7 indici

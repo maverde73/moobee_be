@@ -1,0 +1,279 @@
+{
+  "_comment": "Regole RBAC (Role-Based Access Control) per MCP Proxy",
+  "_version": "1.0.0",
+  "_last_updated": "2025-10-13",
+  "_documentation": "Definisce permessi per ogni ruolo applicativo del sistema",
+
+  "roles": {
+    "HR_MANAGER": {
+      "description": "HR Manager - Accesso completo a tutti i dati del tenant",
+      "access_level": "full",
+      "allowed_tables": "*",
+      "forbidden_tables": [],
+      "allowed_operations": [
+        "SELECT",
+        "INSERT",
+        "UPDATE",
+        "DELETE"
+      ],
+      "tenant_filtering": {
+        "enabled": true,
+        "strategy": "tenant_only",
+        "description": "Vede tutti i dati del proprio tenant"
+      },
+      "special_permissions": {
+        "can_access_assessments": true,
+        "can_access_engagement": true,
+        "can_access_all_employees": true,
+        "can_modify_data": true
+      }
+    },
+
+    "PM": {
+      "description": "Project Manager - Accesso a progetti e dipendenti, NO assessments/engagement",
+      "access_level": "limited",
+      "allowed_tables": [
+        "_shared_tables_",
+        "employees",
+        "employee_skills",
+        "employee_roles",
+        "employee_education",
+        "employee_work_experiences",
+        "employee_languages",
+        "employee_certifications",
+        "employee_domain_knowledge",
+        "projects",
+        "project_assignments",
+        "project_roles",
+        "project_skills_required",
+        "project_matching_results",
+        "project_activity_logs",
+        "project_milestones",
+        "departments",
+        "cv_extractions",
+        "skill_gaps"
+      ],
+      "forbidden_tables": [
+        "assessments",
+        "assessment_campaigns",
+        "assessment_results",
+        "assessment_instances",
+        "assessment_instance_responses",
+        "assessment_campaign_assignments",
+        "assessment_generation_logs",
+        "assessment_soft_skill_scores",
+        "assessment_templates",
+        "assessment_questions",
+        "assessment_options",
+        "assessment_template_soft_skill",
+        "engagement_campaigns",
+        "engagement_results",
+        "engagement_responses",
+        "engagement_campaign_assignments",
+        "engagement_templates",
+        "engagement_questions",
+        "engagement_options",
+        "soft_skills_assessments",
+        "tenants",
+        "tenant_users",
+        "tenant_billing",
+        "tenant_api_keys",
+        "llm_usage_logs"
+      ],
+      "allowed_operations": [
+        "SELECT",
+        "UPDATE"
+      ],
+      "tenant_filtering": {
+        "enabled": true,
+        "strategy": "tenant_only",
+        "description": "Vede tutti i dati del proprio tenant (escluse tabelle proibite)"
+      },
+      "special_permissions": {
+        "can_access_assessments": false,
+        "can_access_engagement": false,
+        "can_access_all_employees": true,
+        "can_modify_data": true
+      }
+    },
+
+    "EMPLOYEE": {
+      "description": "Employee - Accesso solo ai propri dati e info colleghi nei progetti",
+      "access_level": "restricted",
+      "allowed_tables": [
+        "_shared_tables_",
+        "employees",
+        "employee_skills",
+        "employee_roles",
+        "employee_education",
+        "employee_work_experiences",
+        "employee_languages",
+        "employee_certifications",
+        "employee_domain_knowledge",
+        "projects",
+        "project_assignments"
+      ],
+      "forbidden_tables": [
+        "assessments",
+        "assessment_campaigns",
+        "assessment_results",
+        "assessment_instances",
+        "engagement_campaigns",
+        "engagement_results",
+        "tenants",
+        "tenant_users",
+        "tenant_billing",
+        "tenant_api_keys",
+        "tenant_features",
+        "tenant_audit_log",
+        "departments",
+        "cv_extractions",
+        "cv_files",
+        "llm_usage_logs",
+        "notifications",
+        "action_plans",
+        "career_aspirations",
+        "skill_gaps",
+        "project_matching_results"
+      ],
+      "allowed_operations": [
+        "SELECT"
+      ],
+      "tenant_filtering": {
+        "enabled": true,
+        "strategy": "employee_only",
+        "description": "Vede solo i propri dati e info colleghi nei progetti assegnati"
+      },
+      "special_permissions": {
+        "can_access_assessments": false,
+        "can_access_engagement": false,
+        "can_access_all_employees": false,
+        "can_modify_data": false
+      },
+      "data_filters": {
+        "_comment": "Filtri automatici applicati per EMPLOYEE role",
+        "employees": {
+          "filter_type": "self_only",
+          "where": {
+            "id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "employee_skills": {
+          "filter_type": "self_only",
+          "where": {
+            "employee_id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "employee_roles": {
+          "filter_type": "self_only",
+          "where": {
+            "employee_id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "employee_education": {
+          "filter_type": "self_only",
+          "where": {
+            "employee_id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "employee_work_experiences": {
+          "filter_type": "self_only",
+          "where": {
+            "employee_id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "employee_languages": {
+          "filter_type": "self_only",
+          "where": {
+            "employee_id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "employee_certifications": {
+          "filter_type": "self_only",
+          "where": {
+            "employee_id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "employee_domain_knowledge": {
+          "filter_type": "self_only",
+          "where": {
+            "employee_id": "{{employee_id}}",
+            "tenant_id": "{{tenant_id}}"
+          }
+        },
+        "projects": {
+          "filter_type": "assigned_only",
+          "where": {
+            "tenant_id": "{{tenant_id}}"
+          },
+          "whereRaw": "id IN (SELECT project_id FROM project_assignments WHERE employee_id = {{employee_id}})"
+        },
+        "project_assignments": {
+          "filter_type": "team_members",
+          "where": {
+            "project_id": {
+              "_raw": "IN (SELECT project_id FROM project_assignments WHERE employee_id = {{employee_id}})"
+            }
+          },
+          "_description": "Vede assegnazioni di tutti i membri dei progetti a cui è assegnato"
+        }
+      }
+    },
+
+    "SUPER_ADMIN": {
+      "description": "Super Admin - Accesso completo cross-tenant (solo per amministratori piattaforma)",
+      "access_level": "super",
+      "allowed_tables": "*",
+      "forbidden_tables": [],
+      "allowed_operations": [
+        "SELECT",
+        "INSERT",
+        "UPDATE",
+        "DELETE"
+      ],
+      "tenant_filtering": {
+        "enabled": false,
+        "strategy": "none",
+        "description": "Accesso cross-tenant - vede TUTTI i dati di TUTTI i tenant"
+      },
+      "special_permissions": {
+        "can_access_assessments": true,
+        "can_access_engagement": true,
+        "can_access_all_employees": true,
+        "can_modify_data": true,
+        "can_access_system_tables": true,
+        "can_bypass_tenant_filters": true
+      }
+    }
+  },
+
+  "default_role": "EMPLOYEE",
+
+  "permission_inheritance": {
+    "_comment": "Gerarchia permessi: SUPER_ADMIN > HR_MANAGER > PM > EMPLOYEE",
+    "hierarchy": [
+      "SUPER_ADMIN",
+      "HR_MANAGER",
+      "PM",
+      "EMPLOYEE"
+    ]
+  },
+
+  "special_tables": {
+    "_comment": "Tabelle con regole speciali che richiedono logica custom",
+    "employees": {
+      "employee_role_filter": "Applica filtro employee_id per role EMPLOYEE",
+      "team_visibility": "Employee vede colleghi solo nei progetti condivisi"
+    },
+    "projects": {
+      "assignment_based": "Visibilità basata su project_assignments"
+    }
+  }
+}

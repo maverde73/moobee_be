@@ -1,0 +1,138 @@
+VISTA: v_employee_complete_profile
+TIPO: Database View (Read-Only)
+DESCRIZIONE: Complete employee profile with department, current role, and aggregated counts.
+
+This view provides a comprehensive employee snapshot including:
+- Personal info (name, email, phone, position)
+- Department information
+- Current role (first role with is_current=true)
+- Aggregated counts (skills, certifications, work experiences, education, languages)
+- Latest CV extraction info
+
+**Primary Use**: Employee detail pages, profile cards, search results
+**Performance**: Single query instead of 10+ queries (~10x faster)
+**Key Feature**: All employee data in one query
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer)
+- tenant_id (uuid)
+- department_id (integer)
+- current_role_id (integer)
+- latest_cv_extraction_id (uuid)
+
+DATI ANAGRAFICI:
+- first_name (character varying(100))
+- last_name (character varying(100))
+- email (character varying(255))
+- phone (character varying(20))
+- department_name (character varying(100))
+- current_role_name (text)
+- current_sub_role_name (text)
+
+CONTEGGI AGGREGATI:
+- total_skills (bigint)
+- total_certifications (bigint)
+- total_work_experiences (bigint)
+- total_education (bigint)
+- total_languages (bigint)
+
+STATI E FLAGS:
+- is_active (boolean)
+
+DATE E TIMESTAMP:
+- hire_date (date)
+- latest_cv_date (timestamp without time zone)
+- created_at (timestamp without time zone)
+- updated_at (timestamp without time zone)
+- lastAssessmentDate (timestamp without time zone)
+
+ALTRI CAMPI:
+- employee_code (character varying(50))
+- position (character varying(100))
+- current_role_years (integer)
+- softSkillProfileId (integer)
+- nextAssessmentDue (timestamp without time zone)
+
+CASI D'USO:
+━━━━━━━━━━━
+1. Employee detail page (complete profile)
+2. Employee list/search results with preview
+3. Profile cards in dashboard
+4. Employee data export
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record dalla vista v_employee_complete_profile:
+{
+  "table": "v_employee_complete_profile",
+  "select": [
+    "*"
+  ],
+  "limit": 100
+}
+
+2. Profilo completo employee per tenant:
+{
+  "table": "v_employee_complete_profile",
+  "select": [
+    "id",
+    "first_name",
+    "last_name",
+    "email",
+    "department_name",
+    "current_role_name",
+    "current_sub_role_name",
+    "total_skills",
+    "total_certifications",
+    "latest_cv_date"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant",
+    "is_active": true
+  },
+  "orderBy": [
+    {
+      "column": "last_name",
+      "order": "asc"
+    }
+  ],
+  "limit": 50
+}
+
+3. Employee con competenze elevate (5+ skills):
+{
+  "table": "v_employee_complete_profile",
+  "select": [
+    "id",
+    "first_name",
+    "last_name",
+    "total_skills",
+    "current_role_name"
+  ],
+  "where": {
+    "total_skills": {
+      "operator": ">=",
+      "value": 5
+    },
+    "is_active": true
+  },
+  "orderBy": [
+    {
+      "column": "total_skills",
+      "order": "desc"
+    }
+  ]
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Questa è una VIEW (sola lettura), non una tabella
+- Ottimizzata per query frequenti con dati pre-joinati
+- Performance: ~5-10x più veloce rispetto a query multiple
+- Conteggi aggregati calcolati in tempo reale
+- current_role è il primo ruolo con is_current=true
+

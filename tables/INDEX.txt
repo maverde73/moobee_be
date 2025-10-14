@@ -1,0 +1,102 @@
+MOOBEE DATABASE - INDICE TABELLE
+═══════════════════════════════════
+
+Generated: 2025-10-12T17:49:46.268Z
+Total Tables: 88
+
+PRIORITY 1 - HR/Recruitment Core (14 tabelle):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- employees.txt
+- companies.txt
+- cv_files.txt
+- cv_extractions.txt
+- skills.txt
+- assessments.txt
+- projects.txt
+- project_roles.txt
+- employee_roles.txt
+- employee_skills.txt
+- employee_work_experiences.txt
+- role_sub_role.txt
+- sub_roles.txt
+- roles.txt
+
+PRIORITY 2 - System/Auth (5 tabelle):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- tenants.txt
+- tenant_users.txt
+- departments.txt
+- soft_skills.txt
+- assessment_templates.txt
+
+PRIORITY 3 - Altre tabelle (69 tabelle):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- action_plans.txt
+- assessment_campaign_assignments.txt
+- assessment_campaigns.txt
+- assessment_generation_logs.txt
+- assessment_instance_responses.txt
+- assessment_instances.txt
+- assessment_options.txt
+- assessment_questions.txt
+- assessment_results.txt
+- assessment_schedules.txt
+- assessment_soft_skill_scores.txt
+- assessment_template_soft_skill.txt
+- career_aspirations.txt
+- certifications.txt
+- education_degrees.txt
+- employee_additional_info.txt
+- employee_awards.txt
+- employee_certifications.txt
+- employee_domain_knowledge.txt
+- employee_education.txt
+- employee_languages.txt
+- employee_projects.txt
+- employee_publications.txt
+- employee_soft_skill_assessments.txt
+- employee_soft_skills.txt
+- engagement_campaign_assignments.txt
+- engagement_campaigns.txt
+- engagement_options.txt
+- engagement_question_weights.txt
+- engagement_questions.txt
+- engagement_responses.txt
+- engagement_results.txt
+- engagement_surveys.txt
+- engagement_templates.txt
+- extended_descriptions_roles.txt
+- extended_descriptions_skills.txt
+- extended_descriptions_sub_roles.txt
+- extended_tech_skills_roles_descriptions_full.txt
+- industries.txt
+- job_family.txt
+- job_family_soft_skills.txt
+- language_proficiency_levels.txt
+- languages.txt
+- llm_usage_logs.txt
+- migration_log.txt
+- notifications.txt
+- project_activity_logs.txt
+- project_assignments.txt
+- project_matching_results.txt
+- project_milestones.txt
+- project_skills_required.txt
+- question_soft_skill_mappings.txt
+- response_details.txt
+- role_mappings.txt
+- role_soft_skills.txt
+- role_soft_skills_deleted_021.txt
+- role_sub_role_backup.txt
+- role_sub_role_backup_final.txt
+- skill_gaps.txt
+- skills_sub_roles_value.txt
+- soft_skills_assessments.txt
+- tenant_api_keys.txt
+- tenant_assessment_selections.txt
+- tenant_audit_log.txt
+- tenant_billing.txt
+- tenant_certifications.txt
+- tenant_engagement_selections.txt
+- tenant_features.txt
+- tenant_soft_skill_profiles.txt

@@ -1,0 +1,108 @@
+VISTA: v_employee_skills_summary
+TIPO: Database View (Read-Only)
+DESCRIZIONE: Employee skills with grading calculated from skills_sub_roles_value based on employee roles.
+
+This view combines employee skills with their calculated grading based on:
+- Employee's current role(s) from employee_roles
+- Skill grading matrix from skills_sub_roles_value
+- Returns max grading if employee has multiple roles
+
+**Primary Use**: Skills dashboard, employee profile, project matching
+**Performance**: Single query instead of 4 JOINs (~5x faster)
+**Key Feature**: Automatic grading calculation (A+, A, B, C, D, N/A)
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- employee_id (integer)
+- skill_id (integer)
+- tenant_id (text)
+
+DATI ANAGRAFICI:
+- skill_name (text)
+
+SCORES E METRICHE:
+- skill_grading (text)
+
+STATI E FLAGS:
+- is_relevant_for_current_role (boolean)
+
+DATE E TIMESTAMP:
+- last_used_date (date)
+- created_at (timestamp without time zone)
+- updated_at (timestamp without time zone)
+
+ALTRI CAMPI:
+- proficiency_level (double precision)
+- source (character varying(50))
+- years_experience (numeric)
+
+CASI D'USO:
+━━━━━━━━━━━
+1. Skills dashboard with grading visualization
+2. Employee profile skills section
+3. Project skill matching and gap analysis
+4. Skills relevance indicator for current roles
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record dalla vista v_employee_skills_summary:
+{
+  "table": "v_employee_skills_summary",
+  "select": [
+    "*"
+  ],
+  "limit": 100
+}
+
+2. Skills per employee con grading:
+{
+  "table": "v_employee_skills_summary",
+  "select": [
+    "employee_id",
+    "skill_name",
+    "skill_grading",
+    "proficiency_level",
+    "is_relevant_for_current_role"
+  ],
+  "where": {
+    "employee_id": 91
+  },
+  "orderBy": [
+    {
+      "column": "skill_grading",
+      "order": "asc"
+    }
+  ]
+}
+
+3. Skills rilevanti per ruolo corrente:
+{
+  "table": "v_employee_skills_summary",
+  "select": [
+    "skill_name",
+    "skill_grading",
+    "proficiency_level"
+  ],
+  "where": {
+    "employee_id": 91,
+    "is_relevant_for_current_role": true
+  },
+  "orderBy": [
+    {
+      "column": "skill_grading",
+      "order": "asc"
+    }
+  ]
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Questa è una VIEW (sola lettura), non una tabella
+- Ottimizzata per query frequenti con dati pre-joinati
+- Performance: ~5-10x più veloce rispetto a query multiple
+- Grading calcolato automaticamente da skills_sub_roles_value
+- is_relevant_for_current_role indica se skill è nel ruolo attuale
+

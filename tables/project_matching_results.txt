@@ -1,0 +1,99 @@
+TABELLA: project_matching_results
+DESCRIZIONE: Tabella per la gestione di project_matching_results
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (uuid): Campo id [PRIMARY KEY] [DEFAULT: gen_random_uuid()]
+
+RELAZIONI PRINCIPALI:
+- project_role_id (uuid): Campo project_role_id [REQUIRED] [FK verso project_roles]
+- employee_id (integer): Campo employee_id [REQUIRED] [FK verso employees]
+
+ALTRI CAMPI:
+- match_score (numeric): Campo match_score
+- skills_match (numeric): Campo skills_match
+- availability_match (numeric): Campo availability_match
+- experience_match (numeric): Campo experience_match
+- preference_match (numeric): Campo preference_match
+- ai_reasoning (jsonb): Campo ai_reasoning [JSONB]
+- suggested_allocation (integer): Campo suggested_allocation
+- risk_factors (jsonb): Campo risk_factors [JSONB]
+- growth_potential (jsonb): Campo growth_potential [JSONB]
+- reviewed_by (character varying(255)): Campo reviewed_by
+
+STATI E FLAGS:
+- is_shortlisted (boolean): Campo is_shortlisted [DEFAULT: false]
+
+DATE E TIMESTAMP:
+- reviewed_at (timestamp without time zone): Campo reviewed_at
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+
+RELAZIONI:
+━━━━━━━━━━
+- project_roles (N:1): Collegamento via project_role_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+- employees (N:1): Collegamento via employee_id
+  * ON DELETE: CASCADE
+  * ON UPDATE: NO ACTION
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. La combinazione project_role_id + employee_id deve essere unica
+2. Campi obbligatori: project_role_id, employee_id
+3. La cancellazione di project_roles cancella automaticamente questo record
+4. La cancellazione di employees cancella automaticamente questo record
+5. Il timestamp di creazione viene impostato automaticamente
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di project_matching_results:
+{
+  "table": "project_matching_results",
+  "select": [
+    "id",
+    "project_role_id",
+    "employee_id",
+    "match_score",
+    "skills_match"
+  ],
+  "limit": 100
+}
+
+2. Recupera project_matching_results con dati di project_roles:
+{
+  "table": "project_matching_results",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "project_roles",
+      "first": "project_matching_results.project_role_id",
+      "second": "project_roles.id"
+    }
+  ],
+  "limit": 50
+}
+
+3. Conta project_matching_results creati nell'ultimo mese:
+{
+  "table": "project_matching_results",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 5 indici
+- Campo ai_reasoning (JSONB): verificare schema JSON atteso nella documentazione

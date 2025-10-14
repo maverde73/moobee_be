@@ -1,0 +1,62 @@
+TABELLA: assessment_options
+DESCRIZIONE: Tabella per la gestione di assessment_options
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+RELAZIONI PRINCIPALI:
+- questionId (integer): Campo questionId [REQUIRED] [FK verso assessment_questions]
+
+ALTRI CAMPI:
+- text (text): Campo text [REQUIRED]
+- value (integer): Campo value [REQUIRED]
+- orderIndex (integer): Campo orderIndex [DEFAULT: 0]
+
+RELAZIONI:
+━━━━━━━━━━
+- assessment_questions (N:1): Collegamento via questionId
+  * ON DELETE: RESTRICT
+  * ON UPDATE: CASCADE
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: questionId, text, value
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_options:
+{
+  "table": "assessment_options",
+  "select": [
+    "id",
+    "questionId",
+    "text",
+    "value",
+    "orderIndex"
+  ],
+  "limit": 100
+}
+
+2. Recupera assessment_options con dati di assessment_questions:
+{
+  "table": "assessment_options",
+  "select": [
+    "*"
+  ],
+  "leftJoin": [
+    {
+      "table": "assessment_questions",
+      "first": "assessment_options.questionId",
+      "second": "assessment_questions.id"
+    }
+  ],
+  "limit": 50
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

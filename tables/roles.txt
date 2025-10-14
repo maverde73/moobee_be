@@ -1,0 +1,71 @@
+TABELLA: roles
+DESCRIZIONE: Tabella per la gestione di roles
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- Role (text): Campo Role
+- Synonyms_Role (text[]): Campo Synonyms_Role [ARRAY]
+- createdAt (timestamp without time zone): Campo createdAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- department (text): Campo department
+- isActive (boolean): Campo isActive [REQUIRED] [DEFAULT: true]
+- level (text): Campo level
+
+DATI ANAGRAFICI:
+- NameKnown_Role (text): Campo NameKnown_Role
+- name (text): Campo name
+
+DATI DESCRITTIVI:
+- description (text): Campo description
+
+DATE E TIMESTAMP:
+- updatedAt (timestamp without time zone): Campo updatedAt
+
+RELAZIONI:
+━━━━━━━━━━
+- role_sub_role (1:N): role_sub_role referenzia questa tabella via id_role
+- action_plans (1:N): action_plans referenzia questa tabella via role_id
+- role_soft_skills (1:N): role_soft_skills referenzia questa tabella via roleId
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: createdAt, isActive
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di roles:
+{
+  "table": "roles",
+  "select": [
+    "id",
+    "Role",
+    "NameKnown_Role",
+    "Synonyms_Role",
+    "createdAt"
+  ],
+  "limit": 100
+}
+
+2. Ricerca roles per description:
+{
+  "table": "roles",
+  "select": [
+    "*"
+  ],
+  "where": {
+    "description": {
+      "operator": "like",
+      "value": "%search%"
+    }
+  },
+  "limit": 20
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella standard senza particolari note operative

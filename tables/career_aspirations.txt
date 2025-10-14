@@ -1,0 +1,73 @@
+TABELLA: career_aspirations
+DESCRIZIONE: Tabella per la gestione di career_aspirations
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- employee_id (integer): Campo employee_id [REQUIRED]
+- target_role_id (integer): Campo target_role_id
+- target_position (character varying(200)): Campo target_position
+- tenant_id (uuid): Campo tenant_id [REQUIRED]
+
+DATE E TIMESTAMP:
+- target_date (date): Campo target_date
+- created_at (timestamp without time zone): Campo created_at [DEFAULT: CURRENT_TIMESTAMP]
+- updated_at (timestamp without time zone): Campo updated_at [DEFAULT: CURRENT_TIMESTAMP]
+
+DATI DESCRITTIVI:
+- notes (text): Campo notes
+
+STATI E FLAGS:
+- is_active (boolean): Campo is_active [DEFAULT: true]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+REGOLE BUSINESS:
+━━━━━━━━━━━━━━━━
+1. Campi obbligatori: employee_id, tenant_id
+2. Il timestamp di creazione viene impostato automaticamente
+3. I nuovi record sono attivi per default (soft delete)
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di career_aspirations per un tenant:
+{
+  "table": "career_aspirations",
+  "select": [
+    "id",
+    "employee_id",
+    "target_role_id",
+    "target_position",
+    "target_date"
+  ],
+  "where": {
+    "tenant_id": "uuid_tenant"
+  },
+  "limit": 100
+}
+
+2. Conta career_aspirations creati nell'ultimo mese:
+{
+  "table": "career_aspirations",
+  "select": [
+    "COUNT(*) as total"
+  ],
+  "where": {
+    "created_at": {
+      "operator": ">=",
+      "value": "NOW() - INTERVAL '30 days'"
+    }
+  }
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Tabella multi-tenant: tutti i record sono isolati per tenant_id
+- Utilizza soft delete: impostare is_active=false invece di cancellare

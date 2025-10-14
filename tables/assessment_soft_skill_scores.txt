@@ -1,0 +1,46 @@
+TABELLA: assessment_soft_skill_scores
+DESCRIZIONE: Tabella per la gestione di assessment_soft_skill_scores
+
+CAMPI UTILIZZABILI (USA ESATTAMENTE QUESTI NOMI):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+IDENTIFICATIVI:
+- id (integer): Campo id [PRIMARY KEY]
+
+ALTRI CAMPI:
+- assessmentId (integer): Campo assessmentId [REQUIRED]
+- softSkillId (integer): Campo softSkillId [REQUIRED]
+- algorithmVersion (text): Campo algorithmVersion [REQUIRED] [DEFAULT: v1.0]
+- employeeId (integer): Campo employeeId [REQUIRED]
+- calculatedAt (timestamp without time zone): Campo calculatedAt [REQUIRED] [DEFAULT: CURRENT_TIMESTAMP]
+- confidence (double precision): Campo confidence
+- level (text): Campo level [REQUIRED] [DEFAULT: beginner]
+- normalizedScore (double precision): Campo normalizedScore [REQUIRED]
+- percentile (integer): Campo percentile
+- rawScore (double precision): Campo rawScore [REQUIRED]
+- scoreDetails (jsonb): Campo scoreDetails [JSONB]
+
+RELAZIONI:
+━━━━━━━━━━
+Nessuna relazione diretta con altre tabelle.
+
+QUERY COMUNI:
+━━━━━━━━━━━━
+
+1. Recupera tutti i record di assessment_soft_skill_scores:
+{
+  "table": "assessment_soft_skill_scores",
+  "select": [
+    "id",
+    "assessmentId",
+    "softSkillId",
+    "algorithmVersion",
+    "employeeId"
+  ],
+  "limit": 100
+}
+
+NOTE IMPORTANTI:
+━━━━━━━━━━━━━━━
+- Performance: Tabella ottimizzata con 4 indici
+- Campo scoreDetails (JSONB): verificare schema JSON atteso nella documentazione
