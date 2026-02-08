@@ -1,0 +1,16 @@
+# Nixpacks configuration for BE_nodejs
+
+[phases.setup]
+nixPkgs = ["nodejs_22"]  # Use Node.js 22 to match local environment
+
+[phases.install]
+# Use npm install instead of npm ci to avoid cache mount issues
+cmds = ["npm install --prefer-offline --no-audit"]
+cacheDirectories = []  # Disable cache mounts
+
+[phases.build]
+cmds = ["npm run prisma:generate"]
+cacheDirectories = []  # Disable cache mounts
+
+[start]
+cmd = "npx prisma migrate deploy && npm start"

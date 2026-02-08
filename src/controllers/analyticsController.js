@@ -192,31 +192,15 @@ class AnalyticsController {
 
   /**
    * Get AI usage data
+   * Returns zeros until AI usage tracking is implemented
    */
   async getAIUsageData(dateRange) {
-    // This would connect to your actual AI usage tracking
-    // For now, returning mock data
     return {
-      totalRequests: 3240,
-      successRate: 94.5,
-      avgResponseTime: 2.3,
-      costEstimate: 156.78,
-      byProvider: [
-        {
-          provider: 'OpenAI',
-          count: 1890,
-          cost: 94.50,
-          successRate: 95.2,
-          avgResponseTime: 2.1
-        },
-        {
-          provider: 'Anthropic',
-          count: 1350,
-          cost: 62.28,
-          successRate: 93.8,
-          avgResponseTime: 2.5
-        }
-      ]
+      totalRequests: 0,
+      successRate: 0,
+      avgResponseTime: 0,
+      costEstimate: 0,
+      byProvider: []
     };
   }
 

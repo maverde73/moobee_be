@@ -23,45 +23,25 @@ const mcpProxyRoutes = require('./routes/mcpProxyRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security middleware
-app.use(helmet());
-
 // CORS configuration - Dynamic based on environment
+// IMPORTANT: CORS must be before helmet to ensure headers are set correctly
+const corsOriginEnv = process.env.CORS_ORIGIN || '*';
+const allowedOrigins = corsOriginEnv === '*'
+  ? '*'
+  : corsOriginEnv.split(',').map(o => o.trim());
+
 const corsOptions = {
-  origin: function(origin, callback) {
-    // Get allowed origins from environment variable or use defaults
-    const corsOrigin = process.env.CORS_ORIGIN || '*';
-
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
-
-    // If CORS_ORIGIN is '*', allow all origins (development only)
-    if (corsOrigin === '*') {
-      return callback(null, true);
-    }
-
-    // Parse comma-separated origins
-    const allowedOrigins = corsOrigin.split(',').map(o => o.trim());
-
-    // Check if origin is allowed
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      // In development, allow all; in production, reject
-      if (process.env.NODE_ENV === 'development') {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    }
-  },
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+
+// Security middleware (after CORS)
+app.use(helmet());
 
 // Compression middleware
 app.use(compression());
@@ -237,9 +217,13 @@ app.use('/api/assessment/campaigns', assessmentCampaignRoutes);
 const unifiedRoutes = require('./routes/unifiedRoutes');
 app.use('/api/unified', unifiedRoutes);
 
-// Soft Skills routes - temporarily disabled
-// const softSkillRoutes = require('./routes/softSkillRoutesSimple');
-// app.use('/api/soft-skills', softSkillRoutes);
+// Soft Skills routes (catalog)
+const softSkillRoutes = require('./routes/softSkillRoutesSimple');
+app.use('/api/soft-skills', softSkillRoutes);
+
+// Soft Skills routes (user scores, radar, history, assessments)
+const softSkillsRoutes = require('./routes/softSkillsRoutes');
+app.use('/api', softSkillsRoutes);
 
 // Role Soft Skills routes
 const roleSoftSkillsController = require('./controllers/roleSoftSkillsController');

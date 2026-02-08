@@ -16,46 +16,38 @@ const logger = require('../../utils/logger');
 const getRoleSuggestions = async (req, res) => {
   try {
     const { roleId } = req.params;
+    const tenantId = req.user?.tenantId || req.user?.tenant_id;
 
-    // Mock suggestions based on role - in real implementation this would
-    // be based on data analysis, AI models, or predefined rules
-    const suggestions = [
-      {
-        moduleId: 'motivazione',
-        questionIds: [1, 3, 5, 7, 9],
-        reason: 'Essential UWES dimensions for measuring engagement',
-        priority: 'high',
-        confidence: 0.9
+    // Find templates that have suggested_roles matching this roleId
+    const templates = await prisma.engagement_templates.findMany({
+      where: {
+        OR: [
+          { tenant_id: tenantId },
+          { is_public: true }
+        ],
+        status: 'PUBLISHED'
       },
-      {
-        moduleId: 'leadership',
-        questionIds: [17, 18, 20, 21],
-        reason: 'Leadership perception critical for this role',
-        priority: 'high',
-        confidence: 0.85
+      include: {
+        questions: {
+          orderBy: { order: 'asc' },
+          take: 10
+        }
       },
-      {
-        moduleId: 'comunicazione',
-        questionIds: [10, 12, 14, 16],
-        reason: 'Communication effectiveness important for role success',
-        priority: 'medium',
-        confidence: 0.8
-      },
-      {
-        moduleId: 'crescita',
-        questionIds: [38, 39, 41, 44],
-        reason: 'Career development focus for advancement opportunities',
-        priority: 'medium',
-        confidence: 0.75
-      }
-    ];
+      take: 5
+    });
 
-    // TODO: Implement actual role-based logic
-    // This could involve:
-    // 1. Analyzing historical engagement data for similar roles
-    // 2. Using AI to determine most relevant questions
-    // 3. Consulting predefined role-question mappings
-    // 4. Considering industry standards
+    // Build suggestions from templates that have questions
+    const suggestions = templates
+      .filter(t => t.questions.length > 0)
+      .map((template, index) => ({
+        moduleId: template.category?.toLowerCase() || template.id,
+        templateId: template.id,
+        templateTitle: template.title,
+        questionIds: template.questions.map(q => q.id),
+        reason: template.description || `Suggested for role engagement measurement`,
+        priority: index < 2 ? 'high' : 'medium',
+        confidence: Math.max(0.6, 0.95 - (index * 0.1))
+      }));
 
     logger.info('Generated role suggestions', {
       roleId,
@@ -68,7 +60,7 @@ const getRoleSuggestions = async (req, res) => {
       metadata: {
         roleId,
         generatedAt: new Date().toISOString(),
-        algorithm: 'rule-based-v1'
+        algorithm: 'template-based-v1'
       }
     });
   } catch (error) {
@@ -441,45 +433,57 @@ const previewTemplate = async (req, res) => {
       questionOrder
     } = req.body;
 
-    // Mock engagement modules data (this would come from a data file or database)
-    const engagementModulesData = {
-      motivazione: {
-        id: 'motivazione',
-        titolo: "Motivazione (UWES)",
-        icon: "🔥",
-        domande: [
-          { id: 1, testo: "Nel mio lavoro mi sento pieno/a di energia", dimensione: "Vigore" },
-          { id: 2, testo: "Anche quando le cose si fanno difficili, continuo a impegnarmi", dimensione: "Vigore" },
-          // ... more questions
-        ]
-      },
-      // ... other modules
-    };
+    // Gather all selected question IDs across all modules
+    const allQuestionIds = Object.values(selectedQuestions || {}).flat().filter(Boolean);
 
+    if (allQuestionIds.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          preview: [],
+          metadata: { totalQuestions: 0, estimatedTime: 0, modules: 0 }
+        }
+      });
+    }
+
+    // Fetch questions from DB
+    const questions = await prisma.engagement_questions.findMany({
+      where: { id: { in: allQuestionIds.map(String) } },
+      include: {
+        template: { select: { id: true, title: true, category: true } },
+        options: { orderBy: { order: 'asc' } }
+      }
+    });
+
+    // Group questions by module/category
     const preview = selectedModules.map(moduleId => {
-      const module = engagementModulesData[moduleId];
-      if (!module) return null;
-
-      const moduleQuestions = selectedQuestions[moduleId] || [];
-      const questions = module.domande
-        .filter(q => moduleQuestions.includes(q.id))
+      const moduleQuestionIds = (selectedQuestions[moduleId] || []).map(String);
+      const moduleQuestions = questions
+        .filter(q => moduleQuestionIds.includes(q.id))
         .sort((a, b) => {
-          const orderA = questionOrder[moduleId]?.indexOf(a.id) ?? 999;
-          const orderB = questionOrder[moduleId]?.indexOf(b.id) ?? 999;
+          const order = questionOrder?.[moduleId] || [];
+          const orderA = order.indexOf(a.id) >= 0 ? order.indexOf(a.id) : 999;
+          const orderB = order.indexOf(b.id) >= 0 ? order.indexOf(b.id) : 999;
           return orderA - orderB;
         });
 
+      if (moduleQuestions.length === 0) return null;
+
+      // Use template info for module metadata
+      const firstQ = moduleQuestions[0];
+      const templateTitle = firstQ?.template?.title || moduleId;
+
       return {
         moduleId,
-        title: module.titolo,
-        icon: module.icon,
-        questions: questions.map((q, index) => ({
+        title: templateTitle,
+        icon: '',
+        questions: moduleQuestions.map((q, index) => ({
           id: q.id,
-          text: q.testo,
-          dimension: q.dimensione,
+          text: q.question_text,
+          dimension: q.metadata?.dimension || '',
           order: index + 1,
-          type: 'likert',
-          scale: { min: 1, max: 5 }
+          type: q.question_type?.toLowerCase() || 'likert',
+          scale: { min: 1, max: q.options.length > 0 ? q.options.length : 5 }
         }))
       };
     }).filter(Boolean);

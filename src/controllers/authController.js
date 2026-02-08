@@ -7,11 +7,14 @@ const prisma = new PrismaClient();
 const authController = {
   // Login
   async login(req, res) {
+    process.stderr.write('[AUTH] === Login function called ===\n');
     try {
       const { email, password } = req.body;
+      process.stderr.write(`[AUTH] Login attempt for: ${email}\n`);
 
       // Validate input
       if (!email || !password) {
+        console.log('[AUTH] Missing email or password');
         return res.status(400).json({
           success: false,
           message: 'Email e password sono obbligatori'
@@ -19,13 +22,14 @@ const authController = {
       }
 
       // Prima controlla se è un tenant user (con employee data)
+      console.log('[AUTH] Querying tenant_users...');
       const tenantUser = await prisma.tenant_users.findFirst({
         where: {
           email,
           is_active: true
         },
         include: {
-          tenant: true,
+          tenants: true,
           employees: {
             select: {
               id: true,
@@ -37,25 +41,37 @@ const authController = {
           }
         }
       });
+      console.log('[AUTH] tenantUser found:', tenantUser ? 'YES' : 'NO');
 
       if (tenantUser) {
+        console.log('[AUTH] tenantUser.id:', tenantUser.id);
+        console.log('[AUTH] tenantUser.role:', tenantUser.role);
+        console.log('[AUTH] tenantUser.tenant_id:', tenantUser.tenant_id);
+        console.log('[AUTH] has password:', !!tenantUser.password);
+        console.log('[AUTH] has tenants relation:', !!tenantUser.tenants);
+
         // Gestione login per tenant users
         let validPassword = false;
 
         if (tenantUser.password) {
           // Se ha una password hashata, confronta
+          console.log('[AUTH] Comparing password with bcrypt...');
           validPassword = await bcrypt.compare(password, tenantUser.password);
+          console.log('[AUTH] Password valid:', validPassword);
         } else if (email === 'superadmin@moobee.com' && password === 'SuperAdmin123!') {
           // Caso speciale per super admin senza password hashata
+          console.log('[AUTH] SuperAdmin special case');
           validPassword = true;
         }
 
         if (!validPassword) {
+          console.log('[AUTH] Invalid password, returning 401');
           return res.status(401).json({
             success: false,
             message: 'Credenziali non valide'
           });
         }
+        console.log('[AUTH] Password validated, proceeding...');
 
         // Get employee data from relation
         const employeeData = tenantUser.employees || {};
@@ -68,10 +84,10 @@ const authController = {
           {
             id: tenantUser.id,
             email: tenantUser.email,
-            firstName: employeeData.first_name || tenantUser.firstName || '',
-            lastName: employeeData.last_name || tenantUser.lastName || '',
+            firstName: employeeData.first_name || '',
+            lastName: employeeData.last_name || '',
             role: tenantUser.role,
-            tenantId: tenantUser.tenantId,
+            tenantId: tenantUser.tenant_id,
             employeeId: employeeData.id || null,
             position: employeeData.position || null,
             departmentId: employeeData.department_id || null,
@@ -82,24 +98,27 @@ const authController = {
         );
 
         // Aggiorna ultimo login
+        console.log('[AUTH] Updating last_login_at...');
         await prisma.tenant_users.update({
           where: { id: tenantUser.id },
-          data: { lastLogin: new Date() }
+          data: { last_login_at: new Date() }
         });
+        console.log('[AUTH] last_login_at updated successfully');
 
+        console.log('[AUTH] Login successful, returning response');
         return res.status(200).json({
           success: true,
           data: {
             user: {
               id: tenantUser.id,
               email: tenantUser.email,
-              firstName: employeeData.first_name || tenantUser.firstName || '',
-              lastName: employeeData.last_name || tenantUser.lastName || '',
+              firstName: employeeData.first_name || '',
+              lastName: employeeData.last_name || '',
               role: tenantUser.role,
-              tenantId: tenantUser.tenantId,
+              tenantId: tenantUser.tenant_id,
               employeeId: employeeData.id || null,
               position: employeeData.position || null,
-              tenantName: tenantUser.tenant.name
+              tenantName: tenantUser.tenants?.name || 'Default'
             },
             token
           }
@@ -112,10 +131,14 @@ const authController = {
         message: 'Credenziali non valide'
       });
     } catch (error) {
-      console.error('Login error:', error);
+      // Use process.stderr.write for immediate output on Railway
+      process.stderr.write(`[AUTH] ❌ Login error: ${error.message}\n`);
+      process.stderr.write(`[AUTH] ❌ Error name: ${error.name}\n`);
+      process.stderr.write(`[AUTH] ❌ Stack: ${error.stack}\n`);
+      console.error('[AUTH] ❌ Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
       res.status(500).json({
         success: false,
-        message: 'Errore interno del server'
+        message: 'Internal server error'
       });
     }
   },
