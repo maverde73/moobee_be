@@ -356,12 +356,13 @@ router.post('/employees/search-by-skills', async (req, res) => {
     // Normalize skill names (case-insensitive, trim)
     const normalizedSkillNames = skills.map(s => s.name.trim().toLowerCase());
 
-    // Find matching skills in the database
+    // Find matching skills in the database (exact match on Skill, NameKnown_Skill, or contains match on Synonyms_Skill)
     const matchingSkills = await prisma.skills.findMany({
       where: {
         OR: [
           { Skill: { in: normalizedSkillNames, mode: 'insensitive' } },
-          { NameKnown_Skill: { in: normalizedSkillNames, mode: 'insensitive' } }
+          { NameKnown_Skill: { in: normalizedSkillNames, mode: 'insensitive' } },
+          { Synonyms_Skill: { hasSome: normalizedSkillNames } }
         ]
       },
       select: { id: true, Skill: true, NameKnown_Skill: true }
@@ -613,14 +614,33 @@ router.get('/employees/search-by-name', async (req, res) => {
     }
 
     // Search employees by first_name or last_name
-    const employees = await prisma.employees.findMany({
-      where: {
-        tenant_id: tenant_id,
-        is_active: true,
+    // Split query into words to support "Marco Esposito" matching first_name=Marco AND last_name=Esposito
+    const words = query.trim().split(/\s+/);
+    let searchFilter;
+    if (words.length >= 2) {
+      // Multi-word: try first+last combination in both orders, plus individual word matches
+      searchFilter = {
+        OR: [
+          { AND: [{ first_name: { contains: words[0], mode: 'insensitive' } }, { last_name: { contains: words.slice(1).join(' '), mode: 'insensitive' } }] },
+          { AND: [{ first_name: { contains: words.slice(1).join(' '), mode: 'insensitive' } }, { last_name: { contains: words[0], mode: 'insensitive' } }] },
+          ...words.map(w => ({ first_name: { contains: w, mode: 'insensitive' } })),
+          ...words.map(w => ({ last_name: { contains: w, mode: 'insensitive' } }))
+        ]
+      };
+    } else {
+      searchFilter = {
         OR: [
           { first_name: { contains: query, mode: 'insensitive' } },
           { last_name: { contains: query, mode: 'insensitive' } }
         ]
+      };
+    }
+
+    const employees = await prisma.employees.findMany({
+      where: {
+        tenant_id: tenant_id,
+        is_active: true,
+        ...searchFilter
       },
       include: {
         departments: true,
@@ -1190,6 +1210,7 @@ router.get('/project-roles', async (req, res) => {
     const roles = await prisma.$queryRawUnsafe(`
       SELECT
         pr.id,
+        pr.project_id,
         pr.title,
         pr.status,
         pr.priority,
@@ -1247,6 +1268,7 @@ router.get('/project-roles', async (req, res) => {
 
       return {
         role_id: role.id,
+        project_id: role.project_id,
         role_name: role.title,
         seniority: role.seniority || null,
         status: statusLower,
@@ -1279,6 +1301,179 @@ router.get('/project-roles', async (req, res) => {
 });
 
 /**
+ * POST /api/internal/employees/check-profiles-freshness
+ *
+ * Check how up-to-date employee profiles are (skills, CV extractions)
+ * Used by Copilot to verify if candidate profiles need updating before
+ * sending them to a client.
+ *
+ * Body:
+ * {
+ *   tenant_id: string (required) - Moobee tenant UUID
+ *   employee_ids: string (required) - Comma-separated employee IDs, e.g. "260,261,262"
+ * }
+ */
+router.post('/employees/check-profiles-freshness', async (req, res) => {
+  console.log('[Internal API] ========== CHECK PROFILES FRESHNESS REQUEST ==========');
+  console.log('[Internal API] Body:', JSON.stringify(req.body));
+
+  try {
+    const { tenant_id, employee_ids } = req.body;
+
+    // Validate required fields
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    if (!employee_ids || typeof employee_ids !== 'string' || employee_ids.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing or invalid employee_ids. Expected comma-separated IDs, e.g. "260,261,262"'
+      });
+    }
+
+    // Parse employee_ids into array of integers
+    const idArray = employee_ids.split(',')
+      .map(id => parseInt(id.trim(), 10))
+      .filter(id => !isNaN(id) && id > 0);
+
+    if (idArray.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No valid employee IDs provided'
+      });
+    }
+
+    // Verify tenant exists
+    const tenant = await prisma.tenants.findUnique({
+      where: { id: tenant_id }
+    });
+
+    if (!tenant) {
+      return res.status(404).json({
+        success: false,
+        error: 'Tenant not found',
+        tenant_id
+      });
+    }
+
+    // Get employees with their skills and CV extractions
+    const employees = await prisma.employees.findMany({
+      where: {
+        id: { in: idArray },
+        tenant_id: tenant_id
+      },
+      include: {
+        employee_skills: {
+          select: {
+            updated_at: true,
+            source: true
+          }
+        },
+        cv_extractions: {
+          where: { status: 'completed' },
+          select: {
+            created_at: true
+          },
+          orderBy: { created_at: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    const now = new Date();
+
+    const results = employees.map(emp => {
+      // Find the most recent skill update
+      const skillUpdates = emp.employee_skills
+        .map(es => es.updated_at)
+        .filter(Boolean);
+      const lastSkillsUpdate = skillUpdates.length > 0
+        ? new Date(Math.max(...skillUpdates.map(d => new Date(d).getTime())))
+        : null;
+
+      // Determine predominant source
+      const sources = emp.employee_skills.map(es => es.source).filter(Boolean);
+      const sourceCount = {};
+      sources.forEach(s => { sourceCount[s] = (sourceCount[s] || 0) + 1; });
+      const skillsSource = Object.entries(sourceCount)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'manual';
+
+      // Latest CV extraction
+      const lastCvExtraction = emp.cv_extractions[0]?.created_at || null;
+
+      // Most recent timestamp across all sources
+      const timestamps = [
+        lastSkillsUpdate,
+        lastCvExtraction,
+        emp.updated_at
+      ].filter(Boolean).map(d => new Date(d).getTime());
+
+      const mostRecent = timestamps.length > 0
+        ? new Date(Math.max(...timestamps))
+        : emp.created_at;
+
+      const daysSinceUpdate = Math.floor(
+        (now.getTime() - new Date(mostRecent).getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      // Determine freshness status
+      let freshnessStatus;
+      if (daysSinceUpdate < 90) {
+        freshnessStatus = 'current';
+      } else if (daysSinceUpdate <= 180) {
+        freshnessStatus = 'aging';
+      } else {
+        freshnessStatus = 'stale';
+      }
+
+      return {
+        employee_id: emp.id,
+        full_name: `${emp.first_name} ${emp.last_name}`.trim(),
+        email: emp.email,
+        last_skills_update: lastSkillsUpdate ? lastSkillsUpdate.toISOString() : null,
+        skills_source: skillsSource,
+        last_cv_extraction: lastCvExtraction ? new Date(lastCvExtraction).toISOString() : null,
+        days_since_update: daysSinceUpdate,
+        freshness_status: freshnessStatus,
+        total_skills: emp.employee_skills.length
+      };
+    });
+
+    // Sort by days_since_update descending (most stale first)
+    results.sort((a, b) => b.days_since_update - a.days_since_update);
+
+    // Calculate meta counts
+    const meta = {
+      total: results.length,
+      current: results.filter(r => r.freshness_status === 'current').length,
+      aging: results.filter(r => r.freshness_status === 'aging').length,
+      stale: results.filter(r => r.freshness_status === 'stale').length
+    };
+
+    console.log(`[Internal API] Profiles freshness: ${meta.current} current, ${meta.aging} aging, ${meta.stale} stale`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: results,
+      meta
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Check profiles freshness error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to check profiles freshness',
+      details: error.message
+    });
+  }
+});
+
+/**
  * GET /api/internal/health
  *
  * Health check for internal services
@@ -1289,6 +1484,1050 @@ router.get('/health', (req, res) => {
     service: 'internal-api',
     timestamp: new Date().toISOString()
   });
+});
+
+// ============================================
+// L2 Tactical Endpoints
+// ============================================
+
+/**
+ * GET /api/internal/employees/:employeeId/skill-gaps
+ *
+ * Skill gap analysis for an employee, optionally filtered by target role.
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ * - role_id: number (optional) - filter gaps for specific role
+ */
+router.get('/employees/:employeeId/skill-gaps', async (req, res) => {
+  console.log('[Internal API] ========== SKILL GAP ANALYSIS REQUEST ==========');
+  console.log('[Internal API] Params:', JSON.stringify(req.params));
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { employeeId } = req.params;
+    const { tenant_id, role_id } = req.query;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    // Verify employee exists and belongs to tenant
+    const employee = await prisma.employees.findFirst({
+      where: {
+        id: parseInt(employeeId),
+        tenant_id
+      },
+      select: { id: true, first_name: true, last_name: true }
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        error: 'Employee not found'
+      });
+    }
+
+    // Build skill_gaps query
+    const where = { employee_id: parseInt(employeeId) };
+    if (role_id) {
+      where.role_id = parseInt(role_id);
+    }
+
+    const gaps = await prisma.skill_gaps.findMany({
+      where,
+      orderBy: [
+        { priority: 'asc' },
+        { gap_size: 'desc' }
+      ]
+    });
+
+    // Get skill names
+    const skillIds = [...new Set(gaps.map(g => g.skill_id))];
+    const skillsMap = {};
+    if (skillIds.length > 0) {
+      const skillsData = await prisma.skills.findMany({
+        where: { id: { in: skillIds } },
+        select: { id: true, Skill: true, NameKnown_Skill: true }
+      });
+      skillsData.forEach(s => {
+        skillsMap[s.id] = s.Skill || s.NameKnown_Skill;
+      });
+    }
+
+    // Get role name if role_id provided
+    let targetRoleName = null;
+    if (role_id) {
+      const role = await prisma.roles.findUnique({
+        where: { id: parseInt(role_id) },
+        select: { Role: true }
+      });
+      targetRoleName = role?.Role || null;
+    }
+
+    // Format gaps
+    const formattedGaps = gaps.map(g => ({
+      skill_name: skillsMap[g.skill_id] || 'Unknown',
+      current_level: g.current_level || 0,
+      required_level: g.required_level || 0,
+      gap_size: g.gap_size || 0,
+      priority: g.priority || 'medium'
+    }));
+
+    // Summary
+    const highPriority = formattedGaps.filter(g => g.priority === 'high' || g.priority === 'critical').length;
+    const mediumPriority = formattedGaps.filter(g => g.priority === 'medium').length;
+    const lowPriority = formattedGaps.filter(g => g.priority === 'low').length;
+    const avgGapSize = formattedGaps.length > 0
+      ? parseFloat((formattedGaps.reduce((sum, g) => sum + g.gap_size, 0) / formattedGaps.length).toFixed(1))
+      : 0;
+
+    const result = {
+      employee_id: parseInt(employeeId),
+      full_name: `${employee.first_name} ${employee.last_name}`.trim(),
+      target_role: targetRoleName,
+      gaps: formattedGaps,
+      summary: {
+        total_gaps: formattedGaps.length,
+        high_priority: highPriority,
+        medium_priority: mediumPriority,
+        low_priority: lowPriority,
+        avg_gap_size: avgGapSize
+      }
+    };
+
+    console.log(`[Internal API] Found ${formattedGaps.length} skill gaps`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Skill gap analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get skill gap analysis',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/internal/projects/:projectId/team
+ *
+ * Team composition for a project with roles, assignments and coverage.
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ */
+router.get('/projects/:projectId/team', async (req, res) => {
+  console.log('[Internal API] ========== TEAM COMPOSITION REQUEST ==========');
+  console.log('[Internal API] Params:', JSON.stringify(req.params));
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { projectId } = req.params;
+    const { tenant_id } = req.query;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    // Get project with roles
+    // Using select to only fetch fields actually needed by this endpoint,
+    // avoiding schema-database drift (e.g., client_name column missing from DB)
+    const project = await prisma.projects.findFirst({
+      where: {
+        id: parseInt(projectId),
+        tenant_id
+      },
+      select: {
+        id: true,
+        project_name: true,
+        status: true,
+        team_size: true,
+        project_roles: {
+          select: {
+            id: true,
+            title: true,
+            seniority: true,
+            status: true,
+            sub_role: true,
+            project_matching_results: {
+              where: { is_shortlisted: true },
+              include: {
+                employees: {
+                  select: { id: true, first_name: true, last_name: true, email: true }
+                }
+              },
+              orderBy: { match_score: 'desc' },
+              take: 1
+            }
+          }
+        }
+      }
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        error: 'Project not found'
+      });
+    }
+
+    // Format roles
+    const roles = project.project_roles.map(role => {
+      const assigned = role.project_matching_results[0]?.employees || null;
+      const statusUpper = (role.status || 'OPEN').toUpperCase();
+      const isFilled = statusUpper === 'FILLED' || statusUpper === 'ASSIGNED';
+
+      return {
+        role_name: role.title,
+        seniority: role.seniority || null,
+        status: isFilled ? 'filled' : 'open',
+        assigned_to: assigned ? {
+          full_name: `${assigned.first_name} ${assigned.last_name}`.trim(),
+          email: assigned.email
+        } : null
+      };
+    });
+
+    const filledCount = roles.filter(r => r.status === 'filled').length;
+    const totalRoles = roles.length;
+
+    const result = {
+      project_name: project.project_name,
+      client_name: null, // Column not yet available in database; add to select when migration is applied
+      status: project.status || 'PLANNING',
+      team_size: project.team_size || totalRoles,
+      roles,
+      summary: {
+        total_roles: totalRoles,
+        filled: filledCount,
+        open: totalRoles - filledCount,
+        coverage_percentage: totalRoles > 0 ? Math.round((filledCount / totalRoles) * 100) : 0
+      }
+    };
+
+    console.log(`[Internal API] Project team: ${totalRoles} roles, ${filledCount} filled`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Team composition error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get team composition',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/internal/employees/:employeeId/assessments
+ *
+ * Assessment summary for an employee (legacy assessments + new assessment_results).
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ */
+router.get('/employees/:employeeId/assessments', async (req, res) => {
+  console.log('[Internal API] ========== ASSESSMENT SUMMARY REQUEST ==========');
+  console.log('[Internal API] Params:', JSON.stringify(req.params));
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { employeeId } = req.params;
+    const { tenant_id } = req.query;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    // Verify employee
+    const employee = await prisma.employees.findFirst({
+      where: {
+        id: parseInt(employeeId),
+        tenant_id
+      },
+      select: { id: true, first_name: true, last_name: true }
+    });
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        error: 'Employee not found'
+      });
+    }
+
+    // Get legacy assessments
+    const legacyAssessments = await prisma.assessments.findMany({
+      where: {
+        employee_id: parseInt(employeeId),
+        tenant_id
+      },
+      orderBy: { assessment_date: 'desc' }
+    });
+
+    // Get new assessment results
+    const newResults = await prisma.assessment_results.findMany({
+      where: {
+        employee_id: parseInt(employeeId)
+      },
+      orderBy: { completed_at: 'desc' }
+    });
+
+    // Combine history
+    const history = [];
+
+    legacyAssessments.forEach(a => {
+      history.push({
+        type: a.assessment_type,
+        date: a.assessment_date ? a.assessment_date.toISOString().split('T')[0] : null,
+        overall_score: a.overall_score ? parseFloat(a.overall_score) : null,
+        technical_score: a.technical_score ? parseFloat(a.technical_score) : null,
+        soft_skills_score: a.soft_skills_score ? parseFloat(a.soft_skills_score) : null
+      });
+    });
+
+    newResults.forEach(r => {
+      history.push({
+        type: 'campaign_assessment',
+        date: r.completed_at ? r.completed_at.toISOString().split('T')[0] : null,
+        overall_score: r.overall_score || null,
+        technical_score: null,
+        soft_skills_score: null
+      });
+    });
+
+    // Sort by date descending
+    history.sort((a, b) => {
+      if (!a.date) return 1;
+      if (!b.date) return -1;
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    const latest = history[0] || null;
+
+    // Determine trend
+    let trend = 'stable';
+    if (history.length >= 2) {
+      const recent = history[0]?.overall_score;
+      const previous = history[1]?.overall_score;
+      if (recent && previous) {
+        if (recent > previous) trend = 'improving';
+        else if (recent < previous) trend = 'declining';
+      }
+    }
+
+    // Aggregate strengths and improvements from new results
+    const strengths = [];
+    const improvements = [];
+    newResults.forEach(r => {
+      if (r.strengths && Array.isArray(r.strengths)) {
+        r.strengths.forEach(s => {
+          if (typeof s === 'string' && !strengths.includes(s)) strengths.push(s);
+        });
+      }
+      if (r.improvements && Array.isArray(r.improvements)) {
+        r.improvements.forEach(i => {
+          if (typeof i === 'string' && !improvements.includes(i)) improvements.push(i);
+        });
+      }
+    });
+
+    const result = {
+      employee_id: parseInt(employeeId),
+      full_name: `${employee.first_name} ${employee.last_name}`.trim(),
+      latest_assessment: latest ? {
+        type: latest.type,
+        date: latest.date,
+        overall_score: latest.overall_score,
+        technical_score: latest.technical_score,
+        soft_skills_score: latest.soft_skills_score
+      } : null,
+      history: history.slice(0, 10),
+      strengths: strengths.slice(0, 5),
+      improvements: improvements.slice(0, 5),
+      trend,
+      total_assessments: history.length
+    };
+
+    console.log(`[Internal API] Found ${history.length} assessments`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Assessment summary error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get assessment summary',
+      details: error.message
+    });
+  }
+});
+
+// ============================================
+// L3 Strategic Endpoints (Analytics)
+// ============================================
+
+/**
+ * GET /api/internal/analytics/workforce
+ *
+ * Workforce analytics dashboard for tenant.
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ */
+router.get('/analytics/workforce', async (req, res) => {
+  console.log('[Internal API] ========== WORKFORCE ANALYTICS REQUEST ==========');
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { tenant_id } = req.query;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    // Total and active employees
+    const totalEmployees = await prisma.employees.count({
+      where: { tenant_id }
+    });
+
+    const activeEmployees = await prisma.employees.count({
+      where: { tenant_id, is_active: true }
+    });
+
+    // Employees by department with avg proficiency
+    const deptData = await prisma.$queryRawUnsafe(`
+      SELECT
+        d.department_name as name,
+        COUNT(DISTINCT e.id) as count,
+        ROUND(AVG(es.proficiency_level)::numeric, 1) as avg_proficiency
+      FROM employees e
+      LEFT JOIN departments d ON e.department_id = d.id
+      LEFT JOIN employee_skills es ON e.id = es.employee_id
+      WHERE e.tenant_id = $1::uuid AND e.is_active = true
+      GROUP BY d.department_name
+      ORDER BY count DESC
+      LIMIT 20
+    `, tenant_id);
+
+    const departments = deptData.map(d => ({
+      name: d.name || 'Non assegnato',
+      count: parseInt(d.count),
+      avg_proficiency: d.avg_proficiency ? parseFloat(d.avg_proficiency) : null
+    }));
+
+    // Top 10 skills
+    const topSkillsData = await prisma.$queryRawUnsafe(`
+      SELECT
+        s."Skill" as name,
+        COUNT(es.id) as count
+      FROM employee_skills es
+      JOIN skills s ON es.skill_id = s.id
+      JOIN employees e ON es.employee_id = e.id
+      WHERE e.tenant_id = $1::uuid AND e.is_active = true
+      GROUP BY s."Skill"
+      ORDER BY count DESC
+      LIMIT 10
+    `, tenant_id);
+
+    const topSkills = topSkillsData.map(s => ({
+      name: s.name,
+      count: parseInt(s.count)
+    }));
+
+    // Projects by status
+    const projectsData = await prisma.projects.groupBy({
+      by: ['status'],
+      where: { tenant_id },
+      _count: { id: true }
+    });
+
+    const projectCounts = { active: 0, planning: 0, completed: 0 };
+    projectsData.forEach(p => {
+      const st = (p.status || '').toUpperCase();
+      if (st === 'IN_PROGRESS' || st === 'ACTIVE') projectCounts.active += p._count.id;
+      else if (st === 'PLANNING') projectCounts.planning += p._count.id;
+      else if (st === 'COMPLETED') projectCounts.completed += p._count.id;
+    });
+
+    // Skill coverage
+    const uniqueSkillsCount = await prisma.$queryRawUnsafe(`
+      SELECT COUNT(DISTINCT es.skill_id) as unique_skills
+      FROM employee_skills es
+      JOIN employees e ON es.employee_id = e.id
+      WHERE e.tenant_id = $1::uuid AND e.is_active = true
+    `, tenant_id);
+
+    const totalSkillAssignments = await prisma.$queryRawUnsafe(`
+      SELECT COUNT(es.id) as total
+      FROM employee_skills es
+      JOIN employees e ON es.employee_id = e.id
+      WHERE e.tenant_id = $1::uuid AND e.is_active = true
+    `, tenant_id);
+
+    const uniqueSkills = parseInt(uniqueSkillsCount[0]?.unique_skills || 0);
+    const totalAssignments = parseInt(totalSkillAssignments[0]?.total || 0);
+    const avgSkillsPerEmployee = activeEmployees > 0
+      ? parseFloat((totalAssignments / activeEmployees).toFixed(1))
+      : 0;
+
+    const result = {
+      total_employees: totalEmployees,
+      active_employees: activeEmployees,
+      departments,
+      top_skills: topSkills,
+      projects: projectCounts,
+      skill_coverage: {
+        total_unique_skills: uniqueSkills,
+        avg_skills_per_employee: avgSkillsPerEmployee
+      }
+    };
+
+    console.log('[Internal API] Workforce analytics computed');
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Workforce analytics error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get workforce analytics',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/internal/analytics/engagement
+ *
+ * Engagement trends over time.
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ * - department_id: number (optional)
+ * - months: number (optional, default 6)
+ */
+router.get('/analytics/engagement', async (req, res) => {
+  console.log('[Internal API] ========== ENGAGEMENT TRENDS REQUEST ==========');
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { tenant_id, department_id, months: monthsParam } = req.query;
+    const months = parseInt(monthsParam) || 6;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    const cutoffDate = new Date();
+    cutoffDate.setMonth(cutoffDate.getMonth() - months);
+
+    // Build where clause
+    const where = {
+      tenant_id,
+      survey_month: { gte: cutoffDate }
+    };
+
+    if (department_id) {
+      // Need to join through employees to filter by department
+      where.employee_id = {
+        in: (await prisma.employees.findMany({
+          where: { tenant_id, department_id: parseInt(department_id) },
+          select: { id: true }
+        })).map(e => e.id)
+      };
+    }
+
+    const surveys = await prisma.engagement_surveys.findMany({
+      where,
+      orderBy: { survey_month: 'desc' }
+    });
+
+    if (surveys.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          period: `ultimi ${months} mesi`,
+          current_score: null,
+          previous_score: null,
+          trend: 'no_data',
+          trend_delta: 0,
+          monthly_scores: [],
+          areas: {},
+          top_challenges: [],
+          total_responses: 0
+        }
+      });
+    }
+
+    // Group by month
+    const monthlyMap = {};
+    surveys.forEach(s => {
+      const monthKey = s.survey_month.toISOString().substring(0, 7);
+      if (!monthlyMap[monthKey]) {
+        monthlyMap[monthKey] = { scores: [], responses: 0 };
+      }
+      if (s.overall_score) {
+        monthlyMap[monthKey].scores.push(parseFloat(s.overall_score));
+      }
+      monthlyMap[monthKey].responses++;
+    });
+
+    const monthlyScores = Object.entries(monthlyMap)
+      .map(([month, data]) => ({
+        month,
+        score: data.scores.length > 0
+          ? parseFloat((data.scores.reduce((a, b) => a + b, 0) / data.scores.length).toFixed(1))
+          : null,
+        responses: data.responses
+      }))
+      .sort((a, b) => b.month.localeCompare(a.month));
+
+    const currentScore = monthlyScores[0]?.score || null;
+    const previousScore = monthlyScores[1]?.score || null;
+
+    let trend = 'stable';
+    let trendDelta = 0;
+    if (currentScore !== null && previousScore !== null) {
+      trendDelta = parseFloat((currentScore - previousScore).toFixed(1));
+      if (trendDelta > 0.2) trend = 'improving';
+      else if (trendDelta < -0.2) trend = 'declining';
+    }
+
+    // Area averages
+    const areaFields = ['job_satisfaction', 'work_life_balance', 'career_development', 'team_collaboration', 'manager_support'];
+    const areas = {};
+    areaFields.forEach(field => {
+      const values = surveys.filter(s => s[field] != null).map(s => s[field]);
+      areas[field] = values.length > 0
+        ? parseFloat((values.reduce((a, b) => a + b, 0) / values.length).toFixed(1))
+        : null;
+    });
+
+    // Top challenges
+    const challengeCounts = {};
+    surveys.forEach(s => {
+      if (s.challenges_faced && Array.isArray(s.challenges_faced)) {
+        s.challenges_faced.forEach(c => {
+          challengeCounts[c] = (challengeCounts[c] || 0) + 1;
+        });
+      }
+    });
+    const topChallenges = Object.entries(challengeCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([challenge]) => challenge);
+
+    const result = {
+      period: `ultimi ${months} mesi`,
+      current_score: currentScore,
+      previous_score: previousScore,
+      trend,
+      trend_delta: trendDelta,
+      monthly_scores: monthlyScores,
+      areas,
+      top_challenges: topChallenges,
+      total_responses: surveys.length
+    };
+
+    console.log(`[Internal API] Engagement trends: ${surveys.length} surveys`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Engagement trends error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get engagement trends',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/internal/analytics/talent-pipeline
+ *
+ * Talent pipeline - career aspirations and readiness.
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ * - target_role_id: number (optional)
+ */
+router.get('/analytics/talent-pipeline', async (req, res) => {
+  console.log('[Internal API] ========== TALENT PIPELINE REQUEST ==========');
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { tenant_id, target_role_id } = req.query;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    // Get active aspirations
+    const where = { tenant_id, is_active: true };
+    if (target_role_id) {
+      where.target_role_id = parseInt(target_role_id);
+    }
+
+    const aspirations = await prisma.career_aspirations.findMany({ where });
+
+    // Get employee details
+    const employeeIds = [...new Set(aspirations.map(a => a.employee_id))];
+    const employees = await prisma.employees.findMany({
+      where: { id: { in: employeeIds } },
+      select: { id: true, first_name: true, last_name: true, email: true }
+    });
+    const empMap = {};
+    employees.forEach(e => {
+      empMap[e.id] = e;
+    });
+
+    // Get skill gaps count per employee
+    const gapCounts = await prisma.skill_gaps.groupBy({
+      by: ['employee_id'],
+      where: { employee_id: { in: employeeIds } },
+      _count: { id: true }
+    });
+    const gapMap = {};
+    gapCounts.forEach(g => {
+      gapMap[g.employee_id] = g._count.id;
+    });
+
+    // Group by target position
+    const byRole = {};
+    aspirations.forEach(a => {
+      const position = a.target_position || 'Non specificato';
+      if (!byRole[position]) {
+        byRole[position] = [];
+      }
+
+      const emp = empMap[a.employee_id];
+      const gaps = gapMap[a.employee_id] || 0;
+      // Simple readiness: fewer gaps = higher readiness
+      const readiness = gaps === 0 ? 100 : Math.max(0, Math.round(100 - (gaps * 15)));
+
+      byRole[position].push({
+        full_name: emp ? `${emp.first_name} ${emp.last_name}`.trim() : 'N/A',
+        email: emp?.email || null,
+        readiness_percentage: readiness,
+        target_date: a.target_date ? a.target_date.toISOString().split('T')[0] : null,
+        gaps_count: gaps
+      });
+    });
+
+    // Format by_target_role
+    const byTargetRole = Object.entries(byRole).map(([position, candidates]) => ({
+      target_position: position,
+      count: candidates.length,
+      candidates: candidates.sort((a, b) => b.readiness_percentage - a.readiness_percentage)
+    }));
+
+    // Readiness distribution
+    const allCandidates = Object.values(byRole).flat();
+    const readyCount = allCandidates.filter(c => c.readiness_percentage >= 80).length;
+    const almostReady = allCandidates.filter(c => c.readiness_percentage >= 50 && c.readiness_percentage < 80).length;
+    const developing = allCandidates.filter(c => c.readiness_percentage < 50).length;
+
+    const result = {
+      total_aspirants: aspirations.length,
+      by_target_role: byTargetRole,
+      readiness_distribution: {
+        ready: readyCount,
+        almost_ready: almostReady,
+        developing: developing
+      }
+    };
+
+    console.log(`[Internal API] Talent pipeline: ${aspirations.length} aspirants`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Talent pipeline error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get talent pipeline',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/internal/analytics/certifications
+ *
+ * Certification tracking - active, expiring, expired.
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ * - expiring_within_days: number (optional, default 90)
+ */
+router.get('/analytics/certifications', async (req, res) => {
+  console.log('[Internal API] ========== CERTIFICATION TRACKING REQUEST ==========');
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { tenant_id, expiring_within_days: daysParam } = req.query;
+    const expiringDays = parseInt(daysParam) || 90;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    const now = new Date();
+    const expiryThreshold = new Date();
+    expiryThreshold.setDate(expiryThreshold.getDate() + expiringDays);
+
+    // Get all certifications for tenant
+    const certs = await prisma.employee_certifications.findMany({
+      where: { tenant_id },
+      include: {
+        employees: {
+          select: { first_name: true, last_name: true, email: true }
+        }
+      },
+      orderBy: { expiry_date: 'asc' }
+    });
+
+    let active = 0;
+    let expiringSoon = 0;
+    let expired = 0;
+    const expiringList = [];
+
+    certs.forEach(c => {
+      if (!c.expiry_date) {
+        active++; // No expiry = perpetual
+        return;
+      }
+
+      const expDate = new Date(c.expiry_date);
+      if (expDate < now) {
+        expired++;
+      } else if (expDate <= expiryThreshold) {
+        expiringSoon++;
+        const daysUntil = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+        expiringList.push({
+          employee_name: `${c.employees.first_name} ${c.employees.last_name}`.trim(),
+          email: c.employees.email,
+          certification_name: c.certification_name,
+          expiry_date: c.expiry_date.toISOString().split('T')[0],
+          days_until_expiry: daysUntil,
+          issuing_organization: c.issuing_organization || null
+        });
+      } else {
+        active++;
+      }
+    });
+
+    // Top certifications by count
+    const certCounts = {};
+    certs.forEach(c => {
+      const name = c.certification_name;
+      certCounts[name] = (certCounts[name] || 0) + 1;
+    });
+    const topCertifications = Object.entries(certCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, count]) => ({ name, count }));
+
+    const result = {
+      total_certifications: certs.length,
+      active,
+      expiring_soon: expiringSoon,
+      expired,
+      expiring_list: expiringList.sort((a, b) => a.days_until_expiry - b.days_until_expiry),
+      top_certifications: topCertifications
+    };
+
+    console.log(`[Internal API] Certifications: ${certs.length} total, ${expiringSoon} expiring soon`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] Certification tracking error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get certification tracking',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * GET /api/internal/analytics/ai-costs
+ *
+ * AI/LLM cost analytics.
+ *
+ * Query params:
+ * - tenant_id: string (required)
+ * - days: number (optional, default 30)
+ */
+router.get('/analytics/ai-costs', async (req, res) => {
+  console.log('[Internal API] ========== AI COST ANALYTICS REQUEST ==========');
+  console.log('[Internal API] Query:', JSON.stringify(req.query));
+
+  try {
+    const { tenant_id, days: daysParam } = req.query;
+    const days = parseInt(daysParam) || 30;
+
+    if (!tenant_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required field: tenant_id'
+      });
+    }
+
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+
+    const logs = await prisma.llm_usage_logs.findMany({
+      where: {
+        tenant_id,
+        created_at: { gte: cutoffDate }
+      },
+      orderBy: { created_at: 'desc' }
+    });
+
+    // Aggregate by operation
+    const byOperation = {};
+    logs.forEach(l => {
+      const op = l.operation_type;
+      if (!byOperation[op]) {
+        byOperation[op] = { cost: 0, tokens: 0, count: 0 };
+      }
+      byOperation[op].cost += l.estimated_cost ? parseFloat(l.estimated_cost) : 0;
+      byOperation[op].tokens += l.total_tokens || 0;
+      byOperation[op].count++;
+    });
+
+    const operationList = Object.entries(byOperation)
+      .map(([operation, data]) => ({
+        operation,
+        cost: parseFloat(data.cost.toFixed(2)),
+        tokens: data.tokens,
+        count: data.count
+      }))
+      .sort((a, b) => b.cost - a.cost);
+
+    // Aggregate by provider/model
+    const byProvider = {};
+    logs.forEach(l => {
+      const key = `${l.provider}|${l.model}`;
+      if (!byProvider[key]) {
+        byProvider[key] = { provider: l.provider, model: l.model, cost: 0, count: 0 };
+      }
+      byProvider[key].cost += l.estimated_cost ? parseFloat(l.estimated_cost) : 0;
+      byProvider[key].count++;
+    });
+
+    const providerList = Object.values(byProvider)
+      .map(p => ({
+        provider: p.provider,
+        model: p.model,
+        cost: parseFloat(p.cost.toFixed(2)),
+        count: p.count
+      }))
+      .sort((a, b) => b.cost - a.cost);
+
+    // Daily trend
+    const byDay = {};
+    logs.forEach(l => {
+      const day = l.created_at.toISOString().split('T')[0];
+      if (!byDay[day]) {
+        byDay[day] = { cost: 0, operations: 0 };
+      }
+      byDay[day].cost += l.estimated_cost ? parseFloat(l.estimated_cost) : 0;
+      byDay[day].operations++;
+    });
+
+    const dailyTrend = Object.entries(byDay)
+      .map(([date, data]) => ({
+        date,
+        cost: parseFloat(data.cost.toFixed(2)),
+        operations: data.operations
+      }))
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    const totalCost = logs.reduce((sum, l) => sum + (l.estimated_cost ? parseFloat(l.estimated_cost) : 0), 0);
+    const totalTokens = logs.reduce((sum, l) => sum + (l.total_tokens || 0), 0);
+
+    const result = {
+      period: `ultimi ${days} giorni`,
+      total_cost: parseFloat(totalCost.toFixed(2)),
+      total_tokens: totalTokens,
+      total_operations: logs.length,
+      by_operation: operationList,
+      by_provider: providerList,
+      daily_trend: dailyTrend.slice(0, 30)
+    };
+
+    console.log(`[Internal API] AI costs: ${logs.length} operations, $${totalCost.toFixed(2)}`);
+    console.log('[Internal API] ========== END REQUEST ==========');
+
+    res.json({
+      success: true,
+      data: result
+    });
+
+  } catch (error) {
+    console.error('[Internal API] AI cost analytics error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get AI cost analytics',
+      details: error.message
+    });
+  }
 });
 
 module.exports = router;
