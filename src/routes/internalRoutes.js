@@ -369,9 +369,39 @@ router.post('/employees/search-by-skills', async (req, res) => {
     });
 
     const skillIdToName = {};
+    // Map each matched skill ID back to the requested skill name for scoring
+    // This handles synonym matching: e.g., user asks "dotnet" -> matches "microsoft .net framework"
+    // We need skillIdToRequestedName so scoring can find the entry in requestedSkillsMap
+    const skillIdToRequestedName = {};
     matchingSkills.forEach(s => {
-      skillIdToName[s.id] = (s.Skill || s.NameKnown_Skill || '').toLowerCase();
+      const dbName = (s.Skill || s.NameKnown_Skill || '').toLowerCase();
+      skillIdToName[s.id] = dbName;
+      // Find which requested skill name matched this DB skill
+      const matchedRequestedName = normalizedSkillNames.find(reqName =>
+        reqName === dbName ||
+        reqName === (s.NameKnown_Skill || '').toLowerCase()
+      );
+      skillIdToRequestedName[s.id] = matchedRequestedName || dbName;
     });
+    // For synonym matches: if no direct name match was found, the skill was matched via synonym
+    // Re-check against synonyms for those without a direct match
+    if (matchingSkills.length > 0) {
+      const skillsWithSynonyms = await prisma.skills.findMany({
+        where: { id: { in: matchingSkills.map(s => s.id) } },
+        select: { id: true, Synonyms_Skill: true }
+      });
+      skillsWithSynonyms.forEach(s => {
+        if (!normalizedSkillNames.includes(skillIdToRequestedName[s.id])) {
+          // Check if any requested name appears in synonyms
+          const synonymMatch = normalizedSkillNames.find(reqName =>
+            (s.Synonyms_Skill || []).map(syn => syn.toLowerCase()).includes(reqName)
+          );
+          if (synonymMatch) {
+            skillIdToRequestedName[s.id] = synonymMatch;
+          }
+        }
+      });
+    }
     const matchingSkillIds = matchingSkills.map(s => s.id);
 
     if (matchingSkillIds.length === 0) {
@@ -443,10 +473,11 @@ router.post('/employees/search-by-skills', async (req, res) => {
 
       // Calculate skill match and value fit
       emp.employee_skills.forEach(es => {
-        const skillName = skillIdToName[es.skill_id]?.toLowerCase();
-        if (!skillName) return;
+        // Use the requested name mapping (handles synonyms: "dotnet" -> skill id 970)
+        const requestedName = skillIdToRequestedName[es.skill_id];
+        if (!requestedName) return;
 
-        const requested = requestedSkillsMap[skillName];
+        const requested = requestedSkillsMap[requestedName];
         if (!requested) return;
 
         M++;
