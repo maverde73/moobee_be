@@ -66,7 +66,11 @@ router.get('/',
           take: limit,
           include: {
             departments: true,
-            employee_roles: true
+            employee_roles: true,
+            employee_skills: {
+              select: { id: true, skill_id: true, proficiency_level: true },
+              take: 10
+            }
           },
           orderBy: { last_name: 'asc' }
         }),
@@ -2541,6 +2545,161 @@ router.get('/:id/soft-skills',
       res.status(500).json({
         success: false,
         message: 'Error fetching soft skills',
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET /api/employees/:id/engagement-summary - Get employee engagement summary
+router.get('/:id/engagement-summary',
+  authenticate,
+  [param('id').isInt()],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+
+      // Try engagement_results first (newer table)
+      const results = await prisma.engagement_results.findMany({
+        where: { employee_id: employeeId },
+        orderBy: { completed_at: 'desc' },
+        select: {
+          overall_score: true,
+          area_scores: true,
+          trend: true,
+          completed_at: true
+        }
+      });
+
+      if (results.length > 0) {
+        const latest = results[0];
+        const score = latest.overall_score != null ? Number(latest.overall_score) : 0;
+
+        // Determine engagement level
+        let level = 'Low';
+        if (score >= 70) level = 'High';
+        else if (score >= 50) level = 'Medium';
+
+        // Build trend data from last 6 results
+        const months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+        const trendData = results.slice(0, 6).reverse().map(r => {
+          const date = r.completed_at ? new Date(r.completed_at) : new Date();
+          return {
+            month: months[date.getMonth()],
+            value: r.overall_score != null ? Math.round(Number(r.overall_score)) : 0
+          };
+        });
+
+        return res.json({
+          success: true,
+          data: {
+            engagement_score: score,
+            engagement_level: level,
+            engagement_trend: latest.trend || (score >= 70 ? 'stable' : 'declining'),
+            engagement_trend_data: trendData
+          }
+        });
+      }
+
+      // Fallback: try engagement_surveys
+      const surveys = await prisma.engagement_surveys.findMany({
+        where: { employee_id: employeeId },
+        orderBy: { survey_month: 'desc' },
+        take: 6
+      });
+
+      if (surveys.length > 0) {
+        const latest = surveys[0];
+        const avgScore = Math.round(
+          ((latest.satisfaction_score || 0) +
+           (latest.work_life_balance_score || 0) +
+           (latest.growth_opportunities_score || 0) +
+           (latest.team_collaboration_score || 0)) / 4
+        );
+
+        let level = 'Low';
+        if (avgScore >= 70) level = 'High';
+        else if (avgScore >= 50) level = 'Medium';
+
+        const months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+        const trendData = surveys.slice(0, 6).reverse().map(s => {
+          const date = s.survey_month ? new Date(s.survey_month) : new Date();
+          const avg = Math.round(
+            ((s.satisfaction_score || 0) +
+             (s.work_life_balance_score || 0) +
+             (s.growth_opportunities_score || 0) +
+             (s.team_collaboration_score || 0)) / 4
+          );
+          return { month: months[date.getMonth()], value: avg };
+        });
+
+        return res.json({
+          success: true,
+          data: {
+            engagement_score: avgScore,
+            engagement_level: level,
+            engagement_trend: 'stable',
+            engagement_trend_data: trendData
+          }
+        });
+      }
+
+      // No data
+      res.json({
+        success: true,
+        data: {
+          engagement_score: null,
+          engagement_level: null,
+          engagement_trend: null,
+          engagement_trend_data: []
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching engagement summary:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching engagement summary',
+        error: error.message
+      });
+    }
+  }
+);
+
+// GET /api/employees/:id/assessment-summary - Get employee assessment summary
+router.get('/:id/assessment-summary',
+  authenticate,
+  [param('id').isInt()],
+  handleValidationErrors,
+  async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.id);
+
+      const results = await prisma.assessment_results.findMany({
+        where: { employee_id: employeeId },
+        orderBy: { completed_at: 'desc' },
+        select: {
+          overall_score: true,
+          scores: true,
+          completed_at: true
+        }
+      });
+
+      res.json({
+        success: true,
+        data: {
+          assessment_results: results.map(r => ({
+            overall_score: r.overall_score != null ? Number(r.overall_score) : null,
+            scores: r.scores,
+            completed_at: r.completed_at
+          }))
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching assessment summary:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error fetching assessment summary',
         error: error.message
       });
     }
