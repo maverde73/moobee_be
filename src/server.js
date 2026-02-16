@@ -163,6 +163,10 @@ app.use('/api/tenants', tenantRoutes);
 app.use('/api', tenantUserRoutes); // Mounted at /api because routes include /tenants/:id/users
 app.use('/api', unifiedAuthRoutes); // New unified auth system
 app.use('/api/dashboard', dashboardRoutes);
+
+// HR Dashboard aggregated stats
+const hrDashboardRoutes = require('./routes/hrDashboardRoutes');
+app.use('/api/hr', hrDashboardRoutes);
 // Assessment routes (include /api/admin/assessment-catalog) - DISABLED FOR NOW
 // app.use('/', assessmentRoutes);
 
