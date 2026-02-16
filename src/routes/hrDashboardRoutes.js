@@ -318,4 +318,291 @@ function extractCount(result) {
   return 0;
 }
 
+/**
+ * GET /api/hr/alerts
+ * Generate alerts from real DB data (engagement, unassigned, skill gaps, campaigns, projects)
+ */
+router.get('/alerts', authenticateTenantUser, async (req, res) => {
+  try {
+    const tenantId = req.user.tenant_id || req.user.tenantId;
+    const alerts = [];
+
+    // 1. Low engagement employees (avg < 50)
+    const lowEngagement = await safeQuery(() =>
+      prisma.$queryRaw`
+        SELECT e.id, e.first_name, e.last_name, sr.title as role_title,
+          AVG(COALESCE(es.job_satisfaction,0) + COALESCE(es.work_life_balance,0) + COALESCE(es.career_development,0) + COALESCE(es.team_collaboration,0)) / 4.0 as avg_score
+        FROM employees e
+        JOIN engagement_surveys es ON e.id = es.employee_id
+        LEFT JOIN employee_roles er ON e.id = er.employee_id AND er.is_primary = true
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE e.tenant_id = ${tenantId}::uuid AND e.is_active = true
+        GROUP BY e.id, e.first_name, e.last_name, sr.title
+        HAVING AVG(COALESCE(es.job_satisfaction,0) + COALESCE(es.work_life_balance,0) + COALESCE(es.career_development,0) + COALESCE(es.team_collaboration,0)) / 4.0 < 50
+        LIMIT 5
+      `,
+      []
+    );
+    if (Array.isArray(lowEngagement)) {
+      lowEngagement.forEach(e => {
+        const score = Math.round(Number(e.avg_score) || 0);
+        alerts.push({
+          title: `Low engagement: ${e.first_name} ${e.last_name}`,
+          description: `Average engagement score ${score}/100. 1:1 meeting recommended.`,
+          priority: 'high',
+          type: 'engagement',
+          targetEmployee: {
+            id: String(e.id),
+            name: `${e.first_name} ${e.last_name}`,
+            role: e.role_title || 'N/A',
+          },
+          createdBy: 'AI System',
+          createdAt: new Date().toISOString(),
+          status: 'open',
+        });
+      });
+    }
+
+    // 2. Employees unassigned for > 30 days
+    const unassigned = await safeQuery(() =>
+      prisma.$queryRaw`
+        SELECT e.id, e.first_name, e.last_name, sr.title as role_title, e.created_at
+        FROM employees e
+        LEFT JOIN employee_projects ep ON e.id = ep.employee_id AND ep.is_current = true
+        LEFT JOIN employee_roles er ON e.id = er.employee_id AND er.is_primary = true
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE e.tenant_id = ${tenantId}::uuid AND e.is_active = true AND ep.id IS NULL
+          AND e.created_at < NOW() - INTERVAL '30 days'
+        LIMIT 5
+      `,
+      []
+    );
+    if (Array.isArray(unassigned)) {
+      unassigned.forEach(e => {
+        alerts.push({
+          title: `Unassigned > 30 days: ${e.first_name} ${e.last_name}`,
+          description: `Employee has not been assigned to any project for over 30 days.`,
+          priority: 'medium',
+          type: 'performance',
+          targetEmployee: {
+            id: String(e.id),
+            name: `${e.first_name} ${e.last_name}`,
+            role: e.role_title || 'N/A',
+          },
+          createdBy: 'AI System',
+          createdAt: new Date().toISOString(),
+          status: 'open',
+        });
+      });
+    }
+
+    // 3. Employees with < 2 skills
+    const lowSkills = await safeQuery(() =>
+      prisma.$queryRaw`
+        SELECT e.id, e.first_name, e.last_name, sr.title as role_title, COALESCE(skill_counts.cnt, 0)::int as skill_count
+        FROM employees e
+        LEFT JOIN (SELECT employee_id, COUNT(*)::int as cnt FROM employee_skills WHERE tenant_id = ${tenantId}::uuid GROUP BY employee_id) skill_counts ON e.id = skill_counts.employee_id
+        LEFT JOIN employee_roles er ON e.id = er.employee_id AND er.is_primary = true
+        LEFT JOIN sub_roles sr ON er.sub_role_id = sr.id
+        WHERE e.tenant_id = ${tenantId}::uuid AND e.is_active = true AND COALESCE(skill_counts.cnt, 0) < 2
+        LIMIT 5
+      `,
+      []
+    );
+    if (Array.isArray(lowSkills)) {
+      lowSkills.forEach(e => {
+        alerts.push({
+          title: `Critical skill gap: ${e.first_name} ${e.last_name}`,
+          description: `Employee has only ${e.skill_count} skill(s) recorded. Profile enrichment needed.`,
+          priority: 'medium',
+          type: 'career_development',
+          targetEmployee: {
+            id: String(e.id),
+            name: `${e.first_name} ${e.last_name}`,
+            role: e.role_title || 'N/A',
+          },
+          createdBy: 'AI System',
+          createdAt: new Date().toISOString(),
+          status: 'open',
+        });
+      });
+    }
+
+    // 4. Campaigns ending within 7 days
+    try {
+      const expiringCampaigns = await prisma.engagement_campaigns.findMany({
+        where: {
+          tenant_id: tenantId,
+          status: 'ACTIVE',
+          end_date: {
+            lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            gte: new Date(),
+          },
+        },
+        take: 3,
+      });
+      if (Array.isArray(expiringCampaigns)) {
+        expiringCampaigns.forEach(campaign => {
+          alerts.push({
+            title: `Campaign ending soon: ${campaign.name}`,
+            description: `Campaign "${campaign.name}" ends on ${campaign.end_date?.toISOString()?.split('T')[0] || 'N/A'}.`,
+            priority: 'low',
+            type: 'operational',
+            createdBy: 'AI System',
+            createdAt: new Date().toISOString(),
+            status: 'open',
+          });
+        });
+      }
+    } catch (err) {
+      console.warn('HR Dashboard alerts: campaigns query failed:', err.message);
+    }
+
+    // 5. At-risk projects (completion < 20% and end_date < 30 days from now)
+    try {
+      const atRiskProjects = await prisma.projects.findMany({
+        where: {
+          tenant_id: tenantId,
+          status: 'ACTIVE',
+          completion_percentage: { lt: 20 },
+          end_date: {
+            lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            gte: new Date(),
+          },
+        },
+        take: 3,
+      });
+      if (Array.isArray(atRiskProjects)) {
+        atRiskProjects.forEach(project => {
+          alerts.push({
+            title: `Project at risk: ${project.name}`,
+            description: `Project "${project.name}" is at ${project.completion_percentage || 0}% completion with deadline approaching.`,
+            priority: 'high',
+            type: 'performance',
+            isGeneric: true,
+            createdBy: 'AI System',
+            createdAt: new Date().toISOString(),
+            status: 'open',
+          });
+        });
+      }
+    } catch (err) {
+      console.warn('HR Dashboard alerts: projects query failed:', err.message);
+    }
+
+    // Sort by priority (high=1, medium=2, low=3) and limit to 20
+    const priorityOrder = { high: 1, medium: 2, low: 3 };
+    alerts.sort((a, b) => (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3));
+    const limitedAlerts = alerts.slice(0, 20);
+
+    res.json({ success: true, data: limitedAlerts });
+  } catch (error) {
+    console.error('Error fetching HR alerts:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching HR alerts',
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/hr/vacancies
+ * Open project roles (vacancies) with skills and project info
+ */
+router.get('/vacancies', authenticateTenantUser, async (req, res) => {
+  try {
+    const tenantId = req.user.tenant_id || req.user.tenantId;
+
+    let roles;
+    try {
+      roles = await prisma.project_roles.findMany({
+        where: {
+          status: 'OPEN',
+          projects: { tenant_id: tenantId },
+        },
+        include: {
+          projects: { select: { id: true, name: true } },
+          sub_roles: { select: { id: true, title: true, roles: { select: { role_name: true } } } },
+          project_role_skills: { include: { skills: { select: { id: true, NameKnown_Skill: true } } } },
+        },
+        orderBy: [{ priority: 'desc' }, { created_at: 'desc' }],
+        take: 50,
+      });
+    } catch (err) {
+      console.warn('HR Dashboard vacancies: project_role_skills relation may not exist, retrying without it:', err.message);
+      roles = await prisma.project_roles.findMany({
+        where: {
+          status: 'OPEN',
+          projects: { tenant_id: tenantId },
+        },
+        include: {
+          projects: { select: { id: true, name: true } },
+          sub_roles: { select: { id: true, title: true, roles: { select: { role_name: true } } } },
+        },
+        orderBy: [{ priority: 'desc' }, { created_at: 'desc' }],
+        take: 50,
+      });
+    }
+
+    const mappedRoles = (roles || []).map(role => {
+      const roleSkills = role.project_role_skills || [];
+      return {
+        id: role.id,
+        title: role.title || role.sub_roles?.title || 'Open Role',
+        projectId: role.project_id,
+        projectName: role.projects?.name || 'N/A',
+        department: role.sub_roles?.roles?.role_name || 'General',
+        parent_role_name: role.sub_roles?.roles?.role_name || '',
+        sub_role_id: role.sub_role_id,
+        sub_role_name: role.sub_roles?.title || '',
+        seniority: role.seniority || 'MIDDLE',
+        priority: role.priority || 'NORMAL',
+        status: role.status,
+        quantity: role.quantity || 1,
+        allocation_percentage: role.allocation_percentage || 100,
+        min_experience_years: role.min_experience_years || 0,
+        preferred_experience_years: role.preferred_experience_years || 0,
+        hard_skills: roleSkills
+          .filter(s => s.skill_type === 'HARD' || !s.skill_type)
+          .map(s => ({ id: s.skills?.id, name: s.skills?.NameKnown_Skill || 'Unknown' })),
+        soft_skills: roleSkills
+          .filter(s => s.skill_type === 'SOFT')
+          .map(s => ({ id: s.skills?.id, name: s.skills?.NameKnown_Skill || 'Unknown' })),
+        required_certifications: role.required_certifications || [],
+        preferred_certifications: role.preferred_certifications || [],
+        required_languages: role.language_required || [],
+        work_mode: role.work_mode || 'HYBRID',
+        location: role.location || '',
+        budget_range: role.budget_range ? `${role.budget_range.min || 0}-${role.budget_range.max || 0}` : '',
+        description: role.description || '',
+        description_it: role.description_it || '',
+        constraints: role.constraints
+          ? (Array.isArray(role.constraints) ? role.constraints.join('. ') : String(role.constraints))
+          : '',
+        opportunities: role.opportunities
+          ? (Array.isArray(role.opportunities) ? role.opportunities.join('. ') : String(role.opportunities))
+          : '',
+        requestedBy: role.requested_by || null,
+        createdAt: role.created_at?.toISOString() || new Date().toISOString(),
+        updatedAt: role.updated_at?.toISOString() || new Date().toISOString(),
+        is_urgent: role.is_urgent || false,
+        is_critical: role.is_critical || false,
+        is_billable: role.is_billable !== undefined ? role.is_billable : true,
+        matchedCandidatesCount: 0,
+        difficulty: 'MEDIUM',
+      };
+    });
+
+    res.json({ success: true, data: mappedRoles });
+  } catch (error) {
+    console.error('Error fetching HR vacancies:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching vacancies',
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
