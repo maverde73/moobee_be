@@ -605,4 +605,21 @@ router.get('/vacancies', authenticateTenantUser, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/hr/languages
+ * All available languages from the master table
+ */
+router.get('/languages', authenticateTenantUser, async (req, res) => {
+  try {
+    const languages = await prisma.languages.findMany({
+      select: { id: true, name: true, iso_code_639_1: true },
+      orderBy: { name: 'asc' },
+    });
+    res.json({ success: true, data: languages });
+  } catch (error) {
+    console.error('Error fetching languages:', error);
+    res.status(500).json({ success: false, message: 'Error fetching languages', error: error.message });
+  }
+});
+
 module.exports = router;
