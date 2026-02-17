@@ -152,11 +152,48 @@ const createBuilderTemplate = async (req, res) => {
       }
     });
 
-    // TODO: Create questions based on selectedQuestions and customQuestions
-    // This would involve:
-    // 1. Creating engagement_questions records
-    // 2. Setting proper order and metadata
-    // 3. Handling custom questions
+    // Create questions from selected modules
+    let orderIndex = 0;
+    for (const [moduleId, questionIds] of Object.entries(selectedQuestions || {})) {
+      if (!Array.isArray(questionIds)) continue;
+      // Fetch original question texts from existing engagement_questions
+      const sourceQuestions = await prisma.engagement_questions.findMany({
+        where: { id: { in: questionIds.map(String) } },
+        select: { id: true, question_text: true, question_type: true, required: true }
+      });
+      const sourceMap = new Map(sourceQuestions.map(q => [q.id, q]));
+
+      for (const qId of questionIds) {
+        const source = sourceMap.get(String(qId));
+        await prisma.engagement_questions.create({
+          data: {
+            template_id: template.id,
+            question_text: source?.question_text || `Question ${orderIndex + 1}`,
+            question_type: source?.question_type || 'LIKERT',
+            order: orderIndex++,
+            required: source?.required !== false,
+            metadata: { moduleId, originalQuestionId: qId }
+          }
+        });
+      }
+    }
+
+    // Create custom questions
+    for (const [moduleId, questions] of Object.entries(customQuestions || {})) {
+      if (!Array.isArray(questions)) continue;
+      for (const q of questions) {
+        await prisma.engagement_questions.create({
+          data: {
+            template_id: template.id,
+            question_text: q.text || q.question_text,
+            question_type: q.type || q.question_type || 'LIKERT',
+            order: orderIndex++,
+            required: q.required !== false,
+            metadata: { moduleId, isCustom: true }
+          }
+        });
+      }
+    }
 
     logger.info('Created engagement template via builder', {
       templateId: template.id,

@@ -40,15 +40,14 @@ router.get('/assignments/:assignmentId/progress', authenticate, employeeAssignme
 
 router.get('/:id', assessmentController.getTemplateById);
 
-// TEMPORARILY PUBLIC for development/testing
-// TODO: Add proper authentication handling in frontend before re-enabling auth
+// Protected routes (require authentication)
+router.use(authenticate);
+
+// Template mutation routes (auth required)
 router.post('/templates', assessmentController.createTemplate);
 router.put('/templates/:id', assessmentController.updateTemplate);
 router.delete('/templates/:id', assessmentController.deleteTemplate);
 router.post('/templates/:id/duplicate', assessmentController.duplicateTemplate);
-
-// Protected routes (require authentication)
-router.use(authenticate);
 
 // AI endpoints (NOW PROTECTED - auth required for LLM audit logging)
 router.post('/ai/generate-questions', (req, res, next) => {

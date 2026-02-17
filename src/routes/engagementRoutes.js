@@ -7,6 +7,7 @@
 
 const router = require('express').Router();
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
+const prisma = require('../config/database');
 
 // Import controllers
 const templateController = require('../controllers/engagement/engagementTemplateController');
@@ -276,19 +277,47 @@ router.get(
   '/analytics/overview',
   authenticate,
   authorize(['HR', 'ADMIN', 'SUPER_ADMIN', 'MANAGER']),
-  (req, res) => {
+  async (req, res) => {
     try {
-      // Return mock data for now
+      const tenantId = req.user.tenantId || req.user.tenant_id;
+
+      const [totalTemplates, activeCampaigns, avgResult, assignmentCounts] = await Promise.all([
+        prisma.engagement_templates.count({
+          where: { tenant_id: tenantId }
+        }),
+        prisma.engagement_campaigns.count({
+          where: { tenant_id: tenantId, status: 'ACTIVE' }
+        }),
+        prisma.engagement_surveys.aggregate({
+          _avg: { overall_score: true },
+          where: { tenant_id: tenantId }
+        }),
+        prisma.engagement_campaign_assignments.groupBy({
+          by: ['status'],
+          where: {
+            campaign: { tenant_id: tenantId }
+          },
+          _count: true
+        })
+      ]);
+
+      const totalAssignments = assignmentCounts.reduce((sum, g) => sum + g._count, 0);
+      const completedAssignments = assignmentCounts.find(g => g.status === 'COMPLETED')?._count || 0;
+      const participationRate = totalAssignments > 0
+        ? Math.round((completedAssignments / totalAssignments) * 100)
+        : 0;
+
       res.json({
         success: true,
         data: {
-          totalTemplates: 0,
-          activeCampaigns: 0,
-          averageScore: 0,
-          participationRate: 0
+          totalTemplates,
+          activeCampaigns,
+          averageScore: avgResult._avg.overall_score ? Number(avgResult._avg.overall_score) : 0,
+          participationRate
         }
       });
     } catch (error) {
+      console.error('Error fetching analytics overview:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to fetch analytics'
@@ -306,13 +335,50 @@ router.get(
   '/analytics/by-role',
   authenticate,
   authorize(['HR', 'ADMIN', 'SUPER_ADMIN']),
-  (req, res) => {
-    // Placeholder
-    res.json({
-      success: true,
-      data: [],
-      message: 'Role analytics to be implemented'
-    });
+  async (req, res) => {
+    try {
+      const tenantId = req.user.tenantId || req.user.tenant_id;
+
+      const results = await prisma.$queryRaw`
+        SELECT
+          r."Role" as role_name,
+          COUNT(es.id)::int as response_count,
+          ROUND(AVG(es.job_satisfaction)::numeric, 2) as avg_job_satisfaction,
+          ROUND(AVG(es.work_life_balance)::numeric, 2) as avg_work_life_balance,
+          ROUND(AVG(es.career_development)::numeric, 2) as avg_career_development,
+          ROUND(AVG(es.team_collaboration)::numeric, 2) as avg_team_collaboration,
+          ROUND(AVG(es.manager_support)::numeric, 2) as avg_manager_support,
+          ROUND(AVG(es.overall_score)::numeric, 2) as avg_overall_score
+        FROM engagement_surveys es
+        JOIN employees e ON es.employee_id = e.id
+        JOIN employee_roles er ON e.id = er.employee_id
+        JOIN sub_roles sr ON er.sub_role_id = sr.id
+        JOIN role_sub_role rsr ON sr.id = rsr.sub_role_id
+        JOIN roles r ON rsr.role_id = r.id
+        WHERE es.tenant_id = ${tenantId}::uuid
+        GROUP BY r."Role"
+        ORDER BY avg_overall_score DESC
+      `;
+
+      res.json({
+        success: true,
+        data: results.map(r => ({
+          ...r,
+          avg_job_satisfaction: r.avg_job_satisfaction ? Number(r.avg_job_satisfaction) : null,
+          avg_work_life_balance: r.avg_work_life_balance ? Number(r.avg_work_life_balance) : null,
+          avg_career_development: r.avg_career_development ? Number(r.avg_career_development) : null,
+          avg_team_collaboration: r.avg_team_collaboration ? Number(r.avg_team_collaboration) : null,
+          avg_manager_support: r.avg_manager_support ? Number(r.avg_manager_support) : null,
+          avg_overall_score: r.avg_overall_score ? Number(r.avg_overall_score) : null
+        }))
+      });
+    } catch (error) {
+      console.error('Error fetching role analytics:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch role analytics'
+      });
+    }
   }
 );
 
@@ -325,13 +391,47 @@ router.get(
   '/analytics/trends',
   authenticate,
   authorize(['HR', 'ADMIN', 'SUPER_ADMIN']),
-  (req, res) => {
-    // Placeholder
-    res.json({
-      success: true,
-      data: [],
-      message: 'Trend analytics to be implemented'
-    });
+  async (req, res) => {
+    try {
+      const tenantId = req.user.tenantId || req.user.tenant_id;
+
+      const results = await prisma.$queryRaw`
+        SELECT
+          DATE_TRUNC('month', survey_month) as month,
+          COUNT(id)::int as response_count,
+          ROUND(AVG(job_satisfaction)::numeric, 2) as avg_job_satisfaction,
+          ROUND(AVG(work_life_balance)::numeric, 2) as avg_work_life_balance,
+          ROUND(AVG(career_development)::numeric, 2) as avg_career_development,
+          ROUND(AVG(team_collaboration)::numeric, 2) as avg_team_collaboration,
+          ROUND(AVG(manager_support)::numeric, 2) as avg_manager_support,
+          ROUND(AVG(overall_score)::numeric, 2) as avg_overall_score
+        FROM engagement_surveys
+        WHERE tenant_id = ${tenantId}::uuid
+          AND survey_month >= NOW() - INTERVAL '12 months'
+        GROUP BY DATE_TRUNC('month', survey_month)
+        ORDER BY month ASC
+      `;
+
+      res.json({
+        success: true,
+        data: results.map(r => ({
+          month: r.month,
+          response_count: r.response_count,
+          avg_job_satisfaction: r.avg_job_satisfaction ? Number(r.avg_job_satisfaction) : null,
+          avg_work_life_balance: r.avg_work_life_balance ? Number(r.avg_work_life_balance) : null,
+          avg_career_development: r.avg_career_development ? Number(r.avg_career_development) : null,
+          avg_team_collaboration: r.avg_team_collaboration ? Number(r.avg_team_collaboration) : null,
+          avg_manager_support: r.avg_manager_support ? Number(r.avg_manager_support) : null,
+          avg_overall_score: r.avg_overall_score ? Number(r.avg_overall_score) : null
+        }))
+      });
+    } catch (error) {
+      console.error('Error fetching trend analytics:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch trend analytics'
+      });
+    }
   }
 );
 
@@ -347,16 +447,63 @@ router.get(
 router.get(
   '/my-surveys',
   authenticate,
-  (req, res) => {
-    // Placeholder
-    res.json({
-      success: true,
-      data: {
-        pending: [],
-        completed: []
-      },
-      message: 'Employee survey endpoint to be implemented'
-    });
+  async (req, res) => {
+    try {
+      const employeeId = req.user.employeeId || req.user.employee_id;
+      if (!employeeId) {
+        return res.status(400).json({ success: false, error: 'Employee ID not found in token' });
+      }
+
+      const assignments = await prisma.engagement_campaign_assignments.findMany({
+        where: { employee_id: employeeId },
+        include: {
+          campaign: {
+            include: {
+              template: { select: { id: true, title: true, description: true, category: true } }
+            }
+          }
+        },
+        orderBy: { assigned_at: 'desc' }
+      });
+
+      const pending = assignments
+        .filter(a => a.status !== 'COMPLETED')
+        .map(a => ({
+          assignmentId: a.id,
+          campaignId: a.campaign_id,
+          campaignName: a.campaign.name,
+          templateTitle: a.campaign.template?.title,
+          description: a.campaign.description,
+          status: a.status,
+          startDate: a.campaign.start_date,
+          endDate: a.campaign.end_date,
+          assignedAt: a.assigned_at
+        }));
+
+      const completed = assignments
+        .filter(a => a.status === 'COMPLETED')
+        .map(a => ({
+          assignmentId: a.id,
+          campaignId: a.campaign_id,
+          campaignName: a.campaign.name,
+          templateTitle: a.campaign.template?.title,
+          description: a.campaign.description,
+          status: a.status,
+          completedAt: a.completed_at,
+          completionRate: a.completion_rate
+        }));
+
+      res.json({
+        success: true,
+        data: { pending, completed }
+      });
+    } catch (error) {
+      console.error('Error fetching my surveys:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch surveys'
+      });
+    }
   }
 );
 
@@ -369,10 +516,11 @@ router.post(
   '/responses',
   authenticate,
   (req, res) => {
-    // Placeholder
-    res.json({
-      success: true,
-      message: 'Response submission to be implemented'
+    // Response submission is handled via POST /assignments/:id/submit
+    res.status(301).json({
+      success: false,
+      error: 'Use POST /api/engagement/assignments/:id/submit instead',
+      redirect: '/api/engagement/assignments/:assignmentId/submit'
     });
   }
 );
@@ -390,13 +538,29 @@ router.get(
   '/action-plans',
   authenticate,
   authorize(['HR', 'ADMIN', 'SUPER_ADMIN', 'MANAGER']),
-  (req, res) => {
-    // Placeholder
-    res.json({
-      success: true,
-      data: [],
-      message: 'Action plans to be implemented'
-    });
+  async (req, res) => {
+    try {
+      const tenantId = req.user.tenantId || req.user.tenant_id;
+
+      const actionPlans = await prisma.action_plans.findMany({
+        where: { tenant_id: tenantId },
+        include: {
+          role: { select: { id: true, Role: true } }
+        },
+        orderBy: { created_at: 'desc' }
+      });
+
+      res.json({
+        success: true,
+        data: actionPlans
+      });
+    } catch (error) {
+      console.error('Error fetching action plans:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch action plans'
+      });
+    }
   }
 );
 
@@ -409,12 +573,46 @@ router.post(
   '/action-plans',
   authenticate,
   authorize(['HR', 'ADMIN', 'SUPER_ADMIN', 'MANAGER']),
-  (req, res) => {
-    // Placeholder
-    res.json({
-      success: true,
-      message: 'Action plan creation to be implemented'
-    });
+  async (req, res) => {
+    try {
+      const tenantId = req.user.tenantId || req.user.tenant_id;
+      const userId = req.user.userId || req.user.id;
+      const { name, area, description, actions, target_metrics, role_id, status, start_date, end_date } = req.body;
+
+      if (!name || !area || !description) {
+        return res.status(400).json({
+          success: false,
+          error: 'name, area, and description are required'
+        });
+      }
+
+      const actionPlan = await prisma.action_plans.create({
+        data: {
+          tenant_id: tenantId,
+          name,
+          area,
+          description,
+          actions: actions || [],
+          target_metrics: target_metrics || {},
+          role_id: role_id ? parseInt(role_id) : null,
+          status: status || 'DRAFT',
+          start_date: start_date ? new Date(start_date) : null,
+          end_date: end_date ? new Date(end_date) : null,
+          created_by: userId
+        }
+      });
+
+      res.status(201).json({
+        success: true,
+        data: actionPlan
+      });
+    } catch (error) {
+      console.error('Error creating action plan:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to create action plan'
+      });
+    }
   }
 );
 

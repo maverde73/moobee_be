@@ -7,6 +7,7 @@
 const router = require('express').Router();
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
 const { generalLimiter } = require('../middlewares/rateLimiter');
+const prisma = require('../config/database');
 const projectController = require('../controllers/project/projectController');
 const matchingController = require('../controllers/project/matchingController');
 const roleController = require('../controllers/project/roleController');
@@ -342,13 +343,125 @@ router.post(
 router.get(
   '/:projectId/milestones',
   authenticate,
-  (req, res) => {
-    // Placeholder for milestone controller
-    res.json({
-      success: true,
-      data: [],
-      message: 'Milestone endpoints to be implemented'
-    });
+  async (req, res) => {
+    try {
+      const projectId = parseInt(req.params.projectId);
+      const milestones = await prisma.project_milestones.findMany({
+        where: { project_id: projectId },
+        orderBy: { due_date: 'asc' }
+      });
+      res.json({ success: true, data: milestones });
+    } catch (error) {
+      console.error('Error fetching milestones:', error);
+      res.status(500).json({ success: false, message: 'Error fetching milestones' });
+    }
+  }
+);
+
+/**
+ * @route POST /api/projects/:projectId/milestones
+ * @desc Create project milestone
+ * @access Private (Manager, Admin)
+ */
+router.post(
+  '/:projectId/milestones',
+  authenticate,
+  authorize(['MANAGER', 'HR_MANAGER', 'ADMIN', 'SUPER_ADMIN']),
+  async (req, res) => {
+    try {
+      const projectId = parseInt(req.params.projectId);
+      const { name, description, due_date, status, deliverables, dependencies } = req.body;
+
+      if (!name) {
+        return res.status(400).json({ success: false, message: 'name is required' });
+      }
+
+      const milestone = await prisma.project_milestones.create({
+        data: {
+          project_id: projectId,
+          name,
+          description: description || null,
+          due_date: due_date ? new Date(due_date) : null,
+          status: status || 'PENDING',
+          deliverables: deliverables || null,
+          dependencies: dependencies || [],
+          completion_percentage: 0
+        }
+      });
+
+      res.status(201).json({ success: true, data: milestone });
+    } catch (error) {
+      console.error('Error creating milestone:', error);
+      res.status(500).json({ success: false, message: 'Error creating milestone' });
+    }
+  }
+);
+
+/**
+ * @route PUT /api/projects/:projectId/milestones/:milestoneId
+ * @desc Update project milestone
+ * @access Private (Manager, Admin)
+ */
+router.put(
+  '/:projectId/milestones/:milestoneId',
+  authenticate,
+  authorize(['MANAGER', 'HR_MANAGER', 'ADMIN', 'SUPER_ADMIN']),
+  async (req, res) => {
+    try {
+      const { milestoneId } = req.params;
+      const { name, description, due_date, completed_date, status, deliverables, dependencies, completion_percentage } = req.body;
+
+      const data = { updated_at: new Date() };
+      if (name !== undefined) data.name = name;
+      if (description !== undefined) data.description = description;
+      if (due_date !== undefined) data.due_date = due_date ? new Date(due_date) : null;
+      if (completed_date !== undefined) data.completed_date = completed_date ? new Date(completed_date) : null;
+      if (status !== undefined) data.status = status;
+      if (deliverables !== undefined) data.deliverables = deliverables;
+      if (dependencies !== undefined) data.dependencies = dependencies;
+      if (completion_percentage !== undefined) data.completion_percentage = parseInt(completion_percentage);
+
+      const milestone = await prisma.project_milestones.update({
+        where: { id: milestoneId },
+        data
+      });
+
+      res.json({ success: true, data: milestone });
+    } catch (error) {
+      console.error('Error updating milestone:', error);
+      if (error.code === 'P2025') {
+        return res.status(404).json({ success: false, message: 'Milestone not found' });
+      }
+      res.status(500).json({ success: false, message: 'Error updating milestone' });
+    }
+  }
+);
+
+/**
+ * @route DELETE /api/projects/:projectId/milestones/:milestoneId
+ * @desc Delete project milestone
+ * @access Private (Manager, Admin)
+ */
+router.delete(
+  '/:projectId/milestones/:milestoneId',
+  authenticate,
+  authorize(['MANAGER', 'HR_MANAGER', 'ADMIN', 'SUPER_ADMIN']),
+  async (req, res) => {
+    try {
+      const { milestoneId } = req.params;
+
+      await prisma.project_milestones.delete({
+        where: { id: milestoneId }
+      });
+
+      res.json({ success: true, message: 'Milestone deleted' });
+    } catch (error) {
+      console.error('Error deleting milestone:', error);
+      if (error.code === 'P2025') {
+        return res.status(404).json({ success: false, message: 'Milestone not found' });
+      }
+      res.status(500).json({ success: false, message: 'Error deleting milestone' });
+    }
   }
 );
 
