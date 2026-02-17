@@ -425,7 +425,7 @@ model project_assignments {
   end_date              DateTime? @db.Date
   is_active             Boolean?  @default(true)
   created_at            DateTime? @default(now()) @db.Timestamp(6)
-  tenant_id             String    @db.Uuid
+  tenant_id             String    @db.Text
 
   @@index([start_date, end_date], map: "idx_assignments_dates")
   @@index([employee_id], map: "idx_assignments_employee")
