@@ -61,8 +61,8 @@ class ProjectController {
 
       if (search) {
         where.OR = [
-          { name: { contains: search, mode: 'insensitive' } },
-          { code: { contains: search, mode: 'insensitive' } },
+          { project_name: { contains: search, mode: 'insensitive' } },
+          { project_code: { contains: search, mode: 'insensitive' } },
           { client_name: { contains: search, mode: 'insensitive' } }
         ];
       }
@@ -116,9 +116,16 @@ class ProjectController {
         prisma.projects.count({ where })
       ]);
 
+      // Map Prisma field names to FE-expected field names
+      const mapped = projects.map(p => ({
+        ...p,
+        name: p.project_name,
+        code: p.project_code,
+      }));
+
       res.json({
         success: true,
-        data: projects,
+        data: mapped,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
@@ -172,7 +179,11 @@ class ProjectController {
 
       res.json({
         success: true,
-        data: project
+        data: {
+          ...project,
+          name: project.project_name,
+          code: project.project_code,
+        }
       });
 
     } catch (error) {
@@ -246,7 +257,11 @@ class ProjectController {
 
       res.status(201).json({
         success: true,
-        data: project,
+        data: {
+          ...project,
+          name: project.project_name,
+          code: project.project_code,
+        },
         message: 'Project created successfully'
       });
 
@@ -304,7 +319,11 @@ class ProjectController {
 
       res.json({
         success: true,
-        data: updated
+        data: {
+          ...updated,
+          name: updated.project_name,
+          code: updated.project_code,
+        }
       });
 
     } catch (error) {
