@@ -330,12 +330,27 @@ model employees {
   employee_soft_skills            employee_soft_skills[]
   employee_soft_skill_assessments employee_soft_skill_assessments[]
   employee_work_experiences       employee_work_experiences[]
+  office_id                       Int?
   departments                     departments?                      @relation(fields: [department_id], references: [id])
+  offices                         offices?                          @relation(fields: [office_id], references: [id])
   engagement_campaign_assignments engagement_campaign_assignments[]
   engagement_results              engagement_results[]
   project_matching_results        project_matching_results[]
   projects                        projects[]
   tenant_users                    tenant_users[]
+}
+
+model offices {
+  id         Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  city       String    @db.VarChar(100)
+  tenant_id  String    @db.Uuid
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  employees  employees[]
+
+  @@index([tenant_id])
+  @@index([city])
 }
 
 model engagement_surveys {

@@ -323,7 +323,7 @@ router.post('/employees/search-by-skills', async (req, res) => {
   console.log('[Internal API] Body:', JSON.stringify(req.body));
 
   try {
-    const { tenant_id, skills, available_from, limit = 20 } = req.body;
+    const { tenant_id, skills, available_from, limit = 20, city } = req.body;
 
     // Validate required fields
     if (!tenant_id) {
@@ -413,18 +413,26 @@ router.post('/employees/search-by-skills', async (req, res) => {
     }
 
     // Find employees with at least one matching skill
-    const employeesWithSkills = await prisma.employees.findMany({
-      where: {
-        tenant_id: tenant_id,
-        is_active: true,
-        employee_skills: {
-          some: {
-            skill_id: { in: matchingSkillIds }
-          }
+    const employeeWhere = {
+      tenant_id: tenant_id,
+      is_active: true,
+      employee_skills: {
+        some: {
+          skill_id: { in: matchingSkillIds }
         }
-      },
+      }
+    };
+
+    // Add city filter if provided
+    if (city) {
+      employeeWhere.offices = { city: { equals: city, mode: 'insensitive' } };
+    }
+
+    const employeesWithSkills = await prisma.employees.findMany({
+      where: employeeWhere,
       include: {
         departments: true,
+        offices: true,
         employee_roles: {
           where: { is_current: true },
           include: {
@@ -550,6 +558,7 @@ router.post('/employees/search-by-skills', async (req, res) => {
         email: emp.email,
         department: emp.departments?.department_name || null,
         jobtitle: emp.position || null,
+        city: emp.offices?.city || null,
         availability: null, // Would come from availability data
         skills: emp.employee_skills.map(es => ({
           name: skillsMap[es.skill_id] || null,
@@ -613,7 +622,7 @@ router.get('/employees/search-by-name', async (req, res) => {
   console.log('[Internal API] Query params:', JSON.stringify(req.query));
 
   try {
-    const { tenant_id, query, limit: limitParam } = req.query;
+    const { tenant_id, query, limit: limitParam, city } = req.query;
     const limit = parseInt(limitParam) || 20;
 
     // Validate required fields
@@ -667,14 +676,22 @@ router.get('/employees/search-by-name', async (req, res) => {
       };
     }
 
+    const employeeWhere = {
+      tenant_id: tenant_id,
+      is_active: true,
+      ...searchFilter
+    };
+
+    // Add city filter if provided
+    if (city) {
+      employeeWhere.offices = { city: { equals: city, mode: 'insensitive' } };
+    }
+
     const employees = await prisma.employees.findMany({
-      where: {
-        tenant_id: tenant_id,
-        is_active: true,
-        ...searchFilter
-      },
+      where: employeeWhere,
       include: {
         departments: true,
+        offices: true,
         employee_roles: {
           where: { is_current: true }
         },
@@ -711,6 +728,7 @@ router.get('/employees/search-by-name', async (req, res) => {
       email: emp.email,
       department: emp.departments?.department_name || null,
       jobtitle: emp.position || null,
+      city: emp.offices?.city || null,
       availability: null,
       skills: emp.employee_skills.map(es => ({
         name: skillsMap[es.skill_id] || null,
@@ -793,6 +811,7 @@ router.get('/employees/by-email', async (req, res) => {
       },
       include: {
         departments: true,
+        offices: true,
         employee_roles: {
           where: { is_current: true }
         },
@@ -828,6 +847,7 @@ router.get('/employees/by-email', async (req, res) => {
       email: employee.email,
       department: employee.departments?.department_name || null,
       jobtitle: employee.position || null,
+      city: employee.offices?.city || null,
       availability: null,
       skills: employee.employee_skills.map(es => ({
         name: skillsMap[es.skill_id] || null,
