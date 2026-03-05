@@ -12,6 +12,14 @@
 
 const prisma = require('../../config/database');
 
+const SENIORITY_MAP = {
+  'JUNIOR': 1, 'Junior': 1,
+  'MIDDLE': 2, 'Mid': 2, 'Mid-level': 2,
+  'SENIOR': 3, 'Senior': 3,
+  'LEAD': 4, 'Lead': 4,
+  'PRINCIPAL': 5, 'Principal': 5
+};
+
 class MatchingController {
   /**
    * Run matching algorithm for a project role
@@ -163,7 +171,7 @@ class MatchingController {
       // Would need to calculate from hire_date
     }
 
-    // Get employees with their skills and current assignments
+    // Get employees with their skills, roles, office, languages, and current assignments
     const employees = await prisma.employees.findMany({
       where,
       include: {
@@ -172,7 +180,19 @@ class MatchingController {
             skills: true
           }
         },
+        employee_certifications: true,
+        employee_soft_skills: {
+          include: {
+            soft_skills: true
+          }
+        },
         employee_roles: true,
+        offices: true,
+        employee_languages: {
+          include: {
+            languages: true
+          }
+        },
         project_assignments: {
           where: {
             OR: [
@@ -253,46 +273,76 @@ class MatchingController {
 
   /**
    * Calculate skills match score
+   * Uses proficiency-weighted scoring: each matched skill contributes
+   * based on how proficient the employee is (proficiency_level 1-10).
+   * An employee with all required skills at proficiency 10 scores 100.
    */
   async calculateSkillsMatch(employee, role) {
     let score = 0;
-    let matchedSkills = 0;
-    let totalRequiredSkills = 0;
 
     // Check hard skills
     if (role.hard_skills && Array.isArray(role.hard_skills)) {
       const requiredSkillIds = role.hard_skills.map(s => s.id || s);
-      totalRequiredSkills = requiredSkillIds.length;
+      const totalRequiredSkills = requiredSkillIds.length;
 
-      if (employee.employee_skills) {
-        const employeeSkillIds = employee.employee_skills.map(es => es.skill_id);
-        matchedSkills = requiredSkillIds.filter(id =>
-          employeeSkillIds.includes(id)
-        ).length;
-      }
+      if (totalRequiredSkills > 0 && employee.employee_skills) {
+        // Build a map of employee skill_id → proficiency for fast lookup
+        const employeeSkillMap = {};
+        for (const es of employee.employee_skills) {
+          employeeSkillMap[es.skill_id] = {
+            proficiency: es.proficiency_level || 0,
+            years: parseFloat(es.years_experience) || 0
+          };
+        }
 
-      if (totalRequiredSkills > 0) {
-        score = (matchedSkills / totalRequiredSkills) * 100;
+        // Max possible score = totalRequiredSkills * 10 (max proficiency)
+        const maxPossible = totalRequiredSkills * 10;
+        let weightedSum = 0;
+
+        for (const skillId of requiredSkillIds) {
+          const empSkill = employeeSkillMap[skillId];
+          if (empSkill) {
+            // Proficiency contributes 70%, years experience bonus 30%
+            // Years bonus: capped at 10 years → max 10 points
+            const profScore = Math.min(empSkill.proficiency, 10);
+            const yearsBonus = Math.min(empSkill.years, 10);
+            weightedSum += profScore * 0.7 + yearsBonus * 0.3;
+          }
+          // Missing skill contributes 0
+        }
+
+        score = (weightedSum / maxPossible) * 100;
       }
     }
 
     // Check certifications if required
     if (role.required_certifications && role.required_certifications.length > 0) {
-      const certScore = employee.employee_skills
-        ? employee.employee_skills.filter(es => es.is_certified).length * 10
+      const employeeCertNames = (employee.employee_certifications || [])
+        .map(ec => (ec.certification_name || '').toLowerCase());
+      const matchedCerts = role.required_certifications.filter(rc =>
+        employeeCertNames.some(ecn => ecn.includes(rc.toLowerCase()))
+      );
+      const certBonus = role.required_certifications.length > 0
+        ? (matchedCerts.length / role.required_certifications.length) * 100
         : 0;
-      score = (score + Math.min(certScore, 20)) / 2;
+      score = score * 0.85 + certBonus * 0.15;
     }
 
-    // Bonus for preferred skills
-    if (role.soft_skills && employee.soft_skills) {
-      const softSkillBonus = Math.min(
-        employee.soft_skills.filter(s =>
-          role.soft_skills.includes(s.id)
-        ).length * 5,
-        20
-      );
-      score = Math.min(score + softSkillBonus, 100);
+    // Bonus for soft skills
+    if (role.soft_skills && employee.employee_soft_skills && employee.employee_soft_skills.length > 0) {
+      const roleSoftSkillIds = Array.isArray(role.soft_skills)
+        ? role.soft_skills.map(s => s.id || s)
+        : [];
+      if (roleSoftSkillIds.length > 0) {
+        const matchedSoft = employee.employee_soft_skills.filter(ess =>
+          roleSoftSkillIds.includes(ess.soft_skill_id)
+        ).length;
+        const softSkillBonus = Math.min(
+          Math.round((matchedSoft / roleSoftSkillIds.length) * 20),
+          20
+        );
+        score = Math.min(score + softSkillBonus, 100);
+      }
     }
 
     return Math.round(score);
@@ -309,56 +359,66 @@ class MatchingController {
       return 100;
     }
 
-    // Partial availability scoring
-    if (availableAllocation >= requiredAllocation * 0.75) {
-      return 75;
-    }
-
-    if (availableAllocation >= requiredAllocation * 0.5) {
-      return 50;
-    }
-
+    // Linear scoring based on available vs required allocation
     return Math.round((availableAllocation / requiredAllocation) * 100);
   }
 
   /**
    * Calculate experience match score
+   * Uses employee_roles.seniority from DB and average years_experience
+   * from employee_skills for a more accurate assessment.
    */
   calculateExperienceMatch(employee, role) {
-    let score = 50; // Base score
+    let score = 20; // Base score (expanded range 20-100)
 
-    // Check years of experience
+    // Calculate average years from employee_skills (more accurate than hire_date)
+    let avgYears = 0;
+    if (employee.employee_skills && employee.employee_skills.length > 0) {
+      const totalYears = employee.employee_skills.reduce(
+        (sum, es) => sum + (parseFloat(es.years_experience) || 0), 0
+      );
+      avgYears = totalYears / employee.employee_skills.length;
+    }
+
+    // Fallback to hire_date if no skill years data
+    if (avgYears === 0) {
+      avgYears = this.calculateYearsOfExperience(employee);
+    }
+
+    // Check years of experience against role requirements
     if (role.min_experience_years) {
-      const employeeExperience = this.calculateYearsOfExperience(employee);
-
-      if (employeeExperience >= role.min_experience_years) {
-        score += 30;
+      if (avgYears >= role.min_experience_years) {
+        score += 25;
+      } else {
+        // Partial credit proportional to how close they are
+        score += Math.round(25 * Math.min(avgYears / role.min_experience_years, 1));
       }
 
       if (role.preferred_experience_years &&
-          employeeExperience >= role.preferred_experience_years) {
-        score += 20;
+          avgYears >= role.preferred_experience_years) {
+        score += 15;
       }
     }
 
-    // Check seniority level match
-    if (role.seniority && employee.employee_roles?.[0]) {
-      const seniorityMap = {
-        'JUNIOR': 1,
-        'MIDDLE': 2,
-        'SENIOR': 3,
-        'LEAD': 4,
-        'PRINCIPAL': 5
-      };
+    // Check seniority level match using DB seniority from employee_roles
+    if (role.seniority) {
+      const roleSeniority = SENIORITY_MAP[role.seniority] || 2;
 
-      const roleSeniority = seniorityMap[role.seniority] || 2;
-      const employeeSeniority = this.determineEmployeeSeniority(employee);
+      // Use seniority from employee_roles (DB) instead of recalculating from hire_date
+      let employeeSeniority = 2; // default Mid
+      const currentRole = employee.employee_roles?.find(r => r.is_current) || employee.employee_roles?.[0];
+      if (currentRole?.seniority) {
+        employeeSeniority = SENIORITY_MAP[currentRole.seniority] || 2;
+      }
 
-      if (employeeSeniority >= roleSeniority) {
-        score += 20;
+      if (employeeSeniority === roleSeniority) {
+        score += 20; // Exact match
+      } else if (employeeSeniority > roleSeniority) {
+        score += 15; // Overqualified (still good but slight penalty)
       } else if (employeeSeniority === roleSeniority - 1) {
         score += 10; // Growth opportunity
       }
+      // More than 1 level below: no bonus
     }
 
     return Math.min(score, 100);
@@ -366,26 +426,53 @@ class MatchingController {
 
   /**
    * Calculate preference match score
+   * Checks work mode, location, and language against employee data.
    */
   async calculatePreferenceMatch(employee, role) {
-    let score = 50; // Base score
+    let score = 30; // Base score (expanded range 30-100)
+    let factors = 0;
+    let matched = 0;
 
     // Work mode preference
     if (role.work_mode) {
-      // In a real system, would check employee preferences
-      score += 20;
+      factors++;
+      if (role.work_mode === 'REMOTE') {
+        matched++; // Remote open to everyone
+      } else if (role.work_mode === 'ON_SITE' || role.work_mode === 'HYBRID') {
+        // On-site/hybrid: employee must be in the same city
+        if (role.location && employee.offices?.city &&
+            role.location.toLowerCase().includes(employee.offices.city.toLowerCase())) {
+          matched++;
+        }
+      }
     }
 
-    // Location preference
+    // Location preference (separate from work_mode for additional granularity)
     if (role.location) {
-      // Check if employee location matches
-      score += 15;
+      factors++;
+      if (employee.offices && employee.offices.city &&
+          role.location.toLowerCase().includes(employee.offices.city.toLowerCase())) {
+        matched++;
+      }
     }
 
     // Language requirements
     if (role.required_languages && role.required_languages.length > 0) {
-      // Would check employee language skills
-      score += 15;
+      factors++;
+      if (employee.employee_languages && employee.employee_languages.length > 0) {
+        const empLangs = employee.employee_languages.map(l =>
+          (l.languages?.name || '').toLowerCase()
+        );
+        const hasAll = role.required_languages.every(rl =>
+          empLangs.some(el => el.includes(rl.toLowerCase()))
+        );
+        if (hasAll) matched++;
+      }
+    }
+
+    // Scale bonus based on how many factors matched
+    if (factors > 0) {
+      score += Math.round((matched / factors) * 70);
     }
 
     return Math.min(score, 100);
@@ -406,15 +493,22 @@ class MatchingController {
 
   /**
    * Determine employee seniority level
+   * Uses employee_roles.seniority from DB, falls back to hire_date calculation.
    */
   determineEmployeeSeniority(employee) {
-    const years = this.calculateYearsOfExperience(employee);
+    // Prefer DB seniority from employee_roles
+    const currentRole = employee.employee_roles?.find(r => r.is_current) || employee.employee_roles?.[0];
+    if (currentRole?.seniority && SENIORITY_MAP[currentRole.seniority] !== undefined) {
+      return SENIORITY_MAP[currentRole.seniority];
+    }
 
-    if (years < 2) return 1; // Junior
-    if (years < 5) return 2; // Middle
-    if (years < 8) return 3; // Senior
-    if (years < 12) return 4; // Lead
-    return 5; // Principal
+    // Fallback to hire_date calculation
+    const years = this.calculateYearsOfExperience(employee);
+    if (years < 2) return 1;
+    if (years < 5) return 2;
+    if (years < 8) return 3;
+    if (years < 12) return 4;
+    return 5;
   }
 
   /**
@@ -446,9 +540,9 @@ class MatchingController {
       reasoning.weaknesses.push('Limited availability');
     }
 
-    // Overall assessment
-    const avgScore = (scores.skills_match + scores.availability_match +
-                     scores.experience_match + scores.preference_match) / 4;
+    // Overall assessment (weighted average matching the algorithm weights)
+    const avgScore = scores.skills_match * 0.4 + scores.availability_match * 0.3 +
+                     scores.experience_match * 0.2 + scores.preference_match * 0.1;
 
     if (avgScore >= 80) {
       reasoning.overall = 'Excellent match - highly recommended';
@@ -514,7 +608,7 @@ class MatchingController {
 
     // Career advancement opportunity
     const employeeSeniority = this.determineEmployeeSeniority(employee);
-    const targetSeniority = { 'JUNIOR': 1, 'MIDDLE': 2, 'SENIOR': 3, 'LEAD': 4, 'PRINCIPAL': 5 }[role.seniority] || 2;
+    const targetSeniority = SENIORITY_MAP[role.seniority] || 2;
 
     if (targetSeniority === employeeSeniority + 1) {
       growth.career_advancement = true;
@@ -551,6 +645,24 @@ class MatchingController {
     try {
       const { resultId } = req.params;
       const { is_shortlisted } = req.body;
+      const tenantId = req.user.tenant_id || req.user.tenantId;
+
+      // Verify the result belongs to the user's tenant
+      const existing = await prisma.project_matching_results.findUnique({
+        where: { id: resultId },
+        include: {
+          project_roles: {
+            include: { projects: true }
+          }
+        }
+      });
+
+      if (!existing || existing.project_roles.projects.tenant_id !== tenantId) {
+        return res.status(404).json({
+          success: false,
+          error: 'Matching result not found'
+        });
+      }
 
       const updated = await prisma.project_matching_results.update({
         where: { id: resultId },
@@ -587,6 +699,20 @@ class MatchingController {
     try {
       const { roleId } = req.params;
       const { shortlisted_only = false } = req.query;
+      const tenantId = req.user.tenant_id || req.user.tenantId;
+
+      // Verify the role belongs to the user's tenant
+      const role = await prisma.project_roles.findUnique({
+        where: { id: roleId },
+        include: { projects: true }
+      });
+
+      if (!role || role.projects.tenant_id !== tenantId) {
+        return res.status(404).json({
+          success: false,
+          error: 'Role not found'
+        });
+      }
 
       const where = { project_role_id: roleId };
 

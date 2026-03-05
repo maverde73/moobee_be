@@ -308,7 +308,7 @@ router.get('/employees', async (req, res) => {
  * POST /api/internal/employees/search-by-skills
  *
  * Search employees by skills with ranking (score 0-100)
- * Score formula: 70% skill match + 20% value fit + 10% availability
+ * Score formula: 50% skill match + 30% value fit (proficiency+years) + 20% availability
  *
  * Body:
  * {
@@ -443,6 +443,16 @@ router.post('/employees/search-by-skills', async (req, res) => {
           where: {
             skill_id: { in: matchingSkillIds }
           }
+        },
+        project_assignments: {
+          where: {
+            is_active: true,
+            start_date: { lte: new Date() },
+            OR: [
+              { end_date: null },
+              { end_date: { gte: new Date() } }
+            ]
+          }
         }
       }
     });
@@ -526,17 +536,28 @@ router.post('/employees/search-by-skills', async (req, res) => {
       });
 
       // Calculate component scores
-      const skillMatch = R > 0 ? (M / R) * 70 : 0;
-      const valueFit = M > 0 ? (valueFitSum / M) * 20 : 0;
+      // Skill match (0-50): proportion of requested skills found
+      const skillMatch = R > 0 ? (M / R) * 50 : 0;
 
-      // Availability score (10 points)
-      let availabilityScore = 10; // Default: full points if no date requested
-      if (available_from) {
-        const requestedDate = new Date(available_from);
-        // For now, assume employees are always available unless we have availability data
-        // In a real system, this would check project assignments or availability fields
-        availabilityScore = 10;
-      }
+      // Value fit (0-30): proficiency & years quality of matched skills
+      // When no explicit proficiency/years requested, use actual proficiency as quality signal
+      let qualitySum = 0;
+      emp.employee_skills.forEach(es => {
+        const prof = es.proficiency_level || 0;
+        const years = es.years_experience ? parseFloat(es.years_experience) : 0;
+        // Normalize: proficiency 1-10 → 0.1-1.0, years 0-10 → 0-1.0
+        const profNorm = Math.min(prof / 10, 1);
+        const yearsNorm = Math.min(years / 10, 1);
+        qualitySum += 0.6 * profNorm + 0.4 * yearsNorm;
+      });
+      const valueFit = M > 0 ? (qualitySum / M) * 30 : 0;
+
+      // Availability score (0-20): based on actual project allocation
+      const totalAllocation = (emp.project_assignments || []).reduce(
+        (sum, pa) => sum + (pa.allocation_percentage || 0), 0
+      );
+      const availablePercent = Math.max(0, 100 - totalAllocation);
+      const availabilityScore = (availablePercent / 100) * 20;
 
       const finalScore = Math.round((skillMatch + valueFit + availabilityScore) * 10) / 10;
 
@@ -559,7 +580,7 @@ router.post('/employees/search-by-skills', async (req, res) => {
         department: emp.departments?.department_name || null,
         jobtitle: emp.position || null,
         city: emp.offices?.city || null,
-        availability: null, // Would come from availability data
+        availability: `${Math.max(0, 100 - (emp.project_assignments || []).reduce((s, pa) => s + (pa.allocation_percentage || 0), 0))}%`,
         skills: emp.employee_skills.map(es => ({
           name: skillsMap[es.skill_id] || null,
           proficiency_level: es.proficiency_level || null,
