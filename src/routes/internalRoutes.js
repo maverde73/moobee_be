@@ -446,12 +446,7 @@ router.post('/employees/search-by-skills', async (req, res) => {
         },
         project_assignments: {
           where: {
-            is_active: true,
-            start_date: { lte: new Date() },
-            OR: [
-              { end_date: null },
-              { end_date: { gte: new Date() } }
-            ]
+            is_active: true
           }
         }
       }
