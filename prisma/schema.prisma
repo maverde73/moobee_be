@@ -263,6 +263,7 @@ model employee_skills {
   source            String?         @default("manual") @db.VarChar(50)
   cv_extraction_id  String?         @db.Uuid
   employees         employees       @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_skills_employee")
+  skills            skills          @relation(fields: [skill_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   cv_extractions    cv_extractions? @relation(fields: [cv_extraction_id], references: [id], onUpdate: NoAction, map: "fk_employee_skills_cv_extraction")
   tenants           tenants         @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_employee_skills_tenant")
 
@@ -330,6 +331,7 @@ model employees {
   employee_soft_skills            employee_soft_skills[]
   employee_soft_skill_assessments employee_soft_skill_assessments[]
   employee_work_experiences       employee_work_experiences[]
+  project_assignments             project_assignments[]
   office_id                       Int?
   departments                     departments?                      @relation(fields: [department_id], references: [id])
   offices                         offices?                          @relation(fields: [office_id], references: [id])
@@ -441,6 +443,8 @@ model project_assignments {
   is_active             Boolean?  @default(true)
   created_at            DateTime? @default(now()) @db.Timestamp(6)
   tenant_id             String    @db.Text
+  employees             employees @relation(fields: [employee_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  projects              projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([start_date, end_date], map: "idx_assignments_dates")
   @@index([employee_id], map: "idx_assignments_employee")
@@ -486,6 +490,7 @@ model projects {
   created_by            String?                 @db.VarChar(255)
   is_active             Boolean?                @default(true)
   project_activity_logs project_activity_logs[]
+  project_assignments   project_assignments[]
   project_milestones    project_milestones[]
   project_roles         project_roles[]
   employees             employees?              @relation(fields: [pm_id], references: [id], onUpdate: NoAction)
@@ -618,6 +623,7 @@ model skills {
   created_at             DateTime?                @default(now()) @db.Timestamp(6)
   updated_at             DateTime?                @default(now()) @db.Timestamp(6)
   tenants                tenants?                 @relation(fields: [tenant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  employee_skills        employee_skills[]
   skills_sub_roles_value skills_sub_roles_value[]
 
   @@unique([Skill, tenant_id], map: "unique_skill_per_tenant")
