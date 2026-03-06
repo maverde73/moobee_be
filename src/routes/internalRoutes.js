@@ -356,17 +356,32 @@ router.post('/employees/search-by-skills', async (req, res) => {
     // Normalize skill names (case-insensitive, trim)
     const normalizedSkillNames = skills.map(s => s.name.trim().toLowerCase());
 
-    // Find matching skills in the database (exact match on Skill, NameKnown_Skill, or contains match on Synonyms_Skill)
-    const matchingSkills = await prisma.skills.findMany({
+    // Find matching skills - direct match on Skill and NameKnown_Skill (case-insensitive via Prisma)
+    const directMatchSkills = await prisma.skills.findMany({
       where: {
         OR: [
           { Skill: { in: normalizedSkillNames, mode: 'insensitive' } },
-          { NameKnown_Skill: { in: normalizedSkillNames, mode: 'insensitive' } },
-          { Synonyms_Skill: { hasSome: normalizedSkillNames } }
+          { NameKnown_Skill: { in: normalizedSkillNames, mode: 'insensitive' } }
         ]
       },
       select: { id: true, Skill: true, NameKnown_Skill: true }
     });
+
+    // Synonym matching - case-insensitive via raw SQL (Prisma hasSome is case-sensitive on PostgreSQL)
+    const directMatchIds = directMatchSkills.map(s => s.id);
+    const synonymMatchSkills = await prisma.$queryRawUnsafe(`
+      SELECT id, "Skill", "NameKnown_Skill" FROM skills
+      WHERE EXISTS (
+        SELECT 1 FROM unnest("Synonyms_Skill") AS syn
+        WHERE LOWER(syn) = ANY($1::text[])
+      )
+      ${directMatchIds.length > 0 ? `AND id NOT IN (${directMatchIds.join(',')})` : ''}
+    `, normalizedSkillNames);
+
+    const matchingSkills = [
+      ...directMatchSkills,
+      ...synonymMatchSkills.map(s => ({ id: Number(s.id), Skill: s.Skill, NameKnown_Skill: s.NameKnown_Skill }))
+    ];
 
     const skillIdToName = {};
     // Map each matched skill ID back to the requested skill name for scoring
