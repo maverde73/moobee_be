@@ -549,18 +549,8 @@ router.post('/employees/search-by-skills', async (req, res) => {
       // Skill match (0-50): proportion of requested skills found
       const skillMatch = R > 0 ? (M / R) * 50 : 0;
 
-      // Value fit (0-30): proficiency & years quality of matched skills
-      // When no explicit proficiency/years requested, use actual proficiency as quality signal
-      let qualitySum = 0;
-      emp.employee_skills.forEach(es => {
-        const prof = es.proficiency_level || 0;
-        const years = es.years_experience ? parseFloat(es.years_experience) : 0;
-        // Normalize: proficiency 1-10 → 0.1-1.0, years 0-10 → 0-1.0
-        const profNorm = Math.min(prof / 10, 1);
-        const yearsNorm = Math.min(years / 10, 1);
-        qualitySum += 0.6 * profNorm + 0.4 * yearsNorm;
-      });
-      const valueFit = M > 0 ? (qualitySum / M) * 30 : 0;
+      // Value fit (0-30): how well matched skills meet requested proficiency & years
+      const valueFit = M > 0 ? (valueFitSum / M) * 30 : 0;
 
       // Availability score (0-20): based on actual project allocation
       const totalAllocation = (emp.project_assignments || []).reduce(
